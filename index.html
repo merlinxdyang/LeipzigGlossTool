@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?build=20260815-1">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?build=20260815-1">
+<title>Merlin's Leipzig Gloss Tool 1.0</title>
+<script src="typography.js?build=20260815-3"></script>
+<script src="batch.js?build=20260815-6"></script>
+<script src="interface-language.js?build=20260815-1"></script>
+<style>
+:root{
+  --paper:#f3f0e9;--surface:#fffefa;--surface-2:#f8f6f0;--ink:#17242c;--muted:#69747a;
+  --rule:#d9d6cd;--rule-strong:#bbb9b1;--navy:#173f52;--navy-dark:#0f3040;--navy-soft:#e7eef1;
+  --good:#276440;--bad:#a5362b;--warn:#8a641f;--shadow:0 12px 34px rgba(28,40,45,.07);
+  --hant-ui-font:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;color:var(--ink);background:var(--paper);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","Noto Sans SC",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.topbar{height:70px;border-bottom:1px solid rgba(23,63,82,.18);background:rgba(255,254,250,.94);backdrop-filter:blur(12px);position:sticky;top:0;z-index:20}
+.topbar-inner{height:100%;max-width:1420px;margin:auto;padding:0 28px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;min-width:0;gap:11px}
+.brand-mark{width:44px;height:44px;display:block;object-fit:cover;border-radius:10px;flex:0 0 auto}
+.brand-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.brand-copy{font:600 18px/1.15 Georgia,"Songti SC","Noto Serif CJK SC",serif;letter-spacing:.01em;white-space:nowrap}
+.brand-author{font:500 10px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC",Arial,sans-serif;color:var(--muted);letter-spacing:.025em;white-space:nowrap}
+.version{font:700 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.08em;color:var(--navy);border:1px solid rgba(23,63,82,.34);padding:4px 6px;text-transform:uppercase}
+.top-actions,.btnrow,.toolbar-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.language-switch{display:flex;align-items:center;border:1px solid var(--rule-strong);border-radius:4px;overflow:hidden;background:var(--surface)}
+.language-switch button{min-width:34px;min-height:30px;padding:4px 8px;border:0;border-right:1px solid var(--rule);border-radius:0;background:transparent;font-size:11px;font-weight:700;color:#536168}
+.language-switch button:last-child{border-right:0}.language-switch button:hover{background:var(--surface-2);border-color:var(--rule)}
+.language-switch button.active{background:var(--navy);color:#fff}.language-switch button.active:hover{background:var(--navy-dark)}
+.shell{max-width:1420px;margin:0 auto;padding:26px 28px 40px;display:grid;grid-template-columns:320px minmax(0,1fr);gap:22px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--rule);box-shadow:var(--shadow)}
+.sidebar{position:sticky;top:96px;padding:22px}
+.main{min-width:0;padding:28px}
+.section-kicker{color:var(--navy);font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.section-title{font:600 17px/1.3 Georgia,"Songti SC","Noto Serif CJK SC",serif;margin:0 0 16px}
+.group-title{font-size:12px;font-weight:750;letter-spacing:.04em;margin:0 0 12px;color:#33444c}
+.divider{height:1px;background:var(--rule);margin:22px 0}
+.field{margin:0 0 14px}
+.field:last-child{margin-bottom:0}
+label,.field-label{display:block;font-size:12px;font-weight:650;color:#48565d;margin:0 0 6px}
+input[type=text],input[type=password],select,textarea{width:100%;border:1px solid var(--rule-strong);border-radius:4px;background:#fff;padding:9px 10px;outline:none;transition:border-color .15s,box-shadow .15s}
+select{height:40px}
+input:focus,select:focus,textarea:focus,.editable:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(23,63,82,.11)}
+textarea{resize:vertical;line-height:1.65}
+.sentence{min-height:122px;font-size:17px;padding:14px 15px;background:#fff;letter-spacing:.01em}
+.smallarea{min-height:128px;font-size:12px}
+.hint,.note{color:var(--muted);font-size:12px;line-height:1.55;margin-top:6px}
+.api-key-wrap{display:grid;grid-template-columns:minmax(0,1fr) 40px;gap:7px}
+button{border:1px solid var(--rule-strong);border-radius:4px;background:transparent;padding:8px 12px;min-height:36px;transition:background .15s,border-color .15s,color .15s,transform .1s}
+button:hover{background:var(--surface-2);border-color:#969a99}
+button:active{transform:translateY(1px)}
+button.primary{background:var(--navy);border-color:var(--navy);color:white;padding-inline:17px}
+button.primary:hover{background:var(--navy-dark);border-color:var(--navy-dark)}
+button.ghost{border-color:transparent}
+button.small{font-size:12px;min-height:32px;padding:6px 10px}
+button.icon-button{padding:0;display:grid;place-items:center;font-size:15px}
+button.text-link{min-height:32px;padding:4px 2px;border-color:transparent;background:transparent;color:var(--navy);font-size:12px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+button.text-link:hover{border-color:transparent;background:transparent;color:var(--navy-dark)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--navy);outline-offset:3px}
+button:disabled{opacity:.48;cursor:not-allowed;transform:none}
+.status{font-size:12px;min-height:18px;margin-top:8px}.status.good{color:var(--good)}.status.bad{color:var(--bad)}.status.warn{color:var(--warn)}
+.details summary{cursor:pointer;font-size:12px;font-weight:700;color:#3b4b53}.details[open] summary{margin-bottom:10px}
+.main-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:13px}
+.main-head .section-title{font-size:21px;margin:0}.main-head .section-kicker{margin-bottom:5px}
+.workspace{border-top:1px solid var(--rule);margin-top:28px;padding-top:26px}.hidden{display:none!important}
+.result-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:15px}
+.result-heading .section-title{font-size:19px;margin:0}
+.aligned{font-size:11px;letter-spacing:.04em;color:var(--good);border-bottom:1px solid rgba(39,100,64,.4);padding-bottom:2px}
+.editor-layout{display:block}
+.checkline{display:flex;align-items:center;gap:9px;padding:5px 0;color:#34434a;font-size:12px;cursor:pointer}.checkline input{width:15px;height:15px;accent-color:var(--navy);margin:0;flex:0 0 auto}
+.editor-content{min-width:0}
+.editor-examples{display:grid;gap:16px}
+.editor-example{border:1px solid var(--rule);background:#fff}
+.editor-example-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.editor-example-title{font:600 13px Georgia,"Songti SC",serif;color:#34434a}.editor-example-status{font-size:10px;letter-spacing:.04em;color:var(--good)}
+.token-editor-grid{display:flex;flex-wrap:wrap;align-items:stretch;padding:8px;background:#f3f1eb;border-bottom:1px solid var(--rule);gap:1px;overflow:hidden}
+.token-editor-card{flex:1 1 168px;min-width:min(168px,100%);max-width:224px;background:#fff;border:1px solid #dedbd3;margin:-1px 0 0 -1px;display:grid;grid-template-rows:auto repeat(4,minmax(42px,auto));min-inline-size:0}
+.token-editor-index{padding:5px 9px;background:#f7f5ef;color:var(--muted);font-size:9px;font-weight:750;letter-spacing:.08em;border-bottom:1px solid #e7e4dd}
+.token-editor-line{display:grid;grid-template-columns:48px minmax(0,1fr);align-items:stretch;min-inline-size:0;border-bottom:1px solid #ece9e2}.token-editor-line:last-child{border-bottom:0}
+.token-editor-label{padding:8px 6px;display:flex;align-items:center;background:#faf9f5;color:#667177;font-size:9px;font-weight:750;line-height:1.2;border-right:1px solid #ece9e2;overflow-wrap:anywhere}
+.token-editor-line .editable{min-width:0;width:100%;padding:8px 9px;display:flex;align-items:center;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap}
+.editor-example .translation-row{margin:0;padding:11px 12px 13px}.editor-example .model-note{margin:0 12px 12px}
+.editable{outline:0;border-radius:2px;min-height:24px;padding:1px 2px}.editable:focus{background:#fffdf4}
+.formcell,.transcell,.glosscell{font-family:"Times New Roman","Songti SC","STSong","SimSun",serif;font-size:10.5pt;font-style:normal;font-weight:400}
+.translation-row{margin-top:13px}.translation-row input{font-family:"Times New Roman","Songti SC","STSong","SimSun",serif;font-size:10.5pt;font-style:normal}
+.model-note:empty{display:none}.model-note{border-left:2px solid var(--rule-strong);padding-left:9px;margin-top:10px}
+.typography-panel{margin-top:16px;border:1px solid var(--rule);background:var(--surface-2)}
+.typography-panel>summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:750;color:#34434a}
+.typography-panel>summary::-webkit-details-marker{display:none}.typography-panel>summary::after{content:'＋';color:var(--navy);font-size:15px;font-weight:400}.typography-panel[open]>summary::after{content:'−'}
+.typography-summary-note{font-size:11px;font-weight:400;color:var(--muted);margin-left:auto}
+.typography-body{border-top:1px solid var(--rule);padding:14px}
+.typography-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.remember-setting{display:flex;align-items:center;gap:8px;margin:0;color:#435159;font-size:12px;cursor:pointer}.remember-setting input{accent-color:var(--navy)}
+.type-settings-wrap{overflow-x:auto;background:#fff;border:1px solid var(--rule)}
+.type-settings{width:100%;border-collapse:collapse;min-width:690px}
+.type-settings th,.type-settings td{padding:8px 10px;border-bottom:1px solid #e7e4dd;text-align:left;vertical-align:middle}.type-settings tr:last-child th,.type-settings tr:last-child td{border-bottom:0}
+.type-settings thead th{background:#f5f3ed;color:var(--muted);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:750}
+.type-settings tbody th{width:126px;font-size:12px;color:#38474f}.type-settings select{height:34px;padding:5px 8px;min-width:220px}.type-settings input[type=number]{height:34px;width:78px;padding:5px 7px}.type-settings input[type=checkbox]{width:16px;height:16px;accent-color:var(--navy)}
+.type-toggle{text-align:center!important;width:64px}.type-toggle label{display:grid;place-items:center;margin:0}
+.preview-workspace{border-top:1px solid var(--rule);margin-top:22px;padding-top:20px}
+.preview-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;margin-bottom:12px;border:1px solid var(--rule);background:var(--surface-2);padding:12px 14px;align-items:end}
+.preview-controls fieldset{border:0;padding:0;margin:0;display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}.preview-controls legend{font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--navy);text-transform:uppercase;margin-bottom:5px}
+.preview-controls .checkline{padding:2px 0}.number-controls{display:flex;align-items:end;gap:8px}.number-field{margin:0}.number-field label{white-space:nowrap}.number-field select{min-width:126px}.number-field input{width:82px;height:40px;padding:8px}
+.preview-panel{background:#fff;border:1px solid var(--rule)}
+.preview-head{padding:11px 14px;border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:11px;letter-spacing:.04em}
+.preview-canvas{padding:18px 22px;overflow:auto;min-height:126px;display:grid;gap:18px;align-items:start}
+.example-preview{min-width:max-content}.example-preview+.example-preview{border-top:1px solid var(--rule);padding-top:18px}.example-preview-title{font-size:10px;font-weight:750;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.pubtable{border-collapse:separate;border-spacing:0 5px;width:auto;font-family:"Times New Roman","Songti SC","STSong","SimSun",serif;font-size:10.5pt;font-style:normal}
+.pubtable td{border:0;padding:0 17px 0 0;white-space:nowrap;vertical-align:baseline}
+.pubtable td.num{padding-right:15px;color:#506068;vertical-align:baseline}
+.pubtable tr.free td{padding-top:7px;white-space:normal}
+.small-caps{font-variant-caps:all-small-caps;font-feature-settings:"smcp" 1,"c2sc" 1;letter-spacing:.035em}
+.empty-preview{color:var(--muted);font-family:Georgia,"Songti SC",serif;font-size:13px}
+.toolbar{margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.toolbar button{font-size:12px}
+.separator-label{font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-right:3px}
+dialog{width:min(650px,calc(100vw - 32px));max-height:calc(100vh - 48px);border:1px solid var(--rule-strong);border-radius:0;background:var(--surface);color:var(--ink);padding:0;box-shadow:0 28px 80px rgba(18,34,42,.22)}
+dialog::backdrop{background:rgba(15,30,37,.38);backdrop-filter:blur(2px)}
+.dialog-head{display:flex;align-items:center;justify-content:space-between;padding:19px 22px;border-bottom:1px solid var(--rule)}.dialog-head h2{font:600 20px Georgia,"Songti SC",serif;margin:0}.dialog-body{padding:21px 24px 26px;overflow:auto}.dialog-body h3{font:600 15px Georgia,"Songti SC",serif;margin:20px 0 7px}.dialog-body h3:first-child{margin-top:0}.dialog-body p,.dialog-body li{color:#435159;line-height:1.7}.dialog-body ol,.dialog-body ul{padding-left:22px}.dialog-body code{font-family:"SFMono-Regular",Consolas,monospace;font-size:12px;background:var(--navy-soft);padding:1px 4px}
+.dialog-body a{color:var(--navy);text-decoration-thickness:1px;text-underline-offset:3px}
+.api-key-dialog{width:min(560px,calc(100vw - 32px))}
+.provider-links{list-style:none;margin:16px 0;padding:0!important;display:grid;gap:1px;border:1px solid var(--rule);background:var(--rule)}
+.provider-links li{background:#fff;margin:0}
+.provider-links a{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:11px 13px;text-decoration:none}
+.provider-links a:hover{background:var(--surface-2)}
+.provider-name{font-weight:700;color:#33444c}.provider-action{color:var(--navy);font-size:12px;white-space:nowrap}.provider-action::after{content:' ↗';font-size:10px}
+.application-note{margin:13px 0 0;padding:10px 12px;border-left:3px solid var(--navy);background:var(--navy-soft);color:#33444c!important}
+.region-notice{margin:10px 0 0;color:var(--bad)!important;font-weight:700}
+html[lang="zh-Hant"] body{font-family:var(--hant-ui-font)}
+html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="zh-Hant"] .section-title,html[lang="zh-Hant"] .editor-example-title,html[lang="zh-Hant"] .dialog-head h2,html[lang="zh-Hant"] .dialog-body h3,html[lang="zh-Hant"] .empty-preview{font-family:var(--hant-ui-font)}
+@media(max-width:980px){.shell{grid-template-columns:1fr}.sidebar{position:static}.preview-controls{grid-template-columns:1fr}.number-controls{justify-content:flex-start}}
+@media(max-width:640px){.topbar{height:auto}.topbar-inner{padding:12px 15px;align-items:flex-start;flex-wrap:wrap}.brand-mark{width:36px;height:36px;border-radius:8px}.brand-copy{font-size:14px;white-space:normal}.brand-author{font-size:9px}.version{display:none}.top-actions{justify-content:flex-end;margin-left:auto}.shell{padding:14px 12px 28px;gap:14px}.sidebar,.main{padding:18px}.main-head{display:block}.main-head .btnrow{justify-content:flex-start;margin-top:12px}.sentence{font-size:16px}.preview-controls fieldset{display:grid;grid-template-columns:1fr 1fr}.number-controls{display:grid;grid-template-columns:1fr 1fr}.number-field select,.number-field input{width:100%;min-width:0}.token-editor-card{flex-basis:144px;min-width:min(144px,100%);max-width:none}.token-editor-line{grid-template-columns:44px minmax(0,1fr)}.typography-summary-note{display:none}.typography-actions{align-items:flex-start}.type-settings{min-width:500px}.type-settings th,.type-settings td{padding:7px 6px}.type-settings tbody th{width:84px}.type-settings select{min-width:155px}.type-settings input[type=number]{width:66px}.type-toggle{width:48px}.preview-canvas{padding:17px}.toolbar{align-items:flex-start}.toolbar-group{width:100%}.separator-label{width:100%;margin-top:5px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <img class="brand-mark" src="assets/gloss-tool-icon-256.png?build=20260815-1" alt="Merlin's Leipzig Gloss Tool icon" width="44" height="44">
+      <div class="brand-text"><div class="brand-copy">Merlin's Leipzig Gloss Tool</div><div class="brand-author">Developed by Merlin X. D. Yang</div></div>
+      <span class="version">v1.0</span>
+    </div>
+    <nav class="top-actions" aria-label="Utilities">
+      <button class="small ghost" id="btnDemo" data-i18n="demo">载入示例</button>
+      <button class="small ghost" id="btnHelp" data-i18n="help">使用说明</button>
+      <div class="language-switch" role="group" aria-label="界面语言 / Interface language">
+        <button id="btnLangEn" type="button" data-lang="en">EN</button><button id="btnLangZh" type="button" class="active" aria-pressed="true" data-lang="zh">简</button><button id="btnLangZhHant" type="button" data-lang="zh-Hant">正</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="panel sidebar">
+    <div class="section-kicker">Configuration</div>
+    <h1 class="section-title" data-i18n="settings">项目设置</h1>
+
+    <h2 class="group-title" data-i18n="aiSettings">AI 服务</h2>
+    <div class="field">
+      <label for="provider" data-i18n="provider">服务商</label>
+      <select id="provider">
+        <option value="deepseek">DeepSeek</option><option value="openai">OpenAI</option><option value="claude">Claude / Anthropic</option><option value="openrouter">OpenRouter</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="model" data-i18n="model">模型名称</label>
+      <input id="model" type="text" value="deepseek-v4-flash" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="apiKey">API key</label>
+      <div class="api-key-wrap">
+        <input id="apiKey" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false" data-1p-ignore data-lpignore="true" data-form-type="other">
+        <button id="toggleKey" class="icon-button" type="button" aria-label="显示或隐藏 API key" title="显示或隐藏 API key">◉</button>
+      </div>
+      <div class="hint" data-i18n="keyHint">仅用于本次 API 请求，不会保存。</div>
+    </div>
+    <div class="btnrow"><button id="btnValidate" class="small" data-i18n="validate">验证 API</button><button id="btnApiHelp" class="text-link" type="button" data-i18n="apiKeyHelp">如何申请</button></div>
+    <div class="status" id="apiStatus" role="status" aria-live="polite"></div>
+
+    <div class="divider"></div>
+    <h2 class="group-title" data-i18n="lingSettings">语言与转写</h2>
+    <div class="field">
+      <label for="languagePreset" data-i18n="variety">语言 / 方言</label>
+      <select id="languagePreset"><option value="Mandarin Chinese" data-i18n-opt="mandarin">普通话 / Mandarin</option><option value="Cantonese" data-i18n-opt="cantonese">粤语 / Cantonese</option><option value="custom" data-i18n-opt="other">其他 / Other</option></select>
+    </div>
+    <div class="field" id="customLanguageWrap" style="display:none">
+      <label for="customLanguage" data-i18n="customVariety">自定义语言 / 方言名称</label>
+      <input id="customLanguage" type="text" placeholder="e.g. Shanghainese / Suzhou Wu">
+    </div>
+    <div class="field">
+      <label for="inputFormat" data-i18n="inputFormat">输入格式</label>
+      <select id="inputFormat"><option value="hanzi" data-i18n-opt="hanzi">汉字</option><option value="romanized" data-i18n-opt="romanized">拼音 / 罗马字 / IPA</option></select>
+    </div>
+    <div class="field" id="transcriptionWrap">
+      <label for="transcriptionSystem" data-i18n="transcriptionSystem">转写 1 体系</label>
+      <select id="transcriptionSystem"><option>Pinyin</option><option>Jyutping</option><option value="Zhuyin" data-i18n-opt="zhuyin">注音符号 / Zhuyin</option><option>IPA</option><option>Yale</option><option value="Other" data-i18n-opt="other">Other</option></select>
+      <div class="hint" data-i18n="transcriptionHint">Pinyin 使用数字声调，轻声不标 0；转写 2 固定为带调号汉语拼音。</div>
+    </div>
+
+    <div class="divider"></div>
+    <details class="details">
+      <summary data-i18n="conventions">Gloss 约定（可修改）</summary>
+      <textarea id="conventions" class="smallarea">Prefer concise Li & Thompson-style glossing. Use lexical English glosses in lowercase and grammatical abbreviations in uppercase. Use BA, BEI, DE, LE where conventional. Use le1 = ASP and le2 = PFV when applicable. Gloss sentence-final particles as SFP. Preserve user-supplied segmentation and morpheme boundaries.</textarea>
+    </details>
+  </aside>
+
+  <main class="panel main">
+    <div class="main-head">
+      <div><div class="section-kicker">Interlinear gloss</div><h2 class="section-title" data-i18n="input">输入例句</h2></div>
+      <div class="btnrow"><button id="btnImportTxt" class="small" data-i18n="importTxt">导入 TXT</button><input id="sentenceFile" type="file" accept=".txt,text/plain" hidden><button id="btnClear" class="small" data-i18n="clear">清空</button><button id="btnAnalyze" class="primary" data-i18n="analyze">生成 Gloss</button></div>
+    </div>
+    <textarea id="sentence" class="sentence" placeholder="他 读 过 很多 句法学 的 书。" aria-describedby="segHint">他 读 过 很多 句法学 的 书。</textarea>
+    <div class="hint" id="segHint" data-i18n="segHint">每行一个例句；请用空格分词，空行将被忽略。也可导入一行一个例句的 TXT 文件。</div>
+    <div class="status" id="workStatus" role="status" aria-live="polite"></div>
+
+    <section class="preview-workspace hidden" id="previewWorkspace" aria-labelledby="previewTitle">
+      <div class="preview-controls">
+        <fieldset>
+          <legend data-i18n="outputLines">输出行</legend>
+          <label class="checkline"><input type="checkbox" id="showForm" checked><span data-i18n="form">原文</span></label>
+          <label class="checkline"><input type="checkbox" id="showTranscription" checked><span data-i18n="transcription1">转写 1</span></label>
+          <label class="checkline"><input type="checkbox" id="showPinyin" checked><span data-i18n="transcription2">转写 2</span></label>
+          <label class="checkline"><input type="checkbox" id="showGloss" checked><span>Gloss</span></label>
+          <label class="checkline"><input type="checkbox" id="showTranslation" checked><span data-i18n="freeTranslation">英语自由翻译</span></label>
+        </fieldset>
+        <div class="number-controls">
+          <div class="number-field"><label for="numberingMode" data-i18n="numberingMode">编号方式</label><select id="numberingMode"><option value="none" data-i18n-opt="noNumber">无编号</option><option value="continuous" data-i18n-opt="continuousNumber" selected>连续数字</option><option value="alphabetic" data-i18n-opt="alphabeticNumber">字母：(a)</option><option value="alphabetic-dot" data-i18n-opt="alphabeticDotNumber">字母：a.</option></select></div>
+          <div class="number-field" id="startNumberWrap"><label for="startNumber" data-i18n="startNumber">起始数字</label><input id="startNumber" type="number" min="1" step="1" value="1" inputmode="numeric"></div>
+          <div class="number-field hidden" id="startLetterWrap"><label for="startLetter" data-i18n="startLetter">起始字母</label><input id="startLetter" type="text" value="a" inputmode="text" pattern="[A-Za-z]+" maxlength="6" autocomplete="off" spellcheck="false"></div>
+        </div>
+      </div>
+      <div class="preview-panel">
+        <div class="preview-head"><span id="previewTitle" data-i18n="preview">输出预览</span><span data-i18n="separateTables">每个例句独立成表</span></div>
+        <div class="preview-canvas" id="preview"></div>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-group"><span class="separator-label" data-i18n="export">导出</span><button id="btnCopyTable" data-i18n="copyTable">复制表格</button><button id="btnCopyMD" data-i18n="copyMD">复制 HTML / MD</button><button id="btnSVG">SVG</button><button id="btnPNG" data-i18n="png">透明 PNG</button></div>
+        <div class="toolbar-group"><span class="separator-label" data-i18n="project">项目</span><button id="btnOpen" data-i18n="openProject">打开</button><button id="btnSave" data-i18n="saveProject">保存</button><input id="fileOpen" type="file" accept="application/json,.json,.gloss" hidden></div>
+      </div>
+    </section>
+
+    <section class="workspace hidden" id="workspace">
+      <div class="result-heading"><div><div class="section-kicker">Edit & compose</div><h2 class="section-title" data-i18n="editResult">编辑结果</h2></div><span class="aligned" id="resultCount"></span></div>
+      <div class="editor-layout">
+        <div class="editor-content">
+          <div class="editor-examples" id="editExamples"></div>
+        </div>
+      </div>
+
+      <details class="typography-panel" id="typographyPanel" open>
+        <summary><span data-i18n="typography">排版设置</span><span class="typography-summary-note" data-i18n="typographyNote">逐行控制字体、字号和字形</span></summary>
+        <div class="typography-body">
+          <div class="typography-actions">
+            <label class="remember-setting"><input type="checkbox" id="rememberTypography" checked><span data-i18n="rememberTypography">保持现有设置</span></label>
+            <button type="button" class="small" id="btnResetTypography" data-i18n="resetTypography">恢复默认</button>
+          </div>
+          <div class="type-settings-wrap">
+            <table class="type-settings">
+              <thead><tr><th data-i18n="outputLine">输出行</th><th data-i18n="font">字体</th><th data-i18n="fontSize">字号（pt）</th><th class="type-toggle" data-i18n="bold">加粗</th><th class="type-toggle" data-i18n="italic">斜体</th></tr></thead>
+              <tbody>
+                <tr data-style-row="form"><th data-i18n="form">原文</th><td><select class="style-font" aria-label="原文字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="原文字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="原文加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="原文斜体"></label></td></tr>
+                <tr data-style-row="transcription"><th data-i18n="transcription1">转写 1</th><td><select class="style-font" aria-label="转写 1 字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="转写 1 字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="转写 1 加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="转写 1 斜体"></label></td></tr>
+                <tr data-style-row="pinyin"><th data-i18n="transcription2">转写 2</th><td><select class="style-font" aria-label="转写 2 字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="转写 2 字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="转写 2 加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="转写 2 斜体"></label></td></tr>
+                <tr data-style-row="gloss"><th>Gloss</th><td><select class="style-font" aria-label="Gloss 字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="Gloss 字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="Gloss 加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="Gloss 斜体"></label></td></tr>
+                <tr data-style-row="free"><th data-i18n="freeTranslation">英语自由翻译</th><td><select class="style-font" aria-label="英语翻译字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="英语翻译字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="英语翻译加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="英语翻译斜体"></label></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="hint" data-i18n="smallCapsHint">Gloss 中的全大写语法缩写将自动显示为小型大写字母。</div>
+        </div>
+      </details>
+
+    </section>
+  </main>
+</div>
+
+<dialog id="apiKeyDialog" class="api-key-dialog" aria-labelledby="apiKeyDialogTitle">
+  <div class="dialog-head"><h2 id="apiKeyDialogTitle" data-i18n="apiKeyDialogTitle">如何申请 API key</h2><button id="btnCloseApiHelp" class="icon-button" aria-label="关闭" title="关闭">×</button></div>
+  <div class="dialog-body api-help-zh">
+    <p>请在服务商的官方平台创建 API key：</p>
+    <ul class="provider-links">
+      <li><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">DeepSeek</span><span class="provider-action">申请页面</span></a></li>
+      <li><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">OpenAI</span><span class="provider-action">申请页面</span></a></li>
+      <li><a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">Claude / Anthropic</span><span class="provider-action">申请页面</span></a></li>
+      <li><a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">OpenRouter</span><span class="provider-action">申请页面</span></a></li>
+    </ul>
+    <p class="application-note">申请后充值可用。</p>
+    <p class="region-notice">中国境内只能使用 DeepSeek。</p>
+  </div>
+  <div class="dialog-body api-help-zh-hant hidden">
+    <p>請在服務提供者的官方平台建立 API key：</p>
+    <ul class="provider-links">
+      <li><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">DeepSeek</span><span class="provider-action">申請頁面</span></a></li>
+      <li><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">OpenAI</span><span class="provider-action">申請頁面</span></a></li>
+      <li><a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">Claude / Anthropic</span><span class="provider-action">申請頁面</span></a></li>
+      <li><a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">OpenRouter</span><span class="provider-action">申請頁面</span></a></li>
+    </ul>
+    <p class="application-note">申請後儲值即可使用。</p>
+    <p class="region-notice">中國境內只能使用 DeepSeek。</p>
+  </div>
+  <div class="dialog-body api-help-en hidden">
+    <p>Create an API key on the provider’s official platform:</p>
+    <ul class="provider-links">
+      <li><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">DeepSeek</span><span class="provider-action">Open key page</span></a></li>
+      <li><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">OpenAI</span><span class="provider-action">Open key page</span></a></li>
+      <li><a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">Claude / Anthropic</span><span class="provider-action">Open key page</span></a></li>
+      <li><a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer"><span class="provider-name">OpenRouter</span><span class="provider-action">Open key page</span></a></li>
+    </ul>
+    <p class="application-note">Add credit after creating the key before use.</p>
+  </div>
+</dialog>
+
+<dialog id="helpDialog" aria-labelledby="helpTitle">
+  <div class="dialog-head"><h2 id="helpTitle" data-i18n="help">使用说明</h2><button id="btnCloseHelp" class="icon-button" aria-label="关闭" title="关闭">×</button></div>
+  <div class="dialog-body help-zh">
+    <h3>基本流程</h3>
+    <ol><li>选择服务商和模型，输入 API key。可先点击“验证 API”。</li><li>选择语言、输入格式和“转写 1”体系。</li><li>在输入框中一行输入一个例句，每行内部用空格标出最终词边界；也可导入一行一个例句的 TXT 文件。</li><li>生成后，预览会立即显示在输入区下方；每个例句使用一个独立表格。</li><li>选择输出行以及无编号、连续数字或两种字母编号；数字和字母起点均可自定义。</li><li>在编辑区逐例修改原文、两层转写、Gloss 和英语翻译，并按需调整排版。</li><li>从预览区下方复制或导出；保存项目可保留全部例句、编辑内容、输出选择和排版设置。</li></ol>
+    <h3>批量输入与编号</h3><p>输入框和 TXT 文件都以“物理行”为例句边界，空行会被忽略。TXT 导入只接受 <code>.txt</code> 文件。“连续数字”默认从 <code>(1)</code> 开始，并可填写任意正整数起点；负数、零或无效输入会自动重置为 <code>1</code>。“字母：(a)”输出 <code>(a)</code>、<code>(b)</code>；“字母：a.”输出 <code>a.</code>、<code>b.</code>。两种字母编号都可填写 <code>c</code>、<code>aa</code> 等起始字母，并在 <code>z</code> 后继续为 <code>aa</code>。选择“无编号”则完全移除编号列。</p>
+    <h3>两层转写</h3><p><strong>转写 1</strong>使用所选体系；选择 Pinyin 时采用数字声调，如 <code>wo3</code>，轻声不标 <code>0</code>，如 <code>de</code>；选择“注音符号”时输出横排 Bopomofo，例如 <code>ㄨㄛˇ</code>、<code>˙ㄉㄜ</code>。<strong>转写 2</strong>固定为带调号的标准汉语拼音，如 <code>wǒ</code>；轻声不加调号。方言材料中的转写 2 是普通话拼音参考层。</p>
+    <h3>排版设置</h3><p>五条输出行默认使用 Times New Roman，中文字符自动回退到宋体，字号为 10.5 pt，均不加粗、不斜体。“保持现有设置”会把当前排版留给下次使用；“恢复默认”立即重置全部行。Gloss 中的全大写语法缩写自动使用小型大写字母。</p>
+    <h3>API key 申请</h3><p>请从服务商的官方页面创建 API key，申请后充值可用。</p><ul><li><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">DeepSeek API key</a></li><li><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI API key</a></li><li><a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener noreferrer">Claude / Anthropic API key</a></li><li><a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer">OpenRouter API key</a></li></ul><p class="region-notice">中国境内只能使用 DeepSeek。</p>
+    <h3>数据与安全</h3><p>空格分词具有最高优先级。API key 只从当前表单传给同源后端，不会写入项目文件或浏览器存储。AI 生成的分析应由研究者复核。</p>
+  </div>
+  <div class="dialog-body help-zh-hant hidden">
+    <h3>基本流程</h3>
+    <ol><li>選擇服務提供者和模型，輸入 API key。可先選取「驗證 API」。</li><li>選擇語言、輸入格式和「轉寫 1」系統。</li><li>在輸入框中每行輸入一個例句，每行內部用空格標出最終詞界；也可匯入每行一個例句的 TXT 檔案。</li><li>產生後，預覽會立即顯示在輸入區下方；每個例句各用一個表格。</li><li>選擇輸出列以及無編號、連續數字或兩種字母編號；數字和字母起點均可自訂。</li><li>在編輯區逐例修改原文、兩層轉寫、Gloss 和英文翻譯，並依需求調整排版。</li><li>從預覽區下方複製或匯出；儲存專案可保留全部例句、編輯內容、輸出選擇和排版設定。</li></ol>
+    <h3>批次輸入與編號</h3><p>輸入框和 TXT 檔案都以每一個非空白行為例句邊界，空白行會被忽略。TXT 匯入只接受 <code>.txt</code> 檔案。「連續數字」預設從 <code>(1)</code> 開始，並可填寫任意正整數起點；負數、零或無效輸入會自動重設為 <code>1</code>。「字母：(a)」輸出 <code>(a)</code>、<code>(b)</code>；「字母：a.」輸出 <code>a.</code>、<code>b.</code>。兩種字母編號都可填寫 <code>c</code>、<code>aa</code> 等起始字母，並在 <code>z</code> 後接續為 <code>aa</code>。選擇「無編號」則完全移除編號欄。</p>
+    <h3>兩層轉寫</h3><p><strong>轉寫 1</strong> 使用所選系統；選擇 Pinyin 時採用數字聲調，如 <code>wo3</code>，輕聲不標 <code>0</code>，如 <code>de</code>；選擇「注音符號」時輸出橫排 Bopomofo，例如 <code>ㄨㄛˇ</code>、<code>˙ㄉㄜ</code>。<strong>轉寫 2</strong> 固定為帶調號的標準漢語拼音，如 <code>wǒ</code>；輕聲不加調號。方言材料中的轉寫 2 是國語拼音參考層。</p>
+    <h3>排版設定</h3><p>五個輸出列預設使用 Times New Roman，中文字元會自動改用宋體，字號為 10.5 pt，均不使用粗體或斜體。「保留目前設定」會保留目前排版供下次使用；「還原預設值」會立即重設全部輸出列。Gloss 中的全大寫語法縮寫會自動使用小型大寫字母。</p>
+    <h3>API key 申請</h3><p>請從服務提供者的官方頁面建立 API key，申請後儲值即可使用。</p><ul><li><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">DeepSeek API key</a></li><li><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI API key</a></li><li><a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener noreferrer">Claude / Anthropic API key</a></li><li><a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer">OpenRouter API key</a></li></ul><p class="region-notice">中國境內只能使用 DeepSeek。</p>
+    <h3>資料與安全</h3><p>空格分詞具有最高優先順序。API key 只會從目前表單傳送至同源後端，不會寫入專案檔案或瀏覽器儲存空間。AI 產生的分析應由研究者確認。</p>
+  </div>
+  <div class="dialog-body help-en hidden">
+    <h3>Workflow</h3><ol><li>Select a provider and model, enter an API key, and optionally validate it.</li><li>Select the language, input format, and Transcription 1 system.</li><li>Enter one example per line, using spaces for final token boundaries, or import a one-example-per-line TXT file.</li><li>The preview appears directly below the input, with one independent table per example.</li><li>Select the output lines and choose no numbering, numeric numbering, or either alphabetic format with a custom start.</li><li>Edit each example and set typography independently for every output line.</li><li>Copy or export all preview tables, or save the editable batch project.</li></ol>
+    <h3>Batch input and numbering</h3><p>Physical lines delimit examples and blank lines are ignored. Import accepts only <code>.txt</code> files. Numeric numbering defaults to <code>(1)</code> and accepts only a positive integer start; negative, zero, or invalid input resets to <code>1</code>. “Alphabetic: (a)” outputs <code>(a)</code>, <code>(b)</code>; “Alphabetic: a.” outputs <code>a.</code>, <code>b.</code>. Both accept a custom letter start and continue from <code>z</code> to <code>aa</code>. Select no numbering to remove the number column.</p>
+    <h3>Two transcription layers</h3><p><strong>Transcription 1</strong> uses the selected system; Pinyin uses tone numbers with no <code>0</code> for neutral tone. Zhuyin produces horizontal Bopomofo such as <code>ㄨㄛˇ</code> and <code>˙ㄉㄜ</code>. <strong>Transcription 2</strong> is Standard Mandarin Pinyin with tone marks; neutral tone is unmarked.</p>
+    <h3>Typography</h3><p>All five output lines default to Times New Roman with Songti fallback for Chinese, 10.5 pt, regular, and non-italic. “Keep current settings” remembers the typography for later use; “Restore defaults” resets every line. Uppercase grammatical glosses use small caps automatically.</p>
+    <h3>Getting an API key</h3><p>Create an API key on the provider’s official page, then add credit before use.</p><ul><li><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">DeepSeek API key</a></li><li><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI API key</a></li><li><a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener noreferrer">Claude / Anthropic API key</a></li><li><a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer">OpenRouter API key</a></li></ul>
+    <h3>Data and security</h3><p>Whitespace tokenization is authoritative. The API key is sent only to the same-origin backend and is not saved. Researcher review of AI output remains necessary.</p>
+  </div>
+</dialog>
+
+<script src="app-ui.js?build=20260815-14"></script>
+</body>
+</html>

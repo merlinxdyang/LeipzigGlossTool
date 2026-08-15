@@ -1,0 +1,13 @@
+Options -Indexes
+DirectoryIndex index.html
+
+RewriteEngine On
+RewriteRule ^api/(validate|gloss)/?$ api.php?action=$1 [L,QSA]
+
+<FilesMatch "\.(?:py|pyc|command|md)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^test_.*\.(?:js|php)$">
+    Require all denied
+</FilesMatch>
