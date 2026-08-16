@@ -49,12 +49,68 @@ class PromptAndNormalizationTests(unittest.TestCase):
         _, user_prompt, _ = app.build_prompt({
             "sentence": "我 的",
             "input_format": "hanzi",
-            "transcription_system": "Zhuyin",
+            "pinyin_mode": "tone_marks",
+            "other_transcription_system": "Zhuyin",
         })
 
         self.assertIn("Unicode Bopomofo", user_prompt)
         self.assertIn("first tone unmarked", user_prompt)
         self.assertIn("neutral-tone dot before the syllable", user_prompt)
+
+    def test_mandarin_default_requests_only_tone_marked_pinyin(self):
+        _, user_prompt, _ = app.build_prompt({
+            "sentence": "我 的",
+            "input_format": "hanzi",
+            "pinyin_mode": "tone_marks",
+            "other_transcription_system": "",
+        })
+
+        self.assertIn("Hanyu Pinyin with tone diacritics", user_prompt)
+        self.assertIn("set transcription to an empty string", user_prompt)
+
+    def test_pinyin_number_and_no_tone_modes_are_explicit(self):
+        _, numbered_prompt, _ = app.build_prompt({
+            "sentence": "什么",
+            "input_format": "hanzi",
+            "pinyin_mode": "tone_numbers",
+            "other_transcription_system": "",
+        })
+        _, untoned_prompt, _ = app.build_prompt({
+            "sentence": "什么",
+            "input_format": "hanzi",
+            "pinyin_mode": "no_tone",
+            "other_transcription_system": "",
+        })
+
+        self.assertIn("tone numbers 1, 2, 3, or 4", numbered_prompt)
+        self.assertIn("never use 0", numbered_prompt)
+        self.assertIn("without tone marks or tone digits", untoned_prompt)
+
+    def test_ipa_modes_use_numeric_values_or_ipa_tone_letters(self):
+        _, numeric_prompt, _ = app.build_prompt({
+            "sentence": "妈 麻 马 骂",
+            "input_format": "hanzi",
+            "other_transcription_system": "IPA numeric tones",
+        })
+        _, letter_prompt, _ = app.build_prompt({
+            "sentence": "妈 麻 马 骂",
+            "input_format": "hanzi",
+            "other_transcription_system": "IPA tone letters",
+        })
+
+        self.assertIn("55, 35, 214, and 51", numeric_prompt)
+        self.assertIn("˥, ˧˥, ˨˩˦, and ˥˩", letter_prompt)
+
+    def test_non_mandarin_ipa_uses_variety_specific_tones(self):
+        _, numeric_prompt, _ = app.build_prompt({
+            "sentence": "佢 食 咗",
+            "language": "Cantonese",
+            "input_format": "hanzi",
+            "other_transcription_system": "IPA numeric tones",
+        })
+
+        self.assertIn("appropriate to the requested language/variety", numeric_prompt)
+        self.assertNotIn("55, 35, 214, and 51", numeric_prompt)
 
     def test_normalize_uses_original_forms_and_empty_strings_for_nulls(self):
         result = app.normalize_result({

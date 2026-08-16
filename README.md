@@ -4,7 +4,7 @@
 
 A lightweight local web tool for producing editable interlinear glosses for Mandarin, Cantonese, and other Sinitic varieties.
 
-It generates aligned Form, transcription, tone-marked Pinyin, Leipzig-style Gloss, and free English translation lines through DeepSeek, OpenAI, Claude, or OpenRouter. Every result remains editable and can be copied into Word or exported as SVG and transparent PNG.
+It generates aligned Form, configurable Pinyin, optional phonetic annotation, Leipzig-style Gloss, and free English translation lines through DeepSeek, OpenAI, Claude, or OpenRouter. Every result remains editable and can be copied into Word or exported as SVG and transparent PNG.
 
 ![Merlin's Leipzig Gloss Tool header](docs/images/header.png)
 
@@ -70,7 +70,7 @@ The expected result is an HTTP `400` JSON response containing `{"ok":false,...}`
 4. Enter one example per line, with **spaces already marking the intended word boundaries**, or import a `.txt` file containing one example per line. Blank lines are ignored.
 5. Click **Generate gloss**.
 6. Review the preview directly below the input. Every example is rendered as a separate table.
-7. Edit any Form / Transcription 1 / Transcription 2 / Gloss cell and free translation in the per-example editor. Token groups wrap automatically to fit the available page width while keeping all four aligned layers together.
+7. Edit any Form / Pinyin / optional annotation / Gloss cell and free translation in the per-example editor. Token groups wrap automatically to fit the available page width while keeping aligned layers together.
 8. Select output lines and choose no numbering, continuous numeric numbering, parenthesized alphabetic numbering `(a)`, or dotted alphabetic numbering `a.`. Numeric starts must be positive integers; both alphabetic formats accept a custom start and continue from `z` to `aa`.
 9. Copy all rich borderless tables or HTML-in-Markdown, export SVG/transparent PNG, or save the editable batch project as JSON.
 
@@ -112,16 +112,16 @@ TXT import accepts only filenames ending in `.txt`. Its contents follow the same
 
 The backend requests JSON/structured output where the selected provider supports it. For user-selected OpenAI, Claude, or OpenRouter models that explicitly reject the structured-output parameter, it retries with the provider's compatible plain-JSON prompt. Authentication, quota, and network failures are not retried.
 
-- **Hanzi input** → Form + Transcription 1 + tone-marked Pinyin (Transcription 2) + Gloss + free English translation
+- **Hanzi input** → Form + selected Pinyin form + optional other annotation + Gloss + free English translation
 - **Romanization / IPA input** → both transcription fields preserve the supplied form rather than inventing another reading
 
-For Hanzi input, Transcription 1 can be Pinyin, Jyutping, Zhuyin/Bopomofo, IPA, Yale, or another system. Pinyin uses tone numbers, but neutral-tone syllables have no `0`. Zhuyin uses horizontal Unicode Bopomofo: first tone is unmarked, tone marks follow the syllable, and the neutral-tone dot precedes it (for example, `ㄨㄛˇ`, `˙ㄉㄜ`). Transcription 2 is always Standard Mandarin Hanyu Pinyin with tone diacritics; neutral tone is unmarked. For non-Mandarin material, Transcription 2 is a Mandarin reference layer.
+For Mandarin Hanzi input, Pinyin can use tone marks (default), tone numbers, or no tones; neutral-tone syllables never take `0`. The optional annotation is blank by default and can use Zhuyin/Bopomofo, IPA with numeric tone values, IPA tone letters, 粤拼 / Jyutping, Yale, or another system. Numeric Mandarin IPA uses values such as `55/35/214/51`; IPA tone letters use forms such as `˥/˧˥/˨˩˦/˥˩`. Cantonese and custom varieties expose a primary transcription-system selector.
 
 ## Typography
 
-Every output line defaults to Times New Roman with Songti (`Songti SC` / `STSong` / `SimSun`) fallback for Chinese, 10.5 pt, regular, and non-italic. Form, Transcription 1, Transcription 2, Gloss, and free translation can each set font, point size, bold, and italic independently.
+Every output line defaults to Times New Roman with Songti (`Songti SC` / `STSong` / `SimSun`) fallback for Chinese, 10.5 pt, regular, and non-italic. Form, Pinyin, other annotation, Gloss, and free translation can each set font, point size, bold, and italic independently.
 
-“Keep current settings” remembers the current typography for future sessions. “Restore defaults” resets all five lines. All-uppercase grammatical abbreviations such as `SFP`, `PFV`, and `3SG` are rendered with small caps in rich preview/export formats.
+“Keep current settings” remembers the current typography for future sessions. “Restore defaults” resets all five lines. All-uppercase grammatical abbreviations such as `SFP`, `PFV`, and `3SG` are rendered with small caps in rich preview/export formats. Word copy uses lowercase source letters plus classic small-caps formatting so the formatting survives Word's HTML importer.
 
 ## Export notes
 

@@ -130,7 +130,15 @@ def build_prompt(data):
     tokens = re.split(r"\s+", sentence) if sentence else []
     language = data.get("language", "Mandarin Chinese").strip() or "Mandarin Chinese"
     input_format = data.get("input_format", "hanzi")
-    transcription_system = data.get("transcription_system", "Pinyin").strip() or "Pinyin"
+    is_mandarin = language.casefold() in {"mandarin", "mandarin chinese", "普通话", "國語", "国语"}
+    pinyin_mode = str(data.get("pinyin_mode", "tone_marks") or "tone_marks").strip()
+    if pinyin_mode not in {"tone_marks", "tone_numbers", "no_tone"}:
+        pinyin_mode = "tone_marks"
+    if "other_transcription_system" in data:
+        other_transcription_system = str(data.get("other_transcription_system") or "").strip()
+    else:
+        # Projects/frontends from before 1.0 used transcription_system as the first layer.
+        other_transcription_system = str(data.get("transcription_system", "Pinyin") or "Pinyin").strip()
     conventions = data.get("conventions", "").strip()
 
     needs_transcription = input_format == "hanzi"
@@ -157,7 +165,8 @@ Glossing conventions:
 
     user = f"""Language/variety: {language}
 Input format: {input_format}
-Requested transcription system: {transcription_system}
+Pinyin setting: {pinyin_mode}
+Other transcription system: {other_transcription_system or "none"}
 Original sentence: {sentence}
 Authoritative tokens: {token_json}
 
@@ -173,25 +182,65 @@ Return this JSON schema exactly:
 There must be exactly {len(tokens)} token objects, in exactly the same order as Authoritative tokens.
 """
     if needs_transcription:
-        user += f"For every token, supply a {transcription_system} transcription in transcription. "
-        if transcription_system.lower() == "pinyin":
+        if pinyin_mode == "tone_numbers":
             user += (
-                "Use tone numbers (for example wo3, chi1) in transcription. "
+                "In pinyin_diacritic, supply Standard Mandarin Hanyu Pinyin with "
+                "tone numbers 1, 2, 3, or 4 (for example wo3, chi1). "
+                "Neutral-tone syllables have no tone digit; never use 0 "
+                "(for example de, ma, shen2me). "
+            )
+        elif pinyin_mode == "no_tone":
+            user += (
+                "In pinyin_diacritic, supply Standard Mandarin Hanyu Pinyin "
+                "without tone marks or tone digits (for example wo, chi, shenme). "
+            )
+        else:
+            user += (
+                "In pinyin_diacritic, supply Standard Mandarin Hanyu Pinyin with "
+                "tone diacritics (for example wǒ, chī). A neutral-tone syllable "
+                "has neither a tone mark nor a 0. "
+            )
+
+        if not other_transcription_system:
+            user += "For every token, set transcription to an empty string. "
+        else:
+            user += f"For every token, supply {other_transcription_system} in transcription. "
+        system_name = other_transcription_system.casefold()
+        if system_name == "pinyin":
+            user += (
+                "Use Pinyin tone numbers (for example wo3, chi1) in transcription. "
                 "Neutral-tone syllables must have no tone digit; never use 0 "
                 "(for example de, ma, shen2me). "
             )
-        elif transcription_system.casefold() in {"zhuyin", "bopomofo", "注音符号"}:
+        elif system_name in {"zhuyin", "bopomofo", "注音符号"}:
             user += (
                 "Use Unicode Bopomofo (Zhuyin Fuhao) in horizontal writing. "
                 "Leave the first tone unmarked; put ˊ, ˇ, or ˋ after the syllable "
                 "for the second, third, or fourth tone; put the neutral-tone dot "
                 "before the syllable. Examples: ㄨㄛˇ, ㄔ, ˙ㄉㄜ. "
             )
+        elif system_name == "ipa numeric tones":
+            user += "Use IPA segment symbols followed by Chao-style numeric tone values. "
+            if is_mandarin:
+                user += (
+                    "For Standard Mandarin, use 55, 35, 214, and 51 for tones 1–4 "
+                    "respectively; do not substitute tone-category numbers 1–4. "
+                )
+            else:
+                user += (
+                    "Use tone values appropriate to the requested language/variety; "
+                    "do not substitute tone-category numbers for phonetic values. "
+                )
+            user += "Leave neutral tone without a 0. "
+        elif system_name == "ipa tone letters":
+            user += "Use IPA segment symbols with IPA/Chao tone letters. "
+            if is_mandarin:
+                user += "For Standard Mandarin, use ˥, ˧˥, ˨˩˦, and ˥˩ for tones 1–4 respectively. "
+            else:
+                user += "Use tone letters appropriate to the requested language/variety. "
+            user += "Do not use ASCII tone digits in this layer. "
         user += (
-            "Also supply Standard Mandarin Hanyu Pinyin with tone diacritics "
-            "(for example wǒ, chī) in pinyin_diacritic. Keep each transcription "
-            "aligned to the exact original token. A neutral-tone syllable in "
-            "pinyin_diacritic has neither a tone mark nor a 0.\n"
+            "Keep both fields aligned to the exact original token.\n"
         )
     else:
         user += (
@@ -451,7 +500,7 @@ class Handler(SimpleHTTPRequestHandler):
                 result,
                 original_tokens,
                 data.get("input_format", "hanzi"),
-                data.get("transcription_system", "Pinyin"),
+                data.get("other_transcription_system", data.get("transcription_system", "Pinyin")),
             )
             return self.send_json(200, {"ok": True, "result": normalized})
         except Exception as e:

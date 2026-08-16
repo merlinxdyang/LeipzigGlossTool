@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const {
   DEFAULT_TYPOGRAPHY,
   formatGlossHtml,
+  formatGlossHtmlForWord,
   normalizeTypography,
   typographyCss,
 } = require('./typography.js');
@@ -49,5 +50,16 @@ test('uppercase grammatical glosses render as small caps without changing lexica
   assert.match(html, /<span class="small-caps">PFV<\/span>/);
   assert.match(html, /<span class="small-caps">3SG<\/span>/);
   assert.match(html, /<span class="small-caps">SFP<\/span>$/);
+  assert.doesNotMatch(html, /small-caps">Zhangsan/);
+});
+
+test('Word copy uses lowercase source text with classic inline small caps', () => {
+  const html = formatGlossHtmlForWord('book PFV 3SG Zhangsan SFP');
+
+  assert.match(html, /^book /);
+  assert.match(html, /<span style="font-variant:small-caps">pfv<\/span>/);
+  assert.match(html, /<span style="font-variant:small-caps">3sg<\/span>/);
+  assert.match(html, /<span style="font-variant:small-caps">sfp<\/span>$/);
+  assert.doesNotMatch(html, />PFV</);
   assert.doesNotMatch(html, /small-caps">Zhangsan/);
 });

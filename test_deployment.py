@@ -103,6 +103,38 @@ class SubdirectoryDeploymentTests(unittest.TestCase):
         )
         self.assertIn("td.num{vertical-align:top!important}", source)
 
+    def test_mandarin_pinyin_and_optional_annotation_controls_are_present(self):
+        html = (ROOT / "index.html").read_text(encoding="utf-8")
+        source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
+
+        self.assertIn('id="mandarinTranscriptionSettings"', html)
+        self.assertIn('data-i18n="pinyinSettings">拼音设置', html)
+        self.assertIn('name="pinyinMode" value="tone_marks" checked', html)
+        self.assertIn('name="pinyinMode" value="tone_numbers"', html)
+        self.assertIn('name="pinyinMode" value="no_tone"', html)
+        self.assertIn('id="otherTranscriptionSystem"', html)
+        self.assertIn('<option value=""></option>', html)
+        self.assertIn('value="IPA numeric tones"', html)
+        self.assertIn('value="IPA tone letters"', html)
+        self.assertIn('data-i18n-opt="jyutping">粤拼 / Jyutping</option>', html)
+        self.assertIn("pinyin_mode: selectedPinyinMode()", source)
+        self.assertIn("other_transcription_system: selectedOtherTranscriptionSystem()", source)
+
+    def test_default_output_keeps_only_form_pinyin_gloss_and_translation(self):
+        html = (ROOT / "index.html").read_text(encoding="utf-8")
+
+        self.assertIn('id="showForm" checked', html)
+        self.assertIn('id="showPinyin" checked', html)
+        self.assertIn('id="showTranscription"><span data-i18n="otherTranscriptionOutput"', html)
+        self.assertIn('id="showGloss" checked', html)
+        self.assertIn('id="showTranslation" checked', html)
+
+    def test_word_copy_uses_a_dedicated_small_caps_formatter(self):
+        source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
+
+        self.assertIn("formatGlossHtmlForWord", source)
+        self.assertIn("publicationHTML(false, formatGlossHtmlForWord)", source)
+
     def test_api_key_application_dialog_contains_official_links_and_required_notices(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
 

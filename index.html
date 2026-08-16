@@ -6,7 +6,7 @@
 <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?build=20260815-1">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?build=20260815-1">
 <title>Merlin's Leipzig Gloss Tool 1.0</title>
-<script src="typography.js?build=20260815-3"></script>
+<script src="typography.js?build=20260816-2"></script>
 <script src="batch.js?build=20260815-6"></script>
 <script src="interface-language.js?build=20260815-1"></script>
 <style>
@@ -75,13 +75,14 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
 .aligned{font-size:11px;letter-spacing:.04em;color:var(--good);border-bottom:1px solid rgba(39,100,64,.4);padding-bottom:2px}
 .editor-layout{display:block}
 .checkline{display:flex;align-items:center;gap:9px;padding:5px 0;color:#34434a;font-size:12px;cursor:pointer}.checkline input{width:15px;height:15px;accent-color:var(--navy);margin:0;flex:0 0 auto}
+.option-field{border:0;padding:0;margin:0 0 14px}.option-field legend{padding:0;margin-bottom:6px}.choice-grid{display:grid;gap:2px;padding:8px 10px;border:1px solid var(--rule);background:var(--surface-2)}.choice-grid .checkline{margin:0}.transcription-settings>.field:last-child{margin-bottom:14px}
 .editor-content{min-width:0}
 .editor-examples{display:grid;gap:16px}
 .editor-example{border:1px solid var(--rule);background:#fff}
 .editor-example-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
 .editor-example-title{font:600 13px Georgia,"Songti SC",serif;color:#34434a}.editor-example-status{font-size:10px;letter-spacing:.04em;color:var(--good)}
 .token-editor-grid{display:flex;flex-wrap:wrap;align-items:stretch;padding:8px;background:#f3f1eb;border-bottom:1px solid var(--rule);gap:1px;overflow:hidden}
-.token-editor-card{flex:1 1 168px;min-width:min(168px,100%);max-width:224px;background:#fff;border:1px solid #dedbd3;margin:-1px 0 0 -1px;display:grid;grid-template-rows:auto repeat(4,minmax(42px,auto));min-inline-size:0}
+.token-editor-card{flex:1 1 168px;min-width:min(168px,100%);max-width:224px;background:#fff;border:1px solid #dedbd3;margin:-1px 0 0 -1px;display:grid;grid-auto-rows:minmax(42px,auto);min-inline-size:0}
 .token-editor-index{padding:5px 9px;background:#f7f5ef;color:var(--muted);font-size:9px;font-weight:750;letter-spacing:.08em;border-bottom:1px solid #e7e4dd}
 .token-editor-line{display:grid;grid-template-columns:48px minmax(0,1fr);align-items:stretch;min-inline-size:0;border-bottom:1px solid #ece9e2}.token-editor-line:last-child{border-bottom:0}
 .token-editor-label{padding:8px 6px;display:flex;align-items:center;background:#faf9f5;color:#667177;font-size:9px;font-weight:750;line-height:1.2;border-right:1px solid #ece9e2;overflow-wrap:anywhere}
@@ -198,10 +199,33 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
       <label for="inputFormat" data-i18n="inputFormat">输入格式</label>
       <select id="inputFormat"><option value="hanzi" data-i18n-opt="hanzi">汉字</option><option value="romanized" data-i18n-opt="romanized">拼音 / 罗马字 / IPA</option></select>
     </div>
-    <div class="field" id="transcriptionWrap">
-      <label for="transcriptionSystem" data-i18n="transcriptionSystem">转写 1 体系</label>
-      <select id="transcriptionSystem"><option>Pinyin</option><option>Jyutping</option><option value="Zhuyin" data-i18n-opt="zhuyin">注音符号 / Zhuyin</option><option>IPA</option><option>Yale</option><option value="Other" data-i18n-opt="other">Other</option></select>
-      <div class="hint" data-i18n="transcriptionHint">Pinyin 使用数字声调，轻声不标 0；转写 2 固定为带调号汉语拼音。</div>
+    <div class="transcription-settings" id="mandarinTranscriptionSettings">
+      <fieldset class="option-field">
+        <legend class="field-label" data-i18n="pinyinSettings">拼音设置</legend>
+        <div class="choice-grid">
+          <label class="checkline"><input type="radio" name="pinyinMode" value="tone_marks" checked><span data-i18n="pinyinToneMarks">拼音有声调</span></label>
+          <label class="checkline"><input type="radio" name="pinyinMode" value="tone_numbers"><span data-i18n="pinyinToneNumbers">拼音数字声调</span></label>
+          <label class="checkline"><input type="radio" name="pinyinMode" value="no_tone"><span data-i18n="pinyinNoTone">拼音无声调</span></label>
+        </div>
+      </fieldset>
+      <div class="field" id="otherTranscriptionWrap">
+        <label for="otherTranscriptionSystem" data-i18n="otherTranscriptionSettings">其他注音设置</label>
+        <select id="otherTranscriptionSystem">
+          <option value=""></option>
+          <option value="Zhuyin" data-i18n-opt="zhuyin">注音符号 / Zhuyin</option>
+          <option value="IPA numeric tones" data-i18n-opt="ipaNumericTones">IPA + 数字声调</option>
+          <option value="IPA tone letters" data-i18n-opt="ipaToneLetters">IPA 固有声调</option>
+          <option value="Jyutping" data-i18n-opt="jyutping">粤拼 / Jyutping</option>
+          <option>Yale</option>
+          <option value="Other" data-i18n-opt="other">Other</option>
+        </select>
+        <div class="hint" data-i18n="otherTranscriptionHint">可选；留空时不生成其他注音行。</div>
+      </div>
+    </div>
+    <div class="field" id="transcriptionWrap" style="display:none">
+      <label for="transcriptionSystem" data-i18n="transcriptionSystem">主要转写体系</label>
+      <select id="transcriptionSystem"><option>Pinyin</option><option value="Jyutping" data-i18n-opt="jyutping">粤拼 / Jyutping</option><option value="Zhuyin" data-i18n-opt="zhuyin">注音符号 / Zhuyin</option><option value="IPA numeric tones" data-i18n-opt="ipaNumericTones">IPA + 数字声调</option><option value="IPA tone letters" data-i18n-opt="ipaToneLetters">IPA 固有声调</option><option>Yale</option><option value="Other" data-i18n-opt="other">Other</option></select>
+      <div class="hint" data-i18n="transcriptionHint">为非普通话材料选择主要转写体系。</div>
     </div>
 
     <div class="divider"></div>
@@ -225,8 +249,8 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
         <fieldset>
           <legend data-i18n="outputLines">输出行</legend>
           <label class="checkline"><input type="checkbox" id="showForm" checked><span data-i18n="form">原文</span></label>
-          <label class="checkline"><input type="checkbox" id="showTranscription" checked><span data-i18n="transcription1">转写 1</span></label>
-          <label class="checkline"><input type="checkbox" id="showPinyin" checked><span data-i18n="transcription2">转写 2</span></label>
+          <label class="checkline"><input type="checkbox" id="showPinyin" checked><span data-i18n="pinyinOutput">拼音</span></label>
+          <label class="checkline"><input type="checkbox" id="showTranscription"><span data-i18n="otherTranscriptionOutput">其他注音</span></label>
           <label class="checkline"><input type="checkbox" id="showGloss" checked><span>Gloss</span></label>
           <label class="checkline"><input type="checkbox" id="showTranslation" checked><span data-i18n="freeTranslation">英语自由翻译</span></label>
         </fieldset>
@@ -266,8 +290,8 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
               <thead><tr><th data-i18n="outputLine">输出行</th><th data-i18n="font">字体</th><th data-i18n="fontSize">字号（pt）</th><th class="type-toggle" data-i18n="bold">加粗</th><th class="type-toggle" data-i18n="italic">斜体</th></tr></thead>
               <tbody>
                 <tr data-style-row="form"><th data-i18n="form">原文</th><td><select class="style-font" aria-label="原文字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="原文字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="原文加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="原文斜体"></label></td></tr>
-                <tr data-style-row="transcription"><th data-i18n="transcription1">转写 1</th><td><select class="style-font" aria-label="转写 1 字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="转写 1 字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="转写 1 加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="转写 1 斜体"></label></td></tr>
-                <tr data-style-row="pinyin"><th data-i18n="transcription2">转写 2</th><td><select class="style-font" aria-label="转写 2 字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="转写 2 字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="转写 2 加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="转写 2 斜体"></label></td></tr>
+                <tr data-style-row="pinyin"><th data-i18n="pinyinOutput">拼音</th><td><select class="style-font" aria-label="拼音字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="拼音字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="拼音加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="拼音斜体"></label></td></tr>
+                <tr data-style-row="transcription"><th data-i18n="otherTranscriptionOutput">其他注音</th><td><select class="style-font" aria-label="其他注音字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="其他注音字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="其他注音加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="其他注音斜体"></label></td></tr>
                 <tr data-style-row="gloss"><th>Gloss</th><td><select class="style-font" aria-label="Gloss 字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="Gloss 字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="Gloss 加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="Gloss 斜体"></label></td></tr>
                 <tr data-style-row="free"><th data-i18n="freeTranslation">英语自由翻译</th><td><select class="style-font" aria-label="英语翻译字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="英语翻译字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="英语翻译加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="英语翻译斜体"></label></td></tr>
               </tbody>
@@ -321,32 +345,32 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
   <div class="dialog-head"><h2 id="helpTitle" data-i18n="help">使用说明</h2><button id="btnCloseHelp" class="icon-button" aria-label="关闭" title="关闭">×</button></div>
   <div class="dialog-body help-zh">
     <h3>基本流程</h3>
-    <ol><li>选择服务商和模型，输入 API key。可先点击“验证 API”。</li><li>选择语言、输入格式和“转写 1”体系。</li><li>在输入框中一行输入一个例句，每行内部用空格标出最终词边界；也可导入一行一个例句的 TXT 文件。</li><li>生成后，预览会立即显示在输入区下方；每个例句使用一个独立表格。</li><li>选择输出行以及无编号、连续数字或两种字母编号；数字和字母起点均可自定义。</li><li>在编辑区逐例修改原文、两层转写、Gloss 和英语翻译，并按需调整排版。</li><li>从预览区下方复制或导出；保存项目可保留全部例句、编辑内容、输出选择和排版设置。</li></ol>
+    <ol><li>选择服务商和模型，输入 API key。可先点击“验证 API”。</li><li>选择语言和输入格式；普通话可设置拼音形式，并按需增加一种其他注音。</li><li>在输入框中一行输入一个例句，每行内部用空格标出最终词边界；也可导入一行一个例句的 TXT 文件。</li><li>生成后，预览会立即显示在输入区下方；每个例句使用一个独立表格。</li><li>选择输出行以及无编号、连续数字或两种字母编号；数字和字母起点均可自定义。</li><li>在编辑区逐例修改原文、拼音、可选注音、Gloss 和英语翻译，并按需调整排版。</li><li>从预览区下方复制或导出；保存项目可保留全部例句、编辑内容、输出选择和排版设置。</li></ol>
     <h3>批量输入与编号</h3><p>输入框和 TXT 文件都以“物理行”为例句边界，空行会被忽略。TXT 导入只接受 <code>.txt</code> 文件。“连续数字”默认从 <code>(1)</code> 开始，并可填写任意正整数起点；负数、零或无效输入会自动重置为 <code>1</code>。“字母：(a)”输出 <code>(a)</code>、<code>(b)</code>；“字母：a.”输出 <code>a.</code>、<code>b.</code>。两种字母编号都可填写 <code>c</code>、<code>aa</code> 等起始字母，并在 <code>z</code> 后继续为 <code>aa</code>。选择“无编号”则完全移除编号列。</p>
-    <h3>两层转写</h3><p><strong>转写 1</strong>使用所选体系；选择 Pinyin 时采用数字声调，如 <code>wo3</code>，轻声不标 <code>0</code>，如 <code>de</code>；选择“注音符号”时输出横排 Bopomofo，例如 <code>ㄨㄛˇ</code>、<code>˙ㄉㄜ</code>。<strong>转写 2</strong>固定为带调号的标准汉语拼音，如 <code>wǒ</code>；轻声不加调号。方言材料中的转写 2 是普通话拼音参考层。</p>
-    <h3>排版设置</h3><p>五条输出行默认使用 Times New Roman，中文字符自动回退到宋体，字号为 10.5 pt，均不加粗、不斜体。“保持现有设置”会把当前排版留给下次使用；“恢复默认”立即重置全部行。Gloss 中的全大写语法缩写自动使用小型大写字母。</p>
+    <h3>拼音与其他注音</h3><p>普通话可在“拼音有声调”（默认，如 <code>wǒ</code>）、“拼音数字声调”（如 <code>wo3</code>）和“拼音无声调”（如 <code>wo</code>）之间单选；轻声始终不标 <code>0</code>。其他注音默认留空，也可选注音符号、IPA + 数字声调、IPA 固有声调、粤拼 / Jyutping、Yale 或其他体系。IPA 数字声调使用 <code>55/35/214/51</code> 这类调值；IPA 固有声调使用 <code>˥/˧˥/˨˩˦/˥˩</code> 等调符。粤语或自定义方言则使用“主要转写体系”。</p>
+    <h3>排版设置</h3><p>五条输出行默认使用 Times New Roman，中文字符自动回退到宋体，字号为 10.5 pt，均不加粗、不斜体。“保持现有设置”会把当前排版留给下次使用；“恢复默认”立即重置全部行。Gloss 中的全大写语法缩写自动显示为小型大写字母；“复制表格”使用 Word 兼容的底层小写字符与小型大写格式。</p>
     <h3>API key 申请</h3><p>请从服务商的官方页面创建 API key，申请后充值可用。</p><ul><li><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">DeepSeek API key</a></li><li><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI API key</a></li><li><a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener noreferrer">Claude / Anthropic API key</a></li><li><a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer">OpenRouter API key</a></li></ul><p class="region-notice">中国境内只能使用 DeepSeek。</p>
     <h3>数据与安全</h3><p>空格分词具有最高优先级。API key 只从当前表单传给同源后端，不会写入项目文件或浏览器存储。AI 生成的分析应由研究者复核。</p>
   </div>
   <div class="dialog-body help-zh-hant hidden">
     <h3>基本流程</h3>
-    <ol><li>選擇服務提供者和模型，輸入 API key。可先選取「驗證 API」。</li><li>選擇語言、輸入格式和「轉寫 1」系統。</li><li>在輸入框中每行輸入一個例句，每行內部用空格標出最終詞界；也可匯入每行一個例句的 TXT 檔案。</li><li>產生後，預覽會立即顯示在輸入區下方；每個例句各用一個表格。</li><li>選擇輸出列以及無編號、連續數字或兩種字母編號；數字和字母起點均可自訂。</li><li>在編輯區逐例修改原文、兩層轉寫、Gloss 和英文翻譯，並依需求調整排版。</li><li>從預覽區下方複製或匯出；儲存專案可保留全部例句、編輯內容、輸出選擇和排版設定。</li></ol>
+    <ol><li>選擇服務提供者和模型，輸入 API key。可先選取「驗證 API」。</li><li>選擇語言和輸入格式；國語可設定拼音形式，並視需要增加一種其他注音。</li><li>在輸入框中每行輸入一個例句，每行內部用空格標出最終詞界；也可匯入每行一個例句的 TXT 檔案。</li><li>產生後，預覽會立即顯示在輸入區下方；每個例句各用一個表格。</li><li>選擇輸出列以及無編號、連續數字或兩種字母編號；數字和字母起點均可自訂。</li><li>在編輯區逐例修改原文、拼音、選填注音、Gloss 和英文翻譯，並依需求調整排版。</li><li>從預覽區下方複製或匯出；儲存專案可保留全部例句、編輯內容、輸出選擇和排版設定。</li></ol>
     <h3>批次輸入與編號</h3><p>輸入框和 TXT 檔案都以每一個非空白行為例句邊界，空白行會被忽略。TXT 匯入只接受 <code>.txt</code> 檔案。「連續數字」預設從 <code>(1)</code> 開始，並可填寫任意正整數起點；負數、零或無效輸入會自動重設為 <code>1</code>。「字母：(a)」輸出 <code>(a)</code>、<code>(b)</code>；「字母：a.」輸出 <code>a.</code>、<code>b.</code>。兩種字母編號都可填寫 <code>c</code>、<code>aa</code> 等起始字母，並在 <code>z</code> 後接續為 <code>aa</code>。選擇「無編號」則完全移除編號欄。</p>
-    <h3>兩層轉寫</h3><p><strong>轉寫 1</strong> 使用所選系統；選擇 Pinyin 時採用數字聲調，如 <code>wo3</code>，輕聲不標 <code>0</code>，如 <code>de</code>；選擇「注音符號」時輸出橫排 Bopomofo，例如 <code>ㄨㄛˇ</code>、<code>˙ㄉㄜ</code>。<strong>轉寫 2</strong> 固定為帶調號的標準漢語拼音，如 <code>wǒ</code>；輕聲不加調號。方言材料中的轉寫 2 是國語拼音參考層。</p>
-    <h3>排版設定</h3><p>五個輸出列預設使用 Times New Roman，中文字元會自動改用宋體，字號為 10.5 pt，均不使用粗體或斜體。「保留目前設定」會保留目前排版供下次使用；「還原預設值」會立即重設全部輸出列。Gloss 中的全大寫語法縮寫會自動使用小型大寫字母。</p>
+    <h3>拼音與其他注音</h3><p>國語可在「拼音附聲調符號」（預設，如 <code>wǒ</code>）、「拼音數字聲調」（如 <code>wo3</code>）和「拼音不標聲調」（如 <code>wo</code>）之間單選；輕聲一律不標 <code>0</code>。其他注音預設留白，也可選注音符號、IPA + 數字聲調、IPA 聲調符號、粵拼 / Jyutping、Yale 或其他系統。IPA 數字聲調使用 <code>55/35/214/51</code> 等調值；IPA 聲調符號使用 <code>˥/˧˥/˨˩˦/˥˩</code>。粵語或自訂方言則使用「主要轉寫系統」。</p>
+    <h3>排版設定</h3><p>五個輸出列預設使用 Times New Roman，中文字元會自動改用宋體，字號為 10.5 pt，均不使用粗體或斜體。「保留目前設定」會保留目前排版供下次使用；「還原預設值」會立即重設全部輸出列。Gloss 中的全大寫語法縮寫會自動顯示為小型大寫字母；「複製表格」使用與 Word 相容的底層小寫字元及小型大寫格式。</p>
     <h3>API key 申請</h3><p>請從服務提供者的官方頁面建立 API key，申請後儲值即可使用。</p><ul><li><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">DeepSeek API key</a></li><li><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI API key</a></li><li><a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener noreferrer">Claude / Anthropic API key</a></li><li><a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer">OpenRouter API key</a></li></ul><p class="region-notice">中國境內只能使用 DeepSeek。</p>
     <h3>資料與安全</h3><p>空格分詞具有最高優先順序。API key 只會從目前表單傳送至同源後端，不會寫入專案檔案或瀏覽器儲存空間。AI 產生的分析應由研究者確認。</p>
   </div>
   <div class="dialog-body help-en hidden">
-    <h3>Workflow</h3><ol><li>Select a provider and model, enter an API key, and optionally validate it.</li><li>Select the language, input format, and Transcription 1 system.</li><li>Enter one example per line, using spaces for final token boundaries, or import a one-example-per-line TXT file.</li><li>The preview appears directly below the input, with one independent table per example.</li><li>Select the output lines and choose no numbering, numeric numbering, or either alphabetic format with a custom start.</li><li>Edit each example and set typography independently for every output line.</li><li>Copy or export all preview tables, or save the editable batch project.</li></ol>
+    <h3>Workflow</h3><ol><li>Select a provider and model, enter an API key, and optionally validate it.</li><li>Select the language and input format. For Mandarin, choose the Pinyin form and optionally add one other annotation.</li><li>Enter one example per line, using spaces for final token boundaries, or import a one-example-per-line TXT file.</li><li>The preview appears directly below the input, with one independent table per example.</li><li>Select the output lines and choose no numbering, numeric numbering, or either alphabetic format with a custom start.</li><li>Edit each example and set typography independently for every output line.</li><li>Copy or export all preview tables, or save the editable batch project.</li></ol>
     <h3>Batch input and numbering</h3><p>Physical lines delimit examples and blank lines are ignored. Import accepts only <code>.txt</code> files. Numeric numbering defaults to <code>(1)</code> and accepts only a positive integer start; negative, zero, or invalid input resets to <code>1</code>. “Alphabetic: (a)” outputs <code>(a)</code>, <code>(b)</code>; “Alphabetic: a.” outputs <code>a.</code>, <code>b.</code>. Both accept a custom letter start and continue from <code>z</code> to <code>aa</code>. Select no numbering to remove the number column.</p>
-    <h3>Two transcription layers</h3><p><strong>Transcription 1</strong> uses the selected system; Pinyin uses tone numbers with no <code>0</code> for neutral tone. Zhuyin produces horizontal Bopomofo such as <code>ㄨㄛˇ</code> and <code>˙ㄉㄜ</code>. <strong>Transcription 2</strong> is Standard Mandarin Pinyin with tone marks; neutral tone is unmarked.</p>
-    <h3>Typography</h3><p>All five output lines default to Times New Roman with Songti fallback for Chinese, 10.5 pt, regular, and non-italic. “Keep current settings” remembers the typography for later use; “Restore defaults” resets every line. Uppercase grammatical glosses use small caps automatically.</p>
+    <h3>Pinyin and other annotations</h3><p>Mandarin Pinyin can use tone marks (default, e.g. <code>wǒ</code>), tone numbers (e.g. <code>wo3</code>), or no tones (e.g. <code>wo</code>); neutral tone never takes <code>0</code>. The optional annotation can be Zhuyin, IPA with numeric tone values, IPA tone letters, 粤拼 / Jyutping, Yale, or another system. Numeric IPA uses values such as <code>55/35/214/51</code>; IPA tone letters use forms such as <code>˥/˧˥/˨˩˦/˥˩</code>.</p>
+    <h3>Typography</h3><p>All five output lines default to Times New Roman with Songti fallback for Chinese, 10.5 pt, regular, and non-italic. “Keep current settings” remembers the typography for later use; “Restore defaults” resets every line. Uppercase grammatical glosses use small caps automatically. “Copy tables” sends lowercase source characters plus Word-compatible small-caps formatting.</p>
     <h3>Getting an API key</h3><p>Create an API key on the provider’s official page, then add credit before use.</p><ul><li><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">DeepSeek API key</a></li><li><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI API key</a></li><li><a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener noreferrer">Claude / Anthropic API key</a></li><li><a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer">OpenRouter API key</a></li></ul>
     <h3>Data and security</h3><p>Whitespace tokenization is authoritative. The API key is sent only to the same-origin backend and is not saved. Researcher review of AI output remains necessary.</p>
   </div>
 </dialog>
 
-<script src="app-ui.js?build=20260815-14"></script>
+<script src="app-ui.js?build=20260816-2"></script>
 </body>
 </html>

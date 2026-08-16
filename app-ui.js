@@ -5,6 +5,7 @@ const {
   DEFAULT_TYPOGRAPHY,
   FONT_OPTIONS,
   formatGlossHtml,
+  formatGlossHtmlForWord,
   isGlossAbbreviation,
   normalizeTypography,
   typographyCss,
@@ -25,12 +26,12 @@ const defaults = {deepseek: 'deepseek-v4-flash', openai: 'gpt-5.6-luna', claude:
 const I18N = {
   zh: {
     demo: '载入示例', help: '使用说明', close: '关闭', settings: '项目设置', aiSettings: 'AI 服务', provider: '服务商', model: '模型名称',
-    keyHint: '仅用于本次 API 请求，不会保存。', validate: '验证 API', apiKeyHelp: '如何申请', apiKeyDialogTitle: '如何申请 API key', lingSettings: '语言与转写', variety: '语言 / 方言', mandarin: '普通话 / Mandarin', cantonese: '粤语 / Cantonese', other: '其他 / Other', zhuyin: '注音符号 / Zhuyin',
-    customVariety: '自定义语言 / 方言名称', inputFormat: '输入格式', transcriptionSystem: '转写 1 体系',
-    transcriptionHint: 'Pinyin 使用数字声调，轻声不标 0；也可选择注音符号。转写 2 固定为带调号汉语拼音。',
+    keyHint: '仅用于本次 API 请求，不会保存。', validate: '验证 API', apiKeyHelp: '如何申请', apiKeyDialogTitle: '如何申请 API key', lingSettings: '语言与转写', variety: '语言 / 方言', mandarin: '普通话 / Mandarin', cantonese: '粤语 / Cantonese', other: '其他 / Other', zhuyin: '注音符号 / Zhuyin', jyutping: '粤拼 / Jyutping', ipaNumericTones: 'IPA + 数字声调', ipaToneLetters: 'IPA 固有声调',
+    customVariety: '自定义语言 / 方言名称', inputFormat: '输入格式', transcriptionSystem: '主要转写体系', pinyinSettings: '拼音设置', pinyinToneMarks: '拼音有声调', pinyinToneNumbers: '拼音数字声调', pinyinNoTone: '拼音无声调', otherTranscriptionSettings: '其他注音设置', otherTranscriptionHint: '可选；留空时不生成其他注音行。',
+    transcriptionHint: '为非普通话材料选择主要转写体系。',
     conventions: 'Gloss 约定（可修改）', input: '输入例句', importTxt: '导入 TXT', clear: '清空', analyze: '生成 Gloss',
     segHint: '每行一个例句；请用空格分词，空行将被忽略。也可导入一行一个例句的 TXT 文件。', editResult: '编辑结果', aligned: '词数已对齐',
-    outputLines: '输出行', form: '原文', transcription1: '转写 1', transcription2: '转写 2', freeTranslation: '英语自由翻译',
+    outputLines: '输出行', form: '原文', transcription1: '转写 1', transcription2: '转写 2', pinyinOutput: '拼音', otherTranscriptionOutput: '其他注音', freeTranslation: '英语自由翻译',
     numberingMode: '编号方式', noNumber: '无编号', continuousNumber: '连续数字', alphabeticNumber: '字母：(a)', alphabeticDotNumber: '字母：a.', startNumber: '起始数字', startLetter: '起始字母', typography: '排版设置',
     typographyNote: '逐行控制字体、字号和字形', rememberTypography: '保持现有设置', resetTypography: '恢复默认', outputLine: '输出行',
     font: '字体', fontSize: '字号（pt）', bold: '加粗', italic: '斜体', smallCapsHint: 'Gloss 中的全大写语法缩写将自动显示为小型大写字母。',
@@ -45,12 +46,12 @@ const I18N = {
   },
   en: {
     demo: 'Load demo', help: 'Guide', close: 'Close', settings: 'Project settings', aiSettings: 'AI service', provider: 'Provider', model: 'Model name',
-    keyHint: 'Used only for this API request and never saved.', validate: 'Validate API', apiKeyHelp: 'How to apply', apiKeyDialogTitle: 'How to get an API key', lingSettings: 'Language & transcription', variety: 'Language / variety', mandarin: 'Mandarin', cantonese: 'Cantonese', other: 'Other', zhuyin: 'Zhuyin / Bopomofo',
-    customVariety: 'Custom language / variety', inputFormat: 'Input format', transcriptionSystem: 'Transcription 1 system',
-    transcriptionHint: 'Pinyin uses tone numbers with no 0 for neutral tone; Zhuyin is also available. Transcription 2 uses tone-marked Pinyin.',
+    keyHint: 'Used only for this API request and never saved.', validate: 'Validate API', apiKeyHelp: 'How to apply', apiKeyDialogTitle: 'How to get an API key', lingSettings: 'Language & transcription', variety: 'Language / variety', mandarin: 'Mandarin', cantonese: 'Cantonese', other: 'Other', zhuyin: 'Zhuyin / Bopomofo', jyutping: '粤拼 / Jyutping', ipaNumericTones: 'IPA + numeric tone values', ipaToneLetters: 'IPA tone letters',
+    customVariety: 'Custom language / variety', inputFormat: 'Input format', transcriptionSystem: 'Primary transcription system', pinyinSettings: 'Pinyin settings', pinyinToneMarks: 'Pinyin with tone marks', pinyinToneNumbers: 'Pinyin with tone numbers', pinyinNoTone: 'Pinyin without tones', otherTranscriptionSettings: 'Other annotation', otherTranscriptionHint: 'Optional; leave blank to omit the other-annotation line.',
+    transcriptionHint: 'Select the primary system for non-Mandarin material.',
     conventions: 'Gloss conventions (editable)', input: 'Input examples', importTxt: 'Import TXT', clear: 'Clear', analyze: 'Generate gloss',
     segHint: 'Enter one example per line, segmenting tokens with spaces. Blank lines are ignored. You may also import a one-example-per-line TXT file.',
-    editResult: 'Edit results', aligned: 'tokens aligned', outputLines: 'Output lines', form: 'Form', transcription1: 'Transcription 1', transcription2: 'Transcription 2',
+    editResult: 'Edit results', aligned: 'tokens aligned', outputLines: 'Output lines', form: 'Form', transcription1: 'Transcription 1', transcription2: 'Transcription 2', pinyinOutput: 'Pinyin', otherTranscriptionOutput: 'Other annotation',
     freeTranslation: 'Free English translation', numberingMode: 'Numbering', noNumber: 'No numbers', continuousNumber: 'Numeric', alphabeticNumber: 'Alphabetic: (a)', alphabeticDotNumber: 'Alphabetic: a.', startNumber: 'Start number', startLetter: 'Start letter',
     typography: 'Typography', typographyNote: 'Control font, size, and emphasis for each line', rememberTypography: 'Keep current settings', resetTypography: 'Restore defaults',
     outputLine: 'Output line', font: 'Font', fontSize: 'Size (pt)', bold: 'Bold', italic: 'Italic',
@@ -69,12 +70,12 @@ const I18N = {
 
 I18N['zh-Hant'] = {
   demo: '載入範例', help: '使用說明', close: '關閉', settings: '專案設定', aiSettings: 'AI 服務', provider: '服務提供者', model: '模型名稱',
-  keyHint: '僅用於本次 API 請求，不會儲存。', validate: '驗證 API', apiKeyHelp: '如何申請', apiKeyDialogTitle: '如何申請 API key', lingSettings: '語言與轉寫', variety: '語言 / 方言', mandarin: '國語 / Mandarin', cantonese: '粵語 / Cantonese', other: '其他 / Other', zhuyin: '注音符號 / Zhuyin',
-  customVariety: '自訂語言 / 方言名稱', inputFormat: '輸入格式', transcriptionSystem: '轉寫 1 系統',
-  transcriptionHint: 'Pinyin 使用數字聲調，輕聲不標 0；也可選擇注音符號。轉寫 2 固定為帶調號漢語拼音。',
+  keyHint: '僅用於本次 API 請求，不會儲存。', validate: '驗證 API', apiKeyHelp: '如何申請', apiKeyDialogTitle: '如何申請 API key', lingSettings: '語言與轉寫', variety: '語言 / 方言', mandarin: '國語 / Mandarin', cantonese: '粵語 / Cantonese', other: '其他 / Other', zhuyin: '注音符號 / Zhuyin', jyutping: '粵拼 / Jyutping', ipaNumericTones: 'IPA + 數字聲調', ipaToneLetters: 'IPA 聲調符號',
+  customVariety: '自訂語言 / 方言名稱', inputFormat: '輸入格式', transcriptionSystem: '主要轉寫系統', pinyinSettings: '拼音設定', pinyinToneMarks: '拼音附聲調符號', pinyinToneNumbers: '拼音數字聲調', pinyinNoTone: '拼音不標聲調', otherTranscriptionSettings: '其他注音設定', otherTranscriptionHint: '選填；留白時不產生其他注音列。',
+  transcriptionHint: '為非國語材料選擇主要轉寫系統。',
   conventions: 'Gloss 約定（可修改）', input: '輸入例句', importTxt: '匯入 TXT', clear: '清除', analyze: '產生 Gloss',
   segHint: '每行一個例句；請用空格分詞，空行將被忽略。也可匯入一行一個例句的 TXT 檔案。', editResult: '編輯結果', aligned: '詞數已對齊',
-  outputLines: '輸出列', form: '原文', transcription1: '轉寫 1', transcription2: '轉寫 2', freeTranslation: '英文自由翻譯',
+  outputLines: '輸出列', form: '原文', transcription1: '轉寫 1', transcription2: '轉寫 2', pinyinOutput: '拼音', otherTranscriptionOutput: '其他注音', freeTranslation: '英文自由翻譯',
   numberingMode: '編號方式', noNumber: '無編號', continuousNumber: '連續數字', alphabeticNumber: '字母：(a)', alphabeticDotNumber: '字母：a.', startNumber: '起始數字', startLetter: '起始字母', typography: '排版設定',
   typographyNote: '逐列控制字型、字號和字形', rememberTypography: '保留目前設定', resetTypography: '還原預設值', outputLine: '輸出列',
   font: '字型', fontSize: '字號（pt）', bold: '粗體', italic: '斜體', smallCapsHint: 'Gloss 中的全大寫語法縮寫會自動顯示為小型大寫字母。',
@@ -138,19 +139,41 @@ function applyInterfaceLanguage(language) {
   setStatus($('#apiStatus'), '');
   applyLang();
 }
+function selectedPinyinMode() {
+  return document.querySelector('input[name="pinyinMode"]:checked')?.value || 'tone_marks';
+}
+function setPinyinMode(value) {
+  const valid = ['tone_marks', 'tone_numbers', 'no_tone'].includes(value) ? value : 'tone_marks';
+  const control = document.querySelector(`input[name="pinyinMode"][value="${valid}"]`);
+  if (control) control.checked = true;
+}
+function selectedOtherTranscriptionSystem() {
+  return $('#languagePreset').value === 'Mandarin Chinese' ? $('#otherTranscriptionSystem').value : $('#transcriptionSystem').value;
+}
 function languageChanged(setRecommended = true) {
   const value = $('#languagePreset').value;
+  const isHanzi = $('#inputFormat').value === 'hanzi';
+  const isMandarin = value === 'Mandarin Chinese';
   $('#customLanguageWrap').style.display = value === 'custom' ? 'block' : 'none';
-  if (setRecommended && $('#inputFormat').value === 'hanzi') {
-    if (value === 'Mandarin Chinese') $('#transcriptionSystem').value = 'Pinyin';
-    if (value === 'Cantonese') $('#transcriptionSystem').value = 'Jyutping';
+  $('#mandarinTranscriptionSettings').style.display = isHanzi && isMandarin ? 'block' : 'none';
+  $('#transcriptionWrap').style.display = isHanzi && !isMandarin ? 'block' : 'none';
+  if (setRecommended && isHanzi) {
+    if (isMandarin) {
+      setPinyinMode('tone_marks');
+      $('#otherTranscriptionSystem').value = '';
+      $('#showTranscription').checked = false;
+    } else if (value === 'Cantonese') {
+      $('#transcriptionSystem').value = 'Jyutping';
+      $('#showTranscription').checked = true;
+    } else {
+      $('#transcriptionSystem').value = 'Other';
+      $('#showTranscription').checked = true;
+    }
   }
+  if (hasResults()) renderEditor();
 }
 function inputFormatChanged() {
-  const isHanzi = $('#inputFormat').value === 'hanzi';
-  $('#transcriptionWrap').style.display = isHanzi ? 'block' : 'none';
   languageChanged(false);
-  if (hasResults()) renderEditor();
 }
 function getLanguage() {
   return $('#languagePreset').value === 'custom' ? ($('#customLanguage').value.trim() || 'Chinese variety') : $('#languagePreset').value;
@@ -163,7 +186,9 @@ function getPayload(sentence = '') {
     api_key: $('#apiKey').value.trim(),
     language: getLanguage(),
     input_format: $('#inputFormat').value,
-    transcription_system: $('#transcriptionSystem').value,
+    pinyin_mode: selectedPinyinMode(),
+    other_transcription_system: selectedOtherTranscriptionSystem(),
+    transcription_system: selectedOtherTranscriptionSystem() || 'Pinyin',
     conventions: $('#conventions').value,
     sentence,
   };
@@ -303,13 +328,13 @@ function stripNeutralToneZero(value) { return String(value ?? '').replace(/([\p{
 function ensureResult(result) {
   const normalized = result && typeof result === 'object' ? result : {tokens: []};
   const isHanzi = $('#inputFormat').value === 'hanzi';
-  const isPinyin = $('#transcriptionSystem').value.toLowerCase() === 'pinyin';
+  const isOtherPinyin = selectedOtherTranscriptionSystem().toLowerCase() === 'pinyin';
   normalized.tokens = Array.isArray(normalized.tokens) ? normalized.tokens.map(token => {
     const transcription = String(token.transcription ?? '');
     const pinyin = String(token.pinyin_diacritic ?? token.transcription ?? '');
     return {
       form: String(token.form ?? ''),
-      transcription: isHanzi && isPinyin ? stripNeutralToneZero(transcription) : transcription,
+      transcription: isHanzi && isOtherPinyin ? stripNeutralToneZero(transcription) : transcription,
       pinyin_diacritic: isHanzi ? stripNeutralToneZero(pinyin) : pinyin,
       gloss: String(token.gloss ?? ''),
     };
@@ -342,11 +367,12 @@ function editorFieldHTML(exampleIndex, tokenIndex, label, field, value, classNam
   return `<div class="token-editor-line" data-edit-style="${styleKey}"><span class="token-editor-label">${esc(label)}</span><div class="editable ${className}" contenteditable="true" role="textbox" aria-label="${esc(ariaLabel)}" spellcheck="false" data-field="${field}" data-i="${tokenIndex}">${esc(value)}</div></div>`;
 }
 function editorExampleHTML(result, exampleIndex) {
+  const hasOtherAnnotation = Boolean(selectedOtherTranscriptionSystem()) || result.tokens.some(token => String(token.transcription ?? '').trim());
   const tokenCards = tokenEditorItems(result).map(token => `<section class="token-editor-card" data-token-index="${token.index}" aria-label="${esc(`${t('example')} ${exampleIndex + 1}, ${t('token')} ${token.index + 1}`)}">
     <div class="token-editor-index">${esc(t('token'))} ${token.index + 1}</div>
     ${editorFieldHTML(exampleIndex, token.index, t('form'), 'form', token.form, 'formcell', 'form')}
-    ${editorFieldHTML(exampleIndex, token.index, t('transcription1'), 'transcription', token.transcription, 'transcell', 'transcription')}
-    ${editorFieldHTML(exampleIndex, token.index, t('transcription2'), 'pinyin_diacritic', token.pinyin_diacritic, 'transcell', 'pinyin')}
+    ${editorFieldHTML(exampleIndex, token.index, t('pinyinOutput'), 'pinyin_diacritic', token.pinyin_diacritic, 'transcell', 'pinyin')}
+    ${hasOtherAnnotation ? editorFieldHTML(exampleIndex, token.index, t('otherTranscriptionOutput'), 'transcription', token.transcription, 'transcell', 'transcription') : ''}
     ${editorFieldHTML(exampleIndex, token.index, t('gloss'), 'gloss', token.gloss, 'glosscell', 'gloss')}
   </section>`).join('');
   return `<article class="editor-example" data-example-editor="${exampleIndex}">
@@ -392,13 +418,13 @@ function outputRows(result) {
   const tokens = result.tokens;
   const rows = [];
   if (options.form) rows.push({key: 'form', styleKey: 'form', values: tokens.map(token => token.form)});
-  if (options.transcription) rows.push({key: 'transcription', styleKey: 'transcription', values: tokens.map(token => token.transcription)});
   if (options.pinyin_diacritic) rows.push({key: 'pinyin', styleKey: 'pinyin', values: tokens.map(token => token.pinyin_diacritic)});
+  if (options.transcription) rows.push({key: 'transcription', styleKey: 'transcription', values: tokens.map(token => token.transcription)});
   if (options.gloss) rows.push({key: 'gloss', styleKey: 'gloss', values: tokens.map(token => token.gloss)});
   if (options.translation) rows.push({key: 'free', styleKey: 'free', text: `‘${result.free_translation}’`});
   return rows;
 }
-function publicationTableHTML(result, exampleIndex) {
+function publicationTableHTML(result, exampleIndex, glossFormatter = formatGlossHtml) {
   const rows = outputRows(result);
   const number = selectedNumber(exampleIndex);
   const tokenCount = result.tokens.length;
@@ -406,15 +432,15 @@ function publicationTableHTML(result, exampleIndex) {
     let html = `<tr class="${row.key}" style="${esc(styleCss(row.styleKey))}">`;
     if (rowIndex === 0 && number) html += `<td class="num" rowspan="${rows.length}" valign="top" style="vertical-align:top">${esc(number)}</td>`;
     if (row.key === 'free') html += `<td colspan="${Math.max(1, tokenCount)}">${esc(row.text)}</td>`;
-    else html += row.values.map(value => `<td>${row.key === 'gloss' ? formatGlossHtml(value) : esc(value)}</td>`).join('');
+    else html += row.values.map(value => `<td>${row.key === 'gloss' ? glossFormatter(value) : esc(value)}</td>`).join('');
     return `${html}</tr>`;
   }).join('')}</tbody></table>`;
 }
-function publicationHTML(includeLabels = true) {
+function publicationHTML(includeLabels = true, glossFormatter = formatGlossHtml) {
   if (!hasResults()) return '';
   syncFromEditor();
   if (!outputRows(state.results[0]).length) return `<div class="empty-preview">${esc(t('emptyOutput'))}</div>`;
-  return state.results.map((result, index) => `<article class="example-preview" data-preview-example="${index}">${includeLabels ? `<div class="example-preview-title">${esc(t('example'))} ${index + 1}</div>` : ''}${publicationTableHTML(result, index)}</article>`).join('');
+  return state.results.map((result, index) => `<article class="example-preview" data-preview-example="${index}">${includeLabels ? `<div class="example-preview-title">${esc(t('example'))} ${index + 1}</div>` : ''}${publicationTableHTML(result, index, glossFormatter)}</article>`).join('');
 }
 function renderPreview() {
   $('#preview').innerHTML = publicationHTML();
@@ -453,7 +479,7 @@ function mdTable(result, exampleIndex) {
 function mdHTML() { syncFromEditor(); return state.results.map(mdTable).join('\n\n'); }
 async function copyTable() {
   if (!requireOutput()) return;
-  const html = `<!doctype html><meta charset="utf-8"><style>.example-preview+.example-preview{margin-top:18px}table{border-collapse:separate;border-spacing:0 4px}td{border:none;padding:0 14px 0 0;white-space:nowrap}td.num{vertical-align:top!important}.free td{padding-top:6px}.small-caps{font-variant-caps:all-small-caps;font-feature-settings:"smcp" 1,"c2sc" 1;letter-spacing:.035em}</style>${publicationHTML(false)}`;
+  const html = `<!doctype html><meta charset="utf-8"><style>.example-preview+.example-preview{margin-top:18px}table{border-collapse:separate;border-spacing:0 4px}td{border:none;padding:0 14px 0 0;white-space:nowrap}td.num{vertical-align:top!important}.free td{padding-top:6px}</style>${publicationHTML(false, formatGlossHtmlForWord)}`;
   const plain = plainText();
   try {
     if (window.ClipboardItem) {
@@ -489,6 +515,8 @@ function getProject() {
       languagePreset: $('#languagePreset').value,
       customLanguage: $('#customLanguage').value,
       inputFormat: $('#inputFormat').value,
+      pinyinMode: selectedPinyinMode(),
+      otherTranscriptionSystem: $('#otherTranscriptionSystem').value,
       transcriptionSystem: $('#transcriptionSystem').value,
       numberingMode: $('#numberingMode').value,
       startNumber: normalizeStartNumber($('#startNumber').value),
@@ -504,7 +532,7 @@ function getProject() {
     results: state.results,
   };
 }
-function applyChecked(selector, value) { $(selector).checked = value !== false; }
+function applyChecked(selector, value, defaultValue = true) { $(selector).checked = value === undefined ? defaultValue : value !== false; }
 function legacyStartNumber(value) {
   const match = String(value ?? '').match(/-?\d+/);
   return match ? normalizeStartNumber(match[0]) : 1;
@@ -517,13 +545,22 @@ function loadProjectObj(project, options = {}) {
   $('#languagePreset').value = settings.languagePreset || 'Mandarin Chinese';
   $('#customLanguage').value = settings.customLanguage || '';
   $('#inputFormat').value = settings.inputFormat || 'hanzi';
-  $('#transcriptionSystem').value = settings.transcriptionSystem || 'Pinyin';
+  setPinyinMode(settings.pinyinMode || 'tone_marks');
+  const legacyTranscriptionSystem = settings.transcriptionSystem || 'Pinyin';
+  $('#transcriptionSystem').value = legacyTranscriptionSystem;
+  if (settings.otherTranscriptionSystem !== undefined) {
+    $('#otherTranscriptionSystem').value = settings.otherTranscriptionSystem;
+  } else if ($('#languagePreset').value === 'Mandarin Chinese' && output.transcription !== false) {
+    $('#otherTranscriptionSystem').value = legacyTranscriptionSystem;
+  } else {
+    $('#otherTranscriptionSystem').value = '';
+  }
   const savedNumberingMode = settings.numberingMode || (settings.includeNumber === false ? 'none' : 'continuous');
   $('#numberingMode').value = ['none', 'continuous', 'alphabetic', 'alphabetic-dot'].includes(savedNumberingMode) ? savedNumberingMode : 'continuous';
   $('#startNumber').value = normalizeStartNumber(settings.startNumber ?? legacyStartNumber(settings.exampleNo));
   $('#startLetter').value = normalizeStartLetter(settings.startLetter);
   applyChecked('#showForm', output.form);
-  applyChecked('#showTranscription', output.transcription);
+  applyChecked('#showTranscription', output.transcription, false);
   applyChecked('#showPinyin', output.pinyin_diacritic);
   applyChecked('#showGloss', output.gloss);
   applyChecked('#showTranslation', output.translation);
@@ -561,12 +598,15 @@ function saveProject() {
 function demo() {
   $('#languagePreset').value = 'Mandarin Chinese';
   $('#inputFormat').value = 'hanzi';
+  setPinyinMode('tone_marks');
+  $('#otherTranscriptionSystem').value = '';
   $('#transcriptionSystem').value = 'Pinyin';
   $('#sentence').value = '张三 把 那 本 书 买 了\n李四 已经 吃 了 三 个 苹果';
   $('#numberingMode').value = 'continuous';
   $('#startNumber').value = '1';
   $('#startLetter').value = 'a';
-  ['#showForm', '#showTranscription', '#showPinyin', '#showGloss', '#showTranslation'].forEach(selector => { $(selector).checked = true; });
+  ['#showForm', '#showPinyin', '#showGloss', '#showTranslation'].forEach(selector => { $(selector).checked = true; });
+  $('#showTranscription').checked = false;
   state.results = [
     {tokens: [
       {form: '张三', transcription: 'Zhang1san1', pinyin_diacritic: 'Zhāngsān', gloss: 'Zhangsan'},
@@ -586,7 +626,7 @@ function demo() {
       {form: '个', transcription: 'ge', pinyin_diacritic: 'ge', gloss: 'CLF'},
       {form: '苹果', transcription: 'ping2guo3', pinyin_diacritic: 'píngguǒ', gloss: 'apple'},
     ], free_translation: 'Lisi has already eaten three apples.', note: ''},
-  ].map(ensureResult);
+  ].map(result => ({...result, tokens: result.tokens.map(token => ({...token, transcription: ''}))})).map(ensureResult);
   languageChanged();
   inputFormatChanged();
   revealResults();
@@ -711,10 +751,20 @@ function exportPNG() {
   image.src = url;
 }
 function outputSettingChanged() { if (hasResults()) { renderPreview(); persist(); } }
+function transcriptionSettingChanged(controlOutput = false) {
+  if (controlOutput) $('#showTranscription').checked = Boolean(selectedOtherTranscriptionSystem());
+  if (hasResults()) {
+    renderEditor();
+    persist();
+  }
+}
 
 $('#provider').addEventListener('change', providerChanged);
 $('#languagePreset').addEventListener('change', languageChanged);
 $('#inputFormat').addEventListener('change', inputFormatChanged);
+document.querySelectorAll('input[name="pinyinMode"]').forEach(control => control.addEventListener('change', () => transcriptionSettingChanged(false)));
+$('#otherTranscriptionSystem').addEventListener('change', () => transcriptionSettingChanged(true));
+$('#transcriptionSystem').addEventListener('change', () => transcriptionSettingChanged(true));
 $('#btnValidate').addEventListener('click', validateAPI);
 $('#btnAnalyze').addEventListener('click', analyze);
 $('#btnDemo').addEventListener('click', demo);

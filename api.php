@@ -207,7 +207,18 @@ function build_prompt(array $data): array
     $tokens = $sentence === '' ? [] : (preg_split('/\s+/u', $sentence) ?: []);
     $language = trim((string)($data['language'] ?? 'Mandarin Chinese')) ?: 'Mandarin Chinese';
     $inputFormat = (string)($data['input_format'] ?? 'hanzi');
-    $transcriptionSystem = trim((string)($data['transcription_system'] ?? 'Pinyin')) ?: 'Pinyin';
+    $isMandarin = in_array(strtolower($language), ['mandarin', 'mandarin chinese'], true)
+        || in_array($language, ['普通话', '國語', '国语'], true);
+    $pinyinMode = trim((string)($data['pinyin_mode'] ?? 'tone_marks')) ?: 'tone_marks';
+    if (!in_array($pinyinMode, ['tone_marks', 'tone_numbers', 'no_tone'], true)) {
+        $pinyinMode = 'tone_marks';
+    }
+    if (array_key_exists('other_transcription_system', $data)) {
+        $otherTranscriptionSystem = trim((string)($data['other_transcription_system'] ?? ''));
+    } else {
+        // Backward compatibility with projects/frontends from before 1.0.
+        $otherTranscriptionSystem = trim((string)($data['transcription_system'] ?? 'Pinyin')) ?: 'Pinyin';
+    }
     $conventions = trim((string)($data['conventions'] ?? ''));
     $tokenJson = json_encode($tokens, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
@@ -236,7 +247,8 @@ PROMPT;
     $user = <<<PROMPT
 Language/variety: {$language}
 Input format: {$inputFormat}
-Requested transcription system: {$transcriptionSystem}
+Pinyin setting: {$pinyinMode}
+Other transcription system: {$otherTranscriptionSystem}
 Original sentence: {$sentence}
 Authoritative tokens: {$tokenJson}
 
@@ -253,14 +265,42 @@ There must be exactly {$count} token objects, in exactly the same order as Autho
 PROMPT;
 
     if ($inputFormat === 'hanzi') {
-        $user .= "For every token, supply a {$transcriptionSystem} transcription in transcription. ";
-        $systemName = strtolower($transcriptionSystem);
-        if ($systemName === 'pinyin') {
-            $user .= 'Use tone numbers (for example wo3, chi1). Neutral-tone syllables must have no tone digit; never use 0 (for example de, ma, shen2me). ';
-        } elseif (in_array($systemName, ['zhuyin', 'bopomofo'], true) || $transcriptionSystem === '注音符号') {
-            $user .= 'Use Unicode Bopomofo in horizontal writing. Leave first tone unmarked; put ˊ, ˇ, or ˋ after the syllable; put the neutral-tone dot before the syllable. ';
+        if ($pinyinMode === 'tone_numbers') {
+            $user .= 'In pinyin_diacritic, supply Standard Mandarin Hanyu Pinyin with tone numbers 1, 2, 3, or 4 (for example wo3, chi1). Neutral-tone syllables have no tone digit; never use 0 (for example de, ma, shen2me). ';
+        } elseif ($pinyinMode === 'no_tone') {
+            $user .= 'In pinyin_diacritic, supply Standard Mandarin Hanyu Pinyin without tone marks or tone digits (for example wo, chi, shenme). ';
+        } else {
+            $user .= 'In pinyin_diacritic, supply Standard Mandarin Hanyu Pinyin with tone diacritics (for example wǒ, chī). A neutral-tone syllable has neither a tone mark nor a 0. ';
         }
-        $user .= "Also supply Standard Mandarin Hanyu Pinyin with tone diacritics in pinyin_diacritic. Keep each transcription aligned to the exact original token. Neutral tone has neither a tone mark nor a 0.\n";
+
+        if ($otherTranscriptionSystem === '') {
+            $user .= 'For every token, set transcription to an empty string. ';
+        } else {
+            $user .= "For every token, supply {$otherTranscriptionSystem} in transcription. ";
+        }
+        $systemName = strtolower($otherTranscriptionSystem);
+        if ($systemName === 'pinyin') {
+            $user .= 'Use Pinyin tone numbers (for example wo3, chi1) in transcription. Neutral-tone syllables must have no tone digit; never use 0 (for example de, ma, shen2me). ';
+        } elseif (in_array($systemName, ['zhuyin', 'bopomofo'], true) || $otherTranscriptionSystem === '注音符号') {
+            $user .= 'Use Unicode Bopomofo in horizontal writing. Leave first tone unmarked; put ˊ, ˇ, or ˋ after the syllable; put the neutral-tone dot before the syllable. ';
+        } elseif ($systemName === 'ipa numeric tones') {
+            $user .= 'Use IPA segment symbols followed by Chao-style numeric tone values. ';
+            if ($isMandarin) {
+                $user .= 'For Standard Mandarin, use 55, 35, 214, and 51 for tones 1–4 respectively; do not substitute tone-category numbers 1–4. ';
+            } else {
+                $user .= 'Use tone values appropriate to the requested language/variety; do not substitute tone-category numbers for phonetic values. ';
+            }
+            $user .= 'Leave neutral tone without a 0. ';
+        } elseif ($systemName === 'ipa tone letters') {
+            $user .= 'Use IPA segment symbols with IPA/Chao tone letters. ';
+            if ($isMandarin) {
+                $user .= 'For Standard Mandarin, use ˥, ˧˥, ˨˩˦, and ˥˩ for tones 1–4 respectively. ';
+            } else {
+                $user .= 'Use tone letters appropriate to the requested language/variety. ';
+            }
+            $user .= 'Do not use ASCII tone digits in this layer. ';
+        }
+        $user .= "Keep both fields aligned to the exact original token.\n";
     } else {
         $user .= "The input is already romanization/IPA: set both transcription and pinyin_diacritic equal to form; do not invent another transcription layer.\n";
     }
@@ -526,7 +566,7 @@ function handle_request(): void
             $modelResult,
             $originalTokens,
             (string)($data['input_format'] ?? 'hanzi'),
-            (string)($data['transcription_system'] ?? 'Pinyin')
+            (string)($data['other_transcription_system'] ?? ($data['transcription_system'] ?? 'Pinyin'))
         );
         send_json(200, ['ok' => true, 'result' => $result]);
     } catch (Throwable $error) {

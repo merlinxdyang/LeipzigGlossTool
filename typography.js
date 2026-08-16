@@ -77,6 +77,13 @@
     );
   }
 
+  function formatGlossHtmlForWord(value) {
+    return escapeHtml(value).replace(
+      /(^|[^A-Za-z0-9])(\d*[A-Z]{2,}[A-Z0-9]*(?:[.=-][A-Z0-9]+)*)(?=$|[^A-Za-z0-9])/g,
+      (_, boundary, abbreviation) => `${boundary}<span style="font-variant:small-caps">${abbreviation.toLowerCase()}</span>`
+    );
+  }
+
   function isGlossAbbreviation(value) {
     return /^\d*[A-Z]{2,}[A-Z0-9]*(?:[.=-][A-Z0-9]+)*$/.test(String(value ?? ''));
   }
@@ -86,6 +93,7 @@
     FONT_OPTIONS,
     ROW_KEYS,
     formatGlossHtml,
+    formatGlossHtmlForWord,
     isGlossAbbreviation,
     normalizeTypography,
     typographyCss,
