@@ -127,7 +127,7 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
 .separator-label{font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-right:3px}
 dialog{width:min(650px,calc(100vw - 32px));max-height:calc(100vh - 48px);border:1px solid var(--rule-strong);border-radius:0;background:var(--surface);color:var(--ink);padding:0;box-shadow:0 28px 80px rgba(18,34,42,.22)}
 dialog::backdrop{background:rgba(15,30,37,.38);backdrop-filter:blur(2px)}
-.dialog-head{display:flex;align-items:center;justify-content:space-between;padding:19px 22px;border-bottom:1px solid var(--rule)}.dialog-head h2{font:600 20px Georgia,"Songti SC",serif;margin:0}.dialog-body{padding:21px 24px 26px;overflow:auto}.dialog-body h3{font:600 15px Georgia,"Songti SC",serif;margin:20px 0 7px}.dialog-body h3:first-child{margin-top:0}.dialog-body p,.dialog-body li{color:#435159;line-height:1.7}.dialog-body ol,.dialog-body ul{padding-left:22px}.dialog-body code{font-family:"SFMono-Regular",Consolas,monospace;font-size:12px;background:var(--navy-soft);padding:1px 4px}
+.dialog-head{display:flex;align-items:center;justify-content:space-between;padding:19px 22px;border-bottom:1px solid var(--rule)}.dialog-head h2{font:600 20px Georgia,"Songti SC",serif;margin:0}.dialog-head .icon-button{width:36px;min-width:36px;font-size:20px;line-height:1}.dialog-body{padding:21px 24px 26px;overflow:auto}.dialog-body h3{font:600 15px Georgia,"Songti SC",serif;margin:20px 0 7px}.dialog-body h3:first-child{margin-top:0}.dialog-body p,.dialog-body li{color:#435159;line-height:1.7}.dialog-body ol,.dialog-body ul{padding-left:22px}.dialog-body code{font-family:"SFMono-Regular",Consolas,monospace;font-size:12px;background:var(--navy-soft);padding:1px 4px}
 .dialog-body a{color:var(--navy);text-decoration-thickness:1px;text-underline-offset:3px}
 .api-key-dialog{width:min(560px,calc(100vw - 32px))}
 .provider-links{list-style:none;margin:16px 0;padding:0!important;display:grid;gap:1px;border:1px solid var(--rule);background:var(--rule)}
@@ -137,10 +137,14 @@ dialog::backdrop{background:rgba(15,30,37,.38);backdrop-filter:blur(2px)}
 .provider-name{font-weight:700;color:#33444c}.provider-action{color:var(--navy);font-size:12px;white-space:nowrap}.provider-action::after{content:' ↗';font-size:10px}
 .application-note{margin:13px 0 0;padding:10px 12px;border-left:3px solid var(--navy);background:var(--navy-soft);color:#33444c!important}
 .region-notice{margin:10px 0 0;color:var(--bad)!important;font-weight:700}
+.guide-about{padding:22px 24px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.tool-identity h3{font:600 19px/1.3 Georgia,"Songti SC",serif;margin:2px 0 12px}.tool-meta{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;margin:0}.tool-meta dt{font-size:11px;font-weight:750;color:var(--muted)}.tool-meta dd{margin:0;font-size:12px}.contact-copy{margin:14px 0 8px;color:#435159}.contact-action{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.contact-email{font-family:"SFMono-Regular",Consolas,monospace;font-size:12px}
+.donation-card{margin-top:18px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:18px;border:1px solid var(--rule);background:var(--surface)}.donation-card h3{font:600 17px/1.25 Georgia,"Songti SC",serif;margin:0 0 4px}.donation-card p{margin:0;color:var(--muted);font-size:12px}.alipay-button{flex:0 0 auto!important;background:#1f8b70!important;border-color:#1f8b70!important;color:#fff!important;font-weight:750}.alipay-button:hover{background:#176d59!important}
+.donation-dialog{width:min(430px,calc(100vw - 32px))}.donation-dialog-card{background:var(--surface)}.donation-qr-wrap{padding:18px;background:var(--surface-2)}.donation-qr-wrap img{display:block;width:100%;height:auto;max-height:calc(100vh - 150px);object-fit:contain}
 html[lang="zh-Hant"] body{font-family:var(--hant-ui-font)}
 html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="zh-Hant"] .section-title,html[lang="zh-Hant"] .editor-example-title,html[lang="zh-Hant"] .dialog-head h2,html[lang="zh-Hant"] .dialog-body h3,html[lang="zh-Hant"] .empty-preview{font-family:var(--hant-ui-font)}
 @media(max-width:980px){.shell{grid-template-columns:1fr}.sidebar{position:static}.preview-controls{grid-template-columns:1fr}.number-controls{justify-content:flex-start}}
-@media(max-width:640px){.topbar{height:auto}.topbar-inner{padding:12px 15px;align-items:flex-start;flex-wrap:wrap}.brand-mark{width:36px;height:36px;border-radius:8px}.brand-copy{font-size:14px;white-space:normal}.brand-author{font-size:9px}.version{display:none}.top-actions{justify-content:flex-end;margin-left:auto}.shell{padding:14px 12px 28px;gap:14px}.sidebar,.main{padding:18px}.sidebar,.embedded-ai-service,.embedded-ai-service form,.api-key-wrap{min-width:0}.api-key-wrap{grid-template-columns:minmax(0,1fr) 38px}.api-key-wrap input{min-width:0}.main-head{display:block}.main-head .btnrow{justify-content:flex-start;margin-top:12px}.sentence{font-size:16px}.preview-controls fieldset{display:grid;grid-template-columns:1fr 1fr}.number-controls{display:grid;grid-template-columns:1fr 1fr}.number-field select,.number-field input{width:100%;min-width:0}.token-editor-card{flex-basis:144px;min-width:min(144px,100%);max-width:none}.token-editor-line{grid-template-columns:44px minmax(0,1fr)}.typography-summary-note{display:none}.typography-actions{align-items:flex-start}.type-settings{min-width:500px}.type-settings th,.type-settings td{padding:7px 6px}.type-settings tbody th{width:84px}.type-settings select{min-width:155px}.type-settings input[type=number]{width:66px}.type-toggle{width:48px}.preview-canvas{padding:17px}.toolbar{align-items:flex-start}.toolbar-group{width:100%}.separator-label{width:100%;margin-top:5px}}
+@media(max-width:640px){.topbar{height:auto}.topbar-inner{padding:12px 15px;align-items:flex-start;flex-wrap:wrap}.brand-mark{width:36px;height:36px;border-radius:8px}.brand-copy{font-size:14px;white-space:normal}.brand-author{font-size:9px}.version{display:none}.top-actions{justify-content:flex-end;margin-left:auto}.shell{padding:14px 12px 28px;gap:14px}.sidebar,.main{padding:18px}.sidebar,.embedded-ai-service,.embedded-ai-service form,.api-key-wrap{min-width:0}.api-key-wrap{grid-template-columns:minmax(0,1fr) 38px}.api-key-wrap input{min-width:0}.main-head{display:block}.main-head .btnrow{justify-content:flex-start;margin-top:12px}.sentence{font-size:16px}.preview-controls fieldset{display:grid;grid-template-columns:1fr 1fr}.number-controls{display:grid;grid-template-columns:1fr 1fr}.number-field select,.number-field input{width:100%;min-width:0}.token-editor-card{flex-basis:144px;min-width:min(144px,100%);max-width:none}.token-editor-line{grid-template-columns:44px minmax(0,1fr)}.typography-summary-note{display:none}.typography-actions{align-items:flex-start}.type-settings{min-width:500px}.type-settings th,.type-settings td{padding:7px 6px}.type-settings tbody th{width:84px}.type-settings select{min-width:155px}.type-settings input[type=number]{width:66px}.type-toggle{width:48px}.preview-canvas{padding:17px}.toolbar{align-items:flex-start}.toolbar-group{width:100%}.separator-label{width:100%;margin-top:5px}.donation-card{align-items:flex-start;flex-direction:column}.alipay-button{width:100%}}
 </style>
 </head>
 <body data-workspace="sinitic">
@@ -346,6 +350,16 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
 
 <dialog id="helpDialog" aria-labelledby="helpTitle">
   <div class="dialog-head"><h2 id="helpTitle" data-i18n="help">使用说明</h2><button id="btnCloseHelp" class="icon-button" aria-label="关闭" title="关闭">×</button></div>
+  <section class="guide-about" aria-labelledby="toolAboutTitle">
+    <div class="tool-identity">
+      <div class="section-kicker">About</div>
+      <h3 id="toolAboutTitle">Merlin's Leipzig Gloss Tool</h3>
+      <dl class="tool-meta"><dt data-i18n="toolNameLabel">工具名</dt><dd>Merlin's Leipzig Gloss Tool</dd><dt data-i18n="versionLabel">版本</dt><dd>2.0</dd><dt data-i18n="developerLabel">开发者</dt><dd>Merlin X. D. Yang</dd></dl>
+      <p class="contact-copy" data-i18n="contactPrompt">如有意见或建议，可与开发者联系。</p>
+      <div class="contact-action"><button id="btnRevealEmail" type="button" data-i18n="revealEmail">显示联系邮箱</button><span id="emailContact" class="contact-email" aria-live="polite"></span></div>
+    </div>
+    <section class="donation-card" aria-labelledby="donationCardTitle"><div><h3 id="donationCardTitle">Buy me a coffee</h3><p data-i18n="donationCopy">如果您觉得这个工具对您有帮助，可以给我买一杯加浓美式。</p></div><button id="btnAlipayDonation" class="alipay-button" type="button" data-i18n="alipay">支付宝</button></section>
+  </section>
   <div class="dialog-body help-zh">
     <h3>基本流程</h3>
     <ol><li>在页面左上端“AI 服务”中选择服务商和模型，并验证保存 API key。</li><li>选择语言和输入格式；普通话保留拼音设置，非普通话材料可增加逐词汉语释义。</li><li>在输入框中一行输入一个例句，每行内部用空格标出最终词边界；也可导入一行一个例句的 TXT 文件。</li><li>生成后，预览会立即显示在输入区下方；每个例句使用一个独立表格。</li><li>按需选择原文、注音、汉语释义、Gloss、英语或汉语自由翻译，并设置编号。</li><li>在编辑区修改所有生成内容并调整排版。</li><li>从预览区下方复制或导出；保存项目可保留全部例句、编辑内容、输出选择和排版设置。</li></ol>
@@ -374,7 +388,11 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
   </div>
 </dialog>
 
+<dialog id="donationDialog" class="donation-dialog" aria-labelledby="donationDialogTitle">
+  <div class="donation-dialog-card"><div class="dialog-head"><h2 id="donationDialogTitle" data-i18n="donationDialogTitle">支付宝打赏</h2><button id="btnCloseDonation" class="icon-button" type="button" aria-label="关闭" title="关闭">×</button></div><div class="donation-qr-wrap"><img src="assets/alipay-donation-qr.png" width="776" height="998" loading="lazy" decoding="async" alt="支付宝收款二维码"></div></div>
+</dialog>
+
 <script src="ai-services-ui.js?build=20260818-2"></script>
-<script src="app-ui.js?build=20260818-2"></script>
+<script src="app-ui.js?build=20260819-1"></script>
 </body>
 </html>

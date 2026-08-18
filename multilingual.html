@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?build=20260815-1">
 <title>Multilingual · Merlin's Leipzig Gloss Tool 2.0</title>
-<link rel="stylesheet" href="v2.css?build=20260818-1">
+<link rel="stylesheet" href="v2.css?build=20260819-1">
 <script src="typography.js?build=20260818-1"></script>
 <script src="batch.js?build=20260818-1"></script>
 <script src="ai-service.js?build=20260818-1"></script>
@@ -78,8 +78,18 @@
   </main>
 </div></div>
 
-<dialog id="helpDialog"><div class="panel-body"><div class="btnrow" style="justify-content:flex-end"><button id="btnCloseHelp" type="button">关闭</button></div><div class="help-zh"><h2>多语言工作页</h2><p>选择语言与文字后，一行输入一个例句，并用空格标出最终词界。模型生成的转写、Gloss 和翻译都必须由研究者复核。</p></div><div class="help-zh-hant hidden"><h2>多語言工作頁</h2><p>選擇語言與文字後，每行輸入一個例句，並用空格標出最終詞界。</p></div><div class="help-en hidden"><h2>Multilingual workspace</h2><p>Select a language and script, enter one example per line, and mark final token boundaries with spaces.</p></div></div></dialog>
+<dialog id="helpDialog" aria-labelledby="helpTitle">
+  <div class="dialog-head"><h2 id="helpTitle" data-i18n="help">使用说明</h2><button id="btnCloseHelp" class="icon-button" type="button" aria-label="关闭" title="关闭">×</button></div>
+  <section class="guide-about" aria-labelledby="toolAboutTitle">
+    <div class="tool-identity"><div class="section-kicker">About</div><h3 id="toolAboutTitle">Merlin's Leipzig Gloss Tool</h3><dl class="tool-meta"><dt data-i18n="toolNameLabel">工具名</dt><dd>Merlin's Leipzig Gloss Tool</dd><dt data-i18n="versionLabel">版本</dt><dd>2.0</dd><dt data-i18n="developerLabel">开发者</dt><dd>Merlin X. D. Yang</dd></dl><p class="contact-copy" data-i18n="contactPrompt">如有意见或建议，可与开发者联系。</p><div class="contact-action"><button id="btnRevealEmail" type="button" data-i18n="revealEmail">显示联系邮箱</button><span id="emailContact" class="contact-email" aria-live="polite"></span></div></div>
+    <section class="donation-card" aria-labelledby="donationCardTitle"><div><h3 id="donationCardTitle">Buy me a coffee</h3><p data-i18n="donationCopy">如果您觉得这个工具对您有帮助，可以给我买一杯加浓美式。</p></div><button id="btnAlipayDonation" class="alipay-button" type="button" data-i18n="alipay">支付宝</button></section>
+  </section>
+  <div class="dialog-body help-zh"><h3>多语言工作页</h3><p>选择语言与文字后，一行输入一个例句，并用空格标出最终词界。自定义语言默认生成拉丁转写、IPA、英语 Gloss、汉语 Gloss 和英语自由翻译，并保留可选的汉语自由翻译。模型生成的分析都必须由研究者复核。</p></div>
+  <div class="dialog-body help-zh-hant hidden"><h3>多語言工作頁</h3><p>選擇語言與文字後，每行輸入一個例句，並用空格標出最終詞界。自訂語言預設產生拉丁轉寫、IPA、英語 Gloss、漢語 Gloss 與英語自由翻譯，並保留選填的漢語自由翻譯。</p></div>
+  <div class="dialog-body help-en hidden"><h3>Multilingual workspace</h3><p>Select a language and script, enter one example per line, and mark final token boundaries with spaces. The custom profile defaults to Latin transcription, IPA, English gloss, aligned Chinese gloss, and free English translation; free Chinese translation remains available.</p></div>
+</dialog>
+<dialog id="donationDialog" class="donation-dialog" aria-labelledby="donationDialogTitle"><div class="donation-dialog-card"><div class="dialog-head"><h2 id="donationDialogTitle" data-i18n="donationDialogTitle">支付宝打赏</h2><button id="btnCloseDonation" class="icon-button" type="button" aria-label="关闭" title="关闭">×</button></div><div class="donation-qr-wrap"><img src="assets/alipay-donation-qr.png" width="776" height="998" loading="lazy" decoding="async" alt="支付宝收款二维码"></div></div></dialog>
 <script src="ai-services-ui.js?build=20260818-2"></script>
-<script src="app-ui.js?build=20260818-2"></script>
+<script src="app-ui.js?build=20260819-1"></script>
 </body>
 </html>

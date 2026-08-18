@@ -7,7 +7,7 @@
 ## 兩個工作頁面
 
 - `/clg/`：國語、粵語、閩南語和自訂漢語方言。國語、粵語預設繼續使用已驗證的舊路徑。
-- `/clg/multilingual.html`：日語、德語、法語、西班牙語、荷蘭語、梵語、維吾爾語、蒙古語、藏語。
+- `/clg/multilingual.html`：日語、德語、法語、西班牙語、荷蘭語、梵語、維吾爾語、蒙古語、藏語及自訂語言。
 
 完整 AI 服務面板固定在兩個頁面的左上方。服務提供者和模型設定共用，認證加密後的憑證 Cookie 亦會在兩頁間自動共用。
 
@@ -27,7 +27,7 @@
 
 ## 多語言規範
 
-九種語言的版本化設定儲存在 [`language-profiles.json`](language-profiles.json)。預設系統包括日語 Modified Hepburn、梵語 IAST、維吾爾語 ULY/NUL、藏語 THL EWTS，以及分別處理的 `mn-Cyrl` 與 `mn-Mong` 蒙古語文字變體。
+版本化設定儲存在 [`language-profiles.json`](language-profiles.json)。預設系統包括日語 Modified Hepburn、梵語 IAST、維吾爾語 ULY/NUL、藏語 THL EWTS，以及分別處理的 `mn-Cyrl` 與 `mn-Mong` 蒙古語文字變體。自訂語言預設產生拉丁轉寫、IPA、英語及逐詞漢語 Gloss 與英語自由翻譯。
 
 使用者輸入的空格始終是最終詞界。維吾爾文按邏輯順序儲存，由頁面負責 RTL 排版；輸入中的 RLO/LRO 等方向控制字元會被阻擋。
 

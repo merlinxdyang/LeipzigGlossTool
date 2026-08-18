@@ -7,7 +7,7 @@ An online-first, editable interlinear-glossing tool for Sinitic and multilingual
 ## Workspaces
 
 - `/clg/` — Mandarin, Cantonese, Southern Min, and custom Sinitic varieties. The established Mandarin and Cantonese prompt behavior remains the legacy default.
-- `/clg/multilingual.html` — Japanese, German, French, Spanish, Dutch, Sanskrit, Uyghur, Mongolian, and Tibetan.
+- `/clg/multilingual.html` — Japanese, German, French, Spanish, Dutch, Sanskrit, Uyghur, Mongolian, Tibetan, and a named custom-language profile.
 
 The complete AI service panel appears at the upper left of both workspaces. Provider and model settings are shared through non-secret browser settings, and encrypted credential cookies are shared automatically.
 
@@ -29,7 +29,7 @@ The aligned Chinese layer keeps the source order and has exactly one cell per so
 
 ## Multilingual profiles
 
-The versioned registry is [`language-profiles.json`](language-profiles.json). Defaults include Modified Hepburn for Japanese, IAST for Sanskrit, ULY/NUL for Uyghur, THL EWTS for Tibetan, and distinct `mn-Cyrl` / `mn-Mong` Mongolian variants. Every profile retains the user's whitespace tokenization as authoritative.
+The versioned registry is [`language-profiles.json`](language-profiles.json). Defaults include Modified Hepburn for Japanese, IAST for Sanskrit, ULY/NUL for Uyghur, THL EWTS for Tibetan, and distinct `mn-Cyrl` / `mn-Mong` Mongolian variants. The custom profile defaults to Latin transcription, IPA, English and aligned Chinese glosses, and free English translation. Every profile retains the user's whitespace tokenization as authoritative.
 
 Uyghur source text uses logical-order Unicode. The UI handles RTL through markup and rejects embedded RLO/LRO/isolate controls in input. Traditional Mongolian, Tibetan, Devanagari, Arabic-script Uyghur, and Japanese use multilingual font fallbacks.
 

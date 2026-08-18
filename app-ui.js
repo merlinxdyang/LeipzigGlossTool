@@ -39,7 +39,7 @@ const state = {
 };
 const I18N = {
   zh: {
-    demo: '载入示例', help: '使用说明', close: '关闭', settings: '项目设置', aiSettings: 'AI 服务', provider: '服务商', model: '模型名称',
+    demo: '载入示例', help: '使用说明', close: '关闭', toolNameLabel: '工具名', versionLabel: '版本', developerLabel: '开发者', contactPrompt: '如有意见或建议，可与开发者联系。', revealEmail: '显示联系邮箱', donationCopy: '如果您觉得这个工具对您有帮助，可以给我买一杯加浓美式。', alipay: '支付宝', donationDialogTitle: '支付宝打赏', settings: '项目设置', aiSettings: 'AI 服务', provider: '服务商', model: '模型名称',
     keyHint: '验证成功后以认证加密 Cookie 保存；网页脚本无法读取。', validate: '验证 API', apiKeyHelp: '如何申请', apiKeyDialogTitle: '如何申请 API key', lingSettings: '语言与转写', variety: '语言 / 方言', mandarin: '普通话 / Mandarin', cantonese: '粤语 / Cantonese', minnan: '闽南语 / Southern Min', other: '其他 / Other', zhuyin: '注音符号 / Zhuyin', jyutping: '粤拼 / Jyutping', ipa: 'IPA', ipaNumericTones: 'IPA + 数字声调', ipaToneLetters: 'IPA 固有声调', chineseGloss: '汉语释义', chineseGlossHint: '“汉语释义”保持原语序并与原文逐词对齐。', chineseFreeTranslation: '汉语自由翻译',
     customVariety: '自定义语言名称', latinTranscription: '拉丁转写', englishGloss: '英语 Gloss', inputFormat: '输入格式', transcriptionSystem: '主要转写体系', pinyinSettings: '拼音设置', pinyinToneMarks: '拼音有声调', pinyinToneNumbers: '拼音数字声调', pinyinNoTone: '拼音无声调', otherTranscriptionSettings: '其他注音设置', otherTranscriptionHint: '可选；留空时不生成其他注音行。',
     transcriptionHint: '为非普通话材料选择主要转写体系。',
@@ -59,7 +59,7 @@ const I18N = {
     batchFailed: '第 {line} 行生成失败：{error}', badProject: '项目文件无有效结果。', wrongWorkspace: '该项目属于另一个工作页面，请从正确的汉语或多语言页面打开。', invalidResponse: '后端返回无效响应', modelUnavailable: '；模型名未出现在列表中',
   },
   en: {
-    demo: 'Load demo', help: 'Guide', close: 'Close', settings: 'Project settings', aiSettings: 'AI service', provider: 'Provider', model: 'Model name',
+    demo: 'Load demo', help: 'Guide', close: 'Close', toolNameLabel: 'Tool', versionLabel: 'Version', developerLabel: 'Developer', contactPrompt: 'Comments and suggestions are welcome. Contact the developer:', revealEmail: 'Show contact email', donationCopy: 'If this tool helps your work, you can buy me a strong coffee.', alipay: 'Alipay', donationDialogTitle: 'Support via Alipay', settings: 'Project settings', aiSettings: 'AI service', provider: 'Provider', model: 'Model name',
     keyHint: 'After validation, the key is stored as authenticated ciphertext in a cookie that page scripts cannot read.', validate: 'Validate API', apiKeyHelp: 'How to apply', apiKeyDialogTitle: 'How to get an API key', lingSettings: 'Language & transcription', variety: 'Language / variety', mandarin: 'Mandarin', cantonese: 'Cantonese', minnan: 'Southern Min', other: 'Other', zhuyin: 'Zhuyin / Bopomofo', jyutping: '粤拼 / Jyutping', ipa: 'IPA', ipaNumericTones: 'IPA + numeric tone values', ipaToneLetters: 'IPA tone letters', chineseGloss: 'Aligned Chinese meaning', chineseGlossHint: 'The aligned Chinese layer preserves source order and token alignment.', chineseFreeTranslation: 'Free Chinese translation',
     customVariety: 'Custom language name', latinTranscription: 'Latin transcription', englishGloss: 'English gloss', inputFormat: 'Input format', transcriptionSystem: 'Primary transcription system', pinyinSettings: 'Pinyin settings', pinyinToneMarks: 'Pinyin with tone marks', pinyinToneNumbers: 'Pinyin with tone numbers', pinyinNoTone: 'Pinyin without tones', otherTranscriptionSettings: 'Other annotation', otherTranscriptionHint: 'Optional; leave blank to omit the other-annotation line.',
     transcriptionHint: 'Select the primary system for non-Mandarin material.',
@@ -83,7 +83,7 @@ const I18N = {
 };
 
 I18N['zh-Hant'] = {
-  demo: '載入範例', help: '使用說明', close: '關閉', settings: '專案設定', aiSettings: 'AI 服務', provider: '服務提供者', model: '模型名稱',
+  demo: '載入範例', help: '使用說明', close: '關閉', toolNameLabel: '工具名', versionLabel: '版本', developerLabel: '開發者', contactPrompt: '如有意見或建議，可與開發者聯絡。', revealEmail: '顯示聯絡信箱', donationCopy: '如果您覺得這個工具對您有幫助，可以請我喝一杯加濃美式。', alipay: '支付寶', donationDialogTitle: '支付寶打賞', settings: '專案設定', aiSettings: 'AI 服務', provider: '服務提供者', model: '模型名稱',
   keyHint: '驗證成功後以認證加密 Cookie 儲存；網頁指令碼無法讀取。', validate: '驗證 API', apiKeyHelp: '如何申請', apiKeyDialogTitle: '如何申請 API key', lingSettings: '語言與轉寫', variety: '語言 / 方言', mandarin: '國語 / Mandarin', cantonese: '粵語 / Cantonese', minnan: '閩南語 / Southern Min', other: '其他 / Other', zhuyin: '注音符號 / Zhuyin', jyutping: '粵拼 / Jyutping', ipa: 'IPA', ipaNumericTones: 'IPA + 數字聲調', ipaToneLetters: 'IPA 聲調符號', chineseGloss: '漢語釋義', chineseGlossHint: '「漢語釋義」保留原語序並與原文逐詞對齊。', chineseFreeTranslation: '漢語自由翻譯',
   customVariety: '自訂語言名稱', latinTranscription: '拉丁轉寫', englishGloss: '英語 Gloss', inputFormat: '輸入格式', transcriptionSystem: '主要轉寫系統', pinyinSettings: '拼音設定', pinyinToneMarks: '拼音附聲調符號', pinyinToneNumbers: '拼音數字聲調', pinyinNoTone: '拼音不標聲調', otherTranscriptionSettings: '其他注音設定', otherTranscriptionHint: '選填；留白時不產生其他注音列。',
   transcriptionHint: '為非國語材料選擇主要轉寫系統。',
@@ -143,7 +143,7 @@ function applyLang() {
     populateScriptVariants(profile, $('#scriptVariant')?.value || '');
     applyProfileLabels(profile, currentPrimary);
   }
-  ['#btnCloseHelp', '#btnCloseApiHelp'].forEach(selector => {
+  ['#btnCloseHelp', '#btnCloseApiHelp', '#btnCloseDonation'].forEach(selector => {
     const control = $(selector);
     if (control) { control.setAttribute('aria-label', t('close')); control.title = t('close'); }
   });
@@ -264,7 +264,7 @@ function selectedSecondaryAnnotationSystem() {
 }
 function wantsChineseGloss() {
   return selectedSecondaryAnnotationSystem() === 'Chinese aligned gloss'
-    || (workspaceType === 'multilingual' && Boolean($('#showChineseGloss')?.checked));
+    || (workspaceType === 'multilingual' && selectedLanguageProfile()?.id === 'custom' && Boolean($('#showChineseGloss')?.checked));
 }
 function languageChanged(setRecommended = true) {
   const value = $('#languagePreset').value;
@@ -272,9 +272,11 @@ function languageChanged(setRecommended = true) {
   const isMandarin = value === 'Mandarin Chinese';
   if (workspaceType === 'multilingual') {
     const profile = selectedLanguageProfile();
+    const customLanguageWrap = $('#customLanguageWrap');
+    const wasCustom = !customLanguageWrap.classList.contains('hidden');
     populateScriptVariants(profile, $('#scriptVariant')?.value || '');
     applyProfileLabels(profile);
-    $('#customLanguageWrap').classList.toggle('hidden', profile?.id !== 'custom');
+    customLanguageWrap.classList.toggle('hidden', profile?.id !== 'custom');
     $('#mandarinTranscriptionSettings').style.display = 'none';
     $('#transcriptionWrap').style.display = 'block';
     if ($('#nonMandarinAnnotationWrap')) $('#nonMandarinAnnotationWrap').style.display = 'block';
@@ -289,6 +291,8 @@ function languageChanged(setRecommended = true) {
       $('#showChineseGloss').checked = profile.default_output.chinese_gloss;
       $('#showTranslation').checked = profile.default_output.english_free_translation;
       $('#showChineseTranslation').checked = profile.default_output.chinese_free_translation;
+    } else if (setRecommended && wasCustom) {
+      $('#showChineseGloss').checked = selectedSecondaryAnnotationSystem() === 'Chinese aligned gloss';
     }
     if (hasResults()) renderEditor();
     return;
@@ -1053,6 +1057,18 @@ if ($('#apiKeyDialog')) $('#apiKeyDialog').addEventListener('click', event => { 
 if ($('#btnHelp')) $('#btnHelp').addEventListener('click', () => $('#helpDialog')?.showModal());
 if ($('#btnCloseHelp')) $('#btnCloseHelp').addEventListener('click', () => $('#helpDialog').close());
 if ($('#helpDialog')) $('#helpDialog').addEventListener('click', event => { if (event.target === $('#helpDialog')) $('#helpDialog').close(); });
+if ($('#btnRevealEmail')) $('#btnRevealEmail').addEventListener('click', () => {
+  const address = String.fromCharCode(120, 100, 121, 97, 110, 103, 64, 122, 106, 117, 116, 46, 101, 100, 117, 46, 99, 110);
+  const link = document.createElement('a');
+  link.href = `mailto:${address}`;
+  link.textContent = address;
+  $('#emailContact').replaceChildren(link);
+  $('#btnRevealEmail').hidden = true;
+});
+if ($('#btnAlipayDonation')) $('#btnAlipayDonation').addEventListener('click', () => $('#donationDialog')?.showModal());
+if ($('#btnCloseDonation')) $('#btnCloseDonation').addEventListener('click', () => $('#donationDialog').close());
+if ($('#donationDialog')) $('#donationDialog').addEventListener('click', event => { if (event.target === $('#donationDialog')) $('#donationDialog').close(); });
+if ($('#donationDialog')) $('#donationDialog').addEventListener('close', () => $('#btnAlipayDonation')?.focus());
 window.addEventListener('beforeunload', persist);
 
 try {

@@ -7,7 +7,7 @@
 ## 两个工作页面
 
 - `/clg/`：普通话、粤语、闽南语和自定义汉语方言。普通话、粤语默认继续使用已经验证的旧路径。
-- `/clg/multilingual.html`：日语、德语、法语、西班牙语、荷兰语、梵语、维吾尔语、蒙古语、藏语。
+- `/clg/multilingual.html`：日语、德语、法语、西班牙语、荷兰语、梵语、维吾尔语、蒙古语、藏语及自定义语言。
 
 完整 AI 服务面板固定在两个页面左上端。服务商和模型设置共用，认证加密后的凭据 Cookie 也会在两个页面间自动共用。
 
@@ -27,7 +27,7 @@
 
 ## 多语言规范
 
-九种语言的版本化配置保存在 [`language-profiles.json`](language-profiles.json)。默认体系包括日语 Modified Hepburn、梵语 IAST、维吾尔语 ULY/NUL、藏语 THL EWTS，以及分别处理的 `mn-Cyrl` 与 `mn-Mong` 蒙古语文字变体。
+版本化配置保存在 [`language-profiles.json`](language-profiles.json)。默认体系包括日语 Modified Hepburn、梵语 IAST、维吾尔语 ULY/NUL、藏语 THL EWTS，以及分别处理的 `mn-Cyrl` 与 `mn-Mong` 蒙古语文字变体。自定义语言默认生成拉丁转写、IPA、英语及逐词汉语 Gloss 和英语自由翻译。
 
 用户输入的空格始终是最终词界。维吾尔文按逻辑顺序保存，由页面负责 RTL 排版；输入中的 RLO/LRO 等方向控制符会被阻止。天城文、维吾尔阿拉伯文、传统蒙古文、藏文和日文使用多语种字体回退。
 

@@ -50,6 +50,42 @@ class SubdirectoryDeploymentTests(unittest.TestCase):
         self.assertIn("language_name: getLanguage()", source)
         self.assertIn("const customOrder = workspaceType === 'multilingual' && selectedLanguageProfile()?.id === 'custom'", source)
 
+    def test_custom_chinese_gloss_default_does_not_leak_to_existing_language_profiles(self):
+        source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
+        wants_gloss = source[source.index("function wantsChineseGloss() {"):source.index("function languageChanged(")]
+        multilingual_change = source[source.index("if (workspaceType === 'multilingual') {"):source.index("  $('#customLanguageWrap').style.display", source.index("if (workspaceType === 'multilingual') {"))]
+
+        self.assertIn("selectedLanguageProfile()?.id === 'custom'", wants_gloss)
+        self.assertIn("const wasCustom", multilingual_change)
+        self.assertIn("setRecommended && wasCustom", multilingual_change)
+
+    def test_guide_leads_with_product_identity_obfuscated_contact_and_alipay_modal(self):
+        source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
+        literal_email = "".join(map(chr, [120, 100, 121, 97, 110, 103, 64, 122, 106, 117, 116, 46, 101, 100, 117, 46, 99, 110]))
+
+        for filename in ("index.html", "multilingual.html"):
+            html = (ROOT / filename).read_text(encoding="utf-8")
+            guide_start = html.index('<dialog id="helpDialog"')
+            guide_html = html[guide_start:]
+            self.assertIn("Merlin's Leipzig Gloss Tool", guide_html)
+            self.assertIn("2.0", guide_html)
+            self.assertIn("Merlin X. D. Yang", guide_html)
+            self.assertIn('id="btnRevealEmail"', guide_html)
+            self.assertIn('id="btnAlipayDonation"', guide_html)
+            self.assertIn('id="donationDialog"', guide_html)
+            self.assertIn('assets/alipay-donation-qr.png', guide_html)
+            self.assertNotIn(literal_email, html)
+
+        self.assertNotIn(literal_email, source)
+        self.assertIn("String.fromCharCode", source)
+        self.assertIn("if (event.target === $('#donationDialog')) $('#donationDialog').close()", source)
+
+    def test_alipay_qr_is_a_local_image_asset(self):
+        qr_path = ROOT / "assets" / "alipay-donation-qr.png"
+
+        self.assertTrue(qr_path.is_file())
+        self.assertGreater(qr_path.stat().st_size, 10_000)
+
     def test_security_headers_and_credential_route_are_declared(self):
         rules = (ROOT / ".htaccess").read_text(encoding="utf-8")
         entrypoint = ROOT / "api" / "credentials" / "index.php"
