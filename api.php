@@ -546,6 +546,12 @@ function build_multilingual_prompt(array $data): array
         throw new RuntimeException('Unsupported script variant.');
     }
     $language = (string)($profile['labels']['en'] ?? $profileId);
+    if ($profileId === 'custom') {
+        $language = trim((string)($data['language_name'] ?? ''));
+        if (preg_match("/\\A[\\p{L}\\p{M}\\p{N}][\\p{L}\\p{M}\\p{N} .,\-'’()\\/]{0,79}\\z/u", $language) !== 1) {
+            throw new RuntimeException('Invalid custom language name.');
+        }
+    }
     $primary = trim((string)($data['primary_transcription_system'] ?? ($profile['primary_transcription'] ?? '')));
     $secondary = trim((string)($data['other_transcription_system'] ?? ''));
     $includeChineseGloss = !empty($data['include_chinese_gloss']);

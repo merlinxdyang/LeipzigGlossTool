@@ -5,10 +5,10 @@ const path = require('node:path');
 
 const profiles = JSON.parse(fs.readFileSync(path.join(__dirname, 'language-profiles.json'), 'utf8'));
 
-test('multilingual profile registry contains exactly the approved nine languages', () => {
+test('multilingual profile registry contains the approved languages plus a custom profile', () => {
   assert.deepEqual(
     profiles.map(profile => profile.id),
-    ['japanese', 'german', 'french', 'spanish', 'dutch', 'sanskrit', 'uyghur', 'mongolian', 'tibetan'],
+    ['japanese', 'german', 'french', 'spanish', 'dutch', 'sanskrit', 'uyghur', 'mongolian', 'tibetan', 'custom'],
   );
 });
 
@@ -34,4 +34,20 @@ test('complex-script defaults use the approved transliteration and direction pro
   assert.equal(byId.uyghur.script_variants[0].direction, 'rtl');
   assert.equal(byId.tibetan.primary_transcription, 'THL EWTS');
   assert.deepEqual(byId.mongolian.script_variants.map(item => item.bcp47), ['mn-Cyrl', 'mn-Mong']);
+});
+
+test('custom language defaults to Latin transcription, IPA, bilingual glosses, and English translation', () => {
+  const custom = profiles.find(profile => profile.id === 'custom');
+
+  assert.equal(custom.primary_transcription, 'Latin transcription');
+  assert.equal(custom.default_secondary_annotation, 'IPA');
+  assert.deepEqual(custom.default_output, {
+    primary_transcription: true,
+    secondary_annotation: true,
+    english_gloss: true,
+    chinese_gloss: true,
+    english_free_translation: true,
+    chinese_free_translation: false,
+  });
+  assert.deepEqual(custom.script_variants.map(item => item.direction), ['ltr', 'rtl']);
 });

@@ -41,7 +41,7 @@ const I18N = {
   zh: {
     demo: '载入示例', help: '使用说明', close: '关闭', settings: '项目设置', aiSettings: 'AI 服务', provider: '服务商', model: '模型名称',
     keyHint: '验证成功后以认证加密 Cookie 保存；网页脚本无法读取。', validate: '验证 API', apiKeyHelp: '如何申请', apiKeyDialogTitle: '如何申请 API key', lingSettings: '语言与转写', variety: '语言 / 方言', mandarin: '普通话 / Mandarin', cantonese: '粤语 / Cantonese', minnan: '闽南语 / Southern Min', other: '其他 / Other', zhuyin: '注音符号 / Zhuyin', jyutping: '粤拼 / Jyutping', ipa: 'IPA', ipaNumericTones: 'IPA + 数字声调', ipaToneLetters: 'IPA 固有声调', chineseGloss: '汉语释义', chineseGlossHint: '“汉语释义”保持原语序并与原文逐词对齐。', chineseFreeTranslation: '汉语自由翻译',
-    customVariety: '自定义语言 / 方言名称', inputFormat: '输入格式', transcriptionSystem: '主要转写体系', pinyinSettings: '拼音设置', pinyinToneMarks: '拼音有声调', pinyinToneNumbers: '拼音数字声调', pinyinNoTone: '拼音无声调', otherTranscriptionSettings: '其他注音设置', otherTranscriptionHint: '可选；留空时不生成其他注音行。',
+    customVariety: '自定义语言名称', latinTranscription: '拉丁转写', englishGloss: '英语 Gloss', inputFormat: '输入格式', transcriptionSystem: '主要转写体系', pinyinSettings: '拼音设置', pinyinToneMarks: '拼音有声调', pinyinToneNumbers: '拼音数字声调', pinyinNoTone: '拼音无声调', otherTranscriptionSettings: '其他注音设置', otherTranscriptionHint: '可选；留空时不生成其他注音行。',
     transcriptionHint: '为非普通话材料选择主要转写体系。',
     conventions: 'Gloss 约定（可修改）', input: '输入例句', importTxt: '导入 TXT', clear: '清空', analyze: '生成 Gloss',
     segHint: '每行一个例句；请用空格分词，空行将被忽略。也可导入一行一个例句的 TXT 文件。', editResult: '编辑结果', aligned: '词数已对齐',
@@ -52,7 +52,7 @@ const I18N = {
     preview: '输出预览', separateTables: '每个例句独立成表', export: '导出', copyTable: '复制表格', copyMD: '复制 HTML / MD', png: '透明 PNG',
     project: '项目', openProject: '打开', saveProject: '保存', hanzi: '汉字', romanized: '拼音 / 罗马字 / IPA', gloss: 'Gloss', validating: '正在验证…',
     valid: 'API key 可用', invalid: '验证失败', generating: '正在生成第 {current}/{total} 个例句…', generated: '已生成 {count} 个例句，可直接逐格修改',
-    copied: '已复制', saved: '项目已保存', loaded: '项目已载入', needInput: '请至少输入一个例句', needKey: '请先在页面左上端“AI 服务”中验证并保存当前服务商的 API key', needModel: '请输入模型名称',
+    copied: '已复制', saved: '项目已保存', loaded: '项目已载入', needInput: '请至少输入一个例句', needCustomLanguage: '请输入自定义语言名称', needKey: '请先在页面左上端“AI 服务”中验证并保存当前服务商的 API key', needModel: '请输入模型名称',
     badKeyFormat: 'API key 不应包含空格；请清空后重新粘贴。', localUnavailable: '无法连接本机后端，请确认程序仍在运行。',
     emptyOutput: '请至少选择一项输出内容。', typographyReset: '排版已恢复默认。', invalidTxt: '只能导入扩展名为 .txt 的文本文件。',
     emptyTxt: 'TXT 文件中没有可用例句。', importedTxt: '已导入 {count} 个例句；点击“生成 Gloss”开始处理。', bidiControl: '输入含有 Unicode 方向控制符，请移除 RLO/LRO/embedding/isolate 控制符后再生成；页面会自动处理书写方向。', example: '例句', token: '词项', resultCount: '{count} 个例句',
@@ -61,7 +61,7 @@ const I18N = {
   en: {
     demo: 'Load demo', help: 'Guide', close: 'Close', settings: 'Project settings', aiSettings: 'AI service', provider: 'Provider', model: 'Model name',
     keyHint: 'After validation, the key is stored as authenticated ciphertext in a cookie that page scripts cannot read.', validate: 'Validate API', apiKeyHelp: 'How to apply', apiKeyDialogTitle: 'How to get an API key', lingSettings: 'Language & transcription', variety: 'Language / variety', mandarin: 'Mandarin', cantonese: 'Cantonese', minnan: 'Southern Min', other: 'Other', zhuyin: 'Zhuyin / Bopomofo', jyutping: '粤拼 / Jyutping', ipa: 'IPA', ipaNumericTones: 'IPA + numeric tone values', ipaToneLetters: 'IPA tone letters', chineseGloss: 'Aligned Chinese meaning', chineseGlossHint: 'The aligned Chinese layer preserves source order and token alignment.', chineseFreeTranslation: 'Free Chinese translation',
-    customVariety: 'Custom language / variety', inputFormat: 'Input format', transcriptionSystem: 'Primary transcription system', pinyinSettings: 'Pinyin settings', pinyinToneMarks: 'Pinyin with tone marks', pinyinToneNumbers: 'Pinyin with tone numbers', pinyinNoTone: 'Pinyin without tones', otherTranscriptionSettings: 'Other annotation', otherTranscriptionHint: 'Optional; leave blank to omit the other-annotation line.',
+    customVariety: 'Custom language name', latinTranscription: 'Latin transcription', englishGloss: 'English gloss', inputFormat: 'Input format', transcriptionSystem: 'Primary transcription system', pinyinSettings: 'Pinyin settings', pinyinToneMarks: 'Pinyin with tone marks', pinyinToneNumbers: 'Pinyin with tone numbers', pinyinNoTone: 'Pinyin without tones', otherTranscriptionSettings: 'Other annotation', otherTranscriptionHint: 'Optional; leave blank to omit the other-annotation line.',
     transcriptionHint: 'Select the primary system for non-Mandarin material.',
     conventions: 'Gloss conventions (editable)', input: 'Input examples', importTxt: 'Import TXT', clear: 'Clear', analyze: 'Generate gloss',
     segHint: 'Enter one example per line, segmenting tokens with spaces. Blank lines are ignored. You may also import a one-example-per-line TXT file.',
@@ -74,7 +74,7 @@ const I18N = {
     openProject: 'Open', saveProject: 'Save', hanzi: 'Hanzi', romanized: 'Pinyin / romanization / IPA', gloss: 'Gloss', validating: 'Validating…',
     valid: 'API key is valid', invalid: 'Validation failed', generating: 'Generating example {current}/{total}…',
     generated: 'Generated {count} examples; edit any cell directly', copied: 'Copied', saved: 'Project saved', loaded: 'Project loaded',
-    needInput: 'Enter at least one example', needKey: 'Configure and validate this provider in the upper-left AI service panel first', needModel: 'Enter a model name',
+    needInput: 'Enter at least one example', needCustomLanguage: 'Enter the custom language name', needKey: 'Configure and validate this provider in the upper-left AI service panel first', needModel: 'Enter a model name',
     badKeyFormat: 'API keys must not contain spaces. Clear the field and paste it again.', localUnavailable: 'Cannot reach the local backend. Check that the program is still running.',
     emptyOutput: 'Select at least one output line.', typographyReset: 'Typography restored to defaults.', invalidTxt: 'Only .txt text files can be imported.',
     emptyTxt: 'The TXT file contains no usable examples.', importedTxt: 'Imported {count} examples; click “Generate gloss” to process them.', bidiControl: 'The input contains Unicode bidi controls. Remove RLO/LRO/embedding/isolate controls; the page handles writing direction safely.', example: 'Example', token: 'Token',
@@ -85,7 +85,7 @@ const I18N = {
 I18N['zh-Hant'] = {
   demo: '載入範例', help: '使用說明', close: '關閉', settings: '專案設定', aiSettings: 'AI 服務', provider: '服務提供者', model: '模型名稱',
   keyHint: '驗證成功後以認證加密 Cookie 儲存；網頁指令碼無法讀取。', validate: '驗證 API', apiKeyHelp: '如何申請', apiKeyDialogTitle: '如何申請 API key', lingSettings: '語言與轉寫', variety: '語言 / 方言', mandarin: '國語 / Mandarin', cantonese: '粵語 / Cantonese', minnan: '閩南語 / Southern Min', other: '其他 / Other', zhuyin: '注音符號 / Zhuyin', jyutping: '粵拼 / Jyutping', ipa: 'IPA', ipaNumericTones: 'IPA + 數字聲調', ipaToneLetters: 'IPA 聲調符號', chineseGloss: '漢語釋義', chineseGlossHint: '「漢語釋義」保留原語序並與原文逐詞對齊。', chineseFreeTranslation: '漢語自由翻譯',
-  customVariety: '自訂語言 / 方言名稱', inputFormat: '輸入格式', transcriptionSystem: '主要轉寫系統', pinyinSettings: '拼音設定', pinyinToneMarks: '拼音附聲調符號', pinyinToneNumbers: '拼音數字聲調', pinyinNoTone: '拼音不標聲調', otherTranscriptionSettings: '其他注音設定', otherTranscriptionHint: '選填；留白時不產生其他注音列。',
+  customVariety: '自訂語言名稱', latinTranscription: '拉丁轉寫', englishGloss: '英語 Gloss', inputFormat: '輸入格式', transcriptionSystem: '主要轉寫系統', pinyinSettings: '拼音設定', pinyinToneMarks: '拼音附聲調符號', pinyinToneNumbers: '拼音數字聲調', pinyinNoTone: '拼音不標聲調', otherTranscriptionSettings: '其他注音設定', otherTranscriptionHint: '選填；留白時不產生其他注音列。',
   transcriptionHint: '為非國語材料選擇主要轉寫系統。',
   conventions: 'Gloss 約定（可修改）', input: '輸入例句', importTxt: '匯入 TXT', clear: '清除', analyze: '產生 Gloss',
   segHint: '每行一個例句；請用空格分詞，空行將被忽略。也可匯入一行一個例句的 TXT 檔案。', editResult: '編輯結果', aligned: '詞數已對齊',
@@ -96,7 +96,7 @@ I18N['zh-Hant'] = {
   preview: '輸出預覽', separateTables: '每個例句各用一個表格', export: '匯出', copyTable: '複製表格', copyMD: '複製 HTML / MD', png: '透明 PNG',
   project: '專案', openProject: '開啟', saveProject: '儲存', hanzi: '漢字', romanized: '拼音 / 羅馬字 / IPA', gloss: 'Gloss', validating: '正在驗證…',
   valid: 'API key 可用', invalid: '驗證失敗', generating: '正在產生第 {current}/{total} 個例句…', generated: '已產生 {count} 個例句，可直接逐格修改',
-  copied: '已複製', saved: '專案已儲存', loaded: '專案已載入', needInput: '請至少輸入一個例句', needKey: '請先在頁面左上方「AI 服務」中驗證並儲存目前服務提供者的 API key', needModel: '請輸入模型名稱',
+  copied: '已複製', saved: '專案已儲存', loaded: '專案已載入', needInput: '請至少輸入一個例句', needCustomLanguage: '請輸入自訂語言名稱', needKey: '請先在頁面左上方「AI 服務」中驗證並儲存目前服務提供者的 API key', needModel: '請輸入模型名稱',
   badKeyFormat: 'API key 不應包含空格；請清除後重新貼上。', localUnavailable: '無法連線至後端，請確認服務仍在執行。',
   emptyOutput: '請至少選擇一個輸出列。', typographyReset: '排版已還原為預設值。', invalidTxt: '只能匯入副檔名為 .txt 的文字檔案。',
   emptyTxt: 'TXT 檔案中沒有可用例句。', importedTxt: '已匯入 {count} 個例句；選取「產生 Gloss」開始處理。', bidiControl: '輸入含有 Unicode 方向控制符，請移除 RLO/LRO/embedding/isolate 控制符；頁面會安全處理書寫方向。', example: '例句', token: '詞項', resultCount: '{count} 個例句',
@@ -142,7 +142,6 @@ function applyLang() {
     const currentPrimary = $('#transcriptionSystem')?.value || '';
     populateScriptVariants(profile, $('#scriptVariant')?.value || '');
     applyProfileLabels(profile, currentPrimary);
-    if (setRecommended) $('#showPinyin').checked = Boolean(profile?.primary_transcription);
   }
   ['#btnCloseHelp', '#btnCloseApiHelp'].forEach(selector => {
     const control = $(selector);
@@ -215,9 +214,13 @@ function applyProfileLabels(profile, preferredPrimary = '') {
     }));
     if (values.includes(preferredPrimary)) primary.value = preferredPrimary;
   }
-  document.querySelectorAll('[data-primary-line-label]').forEach(element => {
-    element.textContent = state.lang === 'en' ? 'Primary transcription' : (state.lang === 'zh-Hant' ? '主要轉寫' : '主要转写');
-  });
+  const isCustom = profile.id === 'custom';
+  const primaryLabel = isCustom ? t('latinTranscription') : (state.lang === 'en' ? 'Primary transcription' : (state.lang === 'zh-Hant' ? '主要轉寫' : '主要转写'));
+  const secondaryLabel = isCustom ? 'IPA' : t('otherTranscriptionOutput');
+  document.querySelectorAll('[data-primary-line-label]').forEach(element => { element.textContent = primaryLabel; });
+  document.querySelectorAll('[data-secondary-line-label]').forEach(element => { element.textContent = secondaryLabel; });
+  const glossLabel = $('#showGloss')?.nextElementSibling;
+  if (glossLabel) glossLabel.textContent = isCustom ? t('englishGloss') : 'Gloss';
   const sentence = $('#sentence');
   if (sentence) {
     sentence.dir = currentDirection();
@@ -259,7 +262,10 @@ function selectedSecondaryAnnotationSystem() {
   const control = $('#nonMandarinAnnotation');
   return control ? control.value : '';
 }
-function wantsChineseGloss() { return selectedSecondaryAnnotationSystem() === 'Chinese aligned gloss'; }
+function wantsChineseGloss() {
+  return selectedSecondaryAnnotationSystem() === 'Chinese aligned gloss'
+    || (workspaceType === 'multilingual' && Boolean($('#showChineseGloss')?.checked));
+}
 function languageChanged(setRecommended = true) {
   const value = $('#languagePreset').value;
   const isHanzi = $('#inputFormat').value === 'hanzi';
@@ -268,12 +274,22 @@ function languageChanged(setRecommended = true) {
     const profile = selectedLanguageProfile();
     populateScriptVariants(profile, $('#scriptVariant')?.value || '');
     applyProfileLabels(profile);
-    $('#customLanguageWrap').style.display = 'none';
+    $('#customLanguageWrap').classList.toggle('hidden', profile?.id !== 'custom');
     $('#mandarinTranscriptionSettings').style.display = 'none';
     $('#transcriptionWrap').style.display = 'block';
     if ($('#nonMandarinAnnotationWrap')) $('#nonMandarinAnnotationWrap').style.display = 'block';
     ['#showChineseGloss', '#showChineseTranslation'].forEach(selector => { if ($(selector)) $(selector).closest('label').style.display = 'flex'; });
     ['chineseGloss', 'chineseFree'].forEach(key => { const row = document.querySelector(`[data-style-row="${key}"]`); if (row) row.style.display = 'table-row'; });
+    if (setRecommended && profile?.id === 'custom') {
+      $('#transcriptionSystem').value = profile.primary_transcription;
+      $('#nonMandarinAnnotation').value = profile.default_secondary_annotation;
+      $('#showPinyin').checked = profile.default_output.primary_transcription;
+      $('#showTranscription').checked = profile.default_output.secondary_annotation;
+      $('#showGloss').checked = profile.default_output.english_gloss;
+      $('#showChineseGloss').checked = profile.default_output.chinese_gloss;
+      $('#showTranslation').checked = profile.default_output.english_free_translation;
+      $('#showChineseTranslation').checked = profile.default_output.chinese_free_translation;
+    }
     if (hasResults()) renderEditor();
     return;
   }
@@ -319,7 +335,10 @@ function inputFormatChanged() {
   languageChanged(false);
 }
 function getLanguage() {
-  if (workspaceType === 'multilingual') return selectedLanguageProfile()?.labels.en || $('#languagePreset').value;
+  if (workspaceType === 'multilingual') {
+    if (selectedLanguageProfile()?.id === 'custom') return $('#customLanguage').value.trim();
+    return selectedLanguageProfile()?.labels.en || $('#languagePreset').value;
+  }
   return $('#languagePreset').value === 'custom' ? ($('#customLanguage').value.trim() || 'Chinese variety') : $('#languagePreset').value;
 }
 function inputExamples() { return parseExampleLines($('#sentence').value); }
@@ -330,6 +349,7 @@ function getPayload(sentence = '') {
     model: state.aiSettings.model,
     workspace: workspaceType,
     language_profile_id: workspaceType === 'multilingual' ? $('#languagePreset').value : '',
+    language_name: getLanguage(),
     script_variant: workspaceType === 'multilingual' ? ($('#scriptVariant')?.value || '') : '',
     primary_transcription_system: workspaceType === 'multilingual' ? $('#transcriptionSystem').value : '',
     language: getLanguage(),
@@ -367,6 +387,7 @@ async function analyze() {
   await refreshCredentialStatus();
   const basePayload = getPayload(sentences[0] || '');
   if (!sentences.length) return setStatus($('#workStatus'), t('needInput'), 'bad');
+  if (workspaceType === 'multilingual' && selectedLanguageProfile()?.id === 'custom' && !basePayload.language_name) return setStatus($('#workStatus'), t('needCustomLanguage'), 'bad');
   if (/[\u202A-\u202E\u2066-\u2069]/u.test($('#sentence').value)) return setStatus($('#workStatus'), t('bidiControl'), 'bad');
   if (!state.configuredProviders.includes(basePayload.provider)) return setStatus($('#workStatus'), t('needKey'), 'bad');
   if (!basePayload.model) return setStatus($('#workStatus'), t('needModel'), 'bad');
@@ -509,14 +530,18 @@ function editorFieldHTML(exampleIndex, tokenIndex, label, field, value, classNam
 function editorExampleHTML(result, exampleIndex) {
   const hasOtherAnnotation = Boolean(selectedOtherTranscriptionSystem()) || result.tokens.some(token => String(token.transcription ?? '').trim());
   const hasChineseLayers = getLanguage() !== 'Mandarin Chinese' || result.tokens.some(token => String(token.chinese_gloss ?? '').trim()) || result.chinese_free_translation;
-  const tokenCards = tokenEditorItems(result).map(token => `<section class="token-editor-card" data-token-index="${token.index}" aria-label="${esc(`${t('example')} ${exampleIndex + 1}, ${t('token')} ${token.index + 1}`)}">
+  const customOrder = workspaceType === 'multilingual' && selectedLanguageProfile()?.id === 'custom';
+  const tokenCards = tokenEditorItems(result).map(token => {
+    const chineseField = hasChineseLayers ? editorFieldHTML(exampleIndex, token.index, t('chineseGloss'), 'chinese_gloss', token.chinese_gloss, 'transcell', 'chineseGloss') : '';
+    const glossField = editorFieldHTML(exampleIndex, token.index, customOrder ? t('englishGloss') : t('gloss'), 'gloss', token.gloss, 'glosscell', 'gloss');
+    return `<section class="token-editor-card" data-token-index="${token.index}" aria-label="${esc(`${t('example')} ${exampleIndex + 1}, ${t('token')} ${token.index + 1}`)}">
     <div class="token-editor-index">${esc(t('token'))} ${token.index + 1}</div>
     ${editorFieldHTML(exampleIndex, token.index, t('form'), 'form', token.form, 'formcell', 'form')}
-    ${editorFieldHTML(exampleIndex, token.index, t('pinyinOutput'), 'pinyin_diacritic', token.pinyin_diacritic, 'transcell', 'pinyin')}
-    ${hasOtherAnnotation ? editorFieldHTML(exampleIndex, token.index, t('otherTranscriptionOutput'), 'transcription', token.transcription, 'transcell', 'transcription') : ''}
-    ${hasChineseLayers ? editorFieldHTML(exampleIndex, token.index, t('chineseGloss'), 'chinese_gloss', token.chinese_gloss, 'transcell', 'chineseGloss') : ''}
-    ${editorFieldHTML(exampleIndex, token.index, t('gloss'), 'gloss', token.gloss, 'glosscell', 'gloss')}
-  </section>`).join('');
+    ${editorFieldHTML(exampleIndex, token.index, customOrder ? t('latinTranscription') : t('pinyinOutput'), 'pinyin_diacritic', token.pinyin_diacritic, 'transcell', 'pinyin')}
+    ${hasOtherAnnotation ? editorFieldHTML(exampleIndex, token.index, customOrder ? 'IPA' : t('otherTranscriptionOutput'), 'transcription', token.transcription, 'transcell', 'transcription') : ''}
+    ${customOrder ? glossField + chineseField : chineseField + glossField}
+  </section>`;
+  }).join('');
   return `<article class="editor-example" data-example-editor="${exampleIndex}">
     <div class="editor-example-head"><span class="editor-example-title">${esc(t('example'))} ${exampleIndex + 1}</span><span class="editor-example-status">${esc(t('aligned'))}</span></div>
     <div class="token-editor-grid ${currentDirection() === 'rtl' ? 'rtl' : ''}">${tokenCards}</div>
@@ -569,8 +594,16 @@ function outputRows(result) {
   if (options.form) rows.push({key: 'form', styleKey: 'form', values: tokens.map(token => token.form)});
   if (options.pinyin_diacritic) rows.push({key: 'pinyin', styleKey: 'pinyin', values: tokens.map(token => token.pinyin_diacritic)});
   if (options.transcription) rows.push({key: 'transcription', styleKey: 'transcription', values: tokens.map(token => token.transcription)});
-  if (options.chinese_gloss) rows.push({key: 'chinese-gloss', styleKey: 'chineseGloss', values: tokens.map(token => token.chinese_gloss)});
-  if (options.gloss) rows.push({key: 'gloss', styleKey: 'gloss', values: tokens.map(token => token.gloss)});
+  const customOrder = workspaceType === 'multilingual' && selectedLanguageProfile()?.id === 'custom';
+  const chineseGlossRow = {key: 'chinese-gloss', styleKey: 'chineseGloss', values: tokens.map(token => token.chinese_gloss)};
+  const glossRow = {key: 'gloss', styleKey: 'gloss', values: tokens.map(token => token.gloss)};
+  if (customOrder) {
+    if (options.gloss) rows.push(glossRow);
+    if (options.chinese_gloss) rows.push(chineseGlossRow);
+  } else {
+    if (options.chinese_gloss) rows.push(chineseGlossRow);
+    if (options.gloss) rows.push(glossRow);
+  }
   if (options.translation) rows.push({key: 'free', styleKey: 'free', text: `‘${result.free_translation}’`});
   if (options.chinese_translation) rows.push({key: 'chinese-free', styleKey: 'chineseFree', text: `“${result.chinese_free_translation}”`});
   return rows;

@@ -123,6 +123,31 @@ class CredentialEnvelopeTests(unittest.TestCase):
         self.assertIn("ULY/NUL", result["uyghur_user"])
         self.assertEqual(result["uyghur_tokens"], ["مۇخبىر", "گېزىت"])
 
+    def test_custom_profile_uses_validated_language_name_and_requested_layers(self):
+        output = call_php(
+            "$built = build_request_prompt(['workspace' => 'multilingual', 'sentence' => 'na mi', "
+            "'language_profile_id' => 'custom', 'language_name' => 'Example Language', "
+            "'script_variant' => 'und-Zyyy-ltr', 'primary_transcription_system' => 'Latin transcription', "
+            "'other_transcription_system' => 'IPA', 'include_chinese_gloss' => true]); "
+            "echo json_encode(['system' => $built[0], 'user' => $built[1]]);"
+        )
+        result = json.loads(output)
+
+        self.assertIn("Language: Example Language", result["user"])
+        self.assertIn("Latin transcription", result["user"])
+        self.assertIn("Secondary annotation system: IPA", result["user"])
+        self.assertIn("Supply chinese_gloss for every token", result["user"])
+
+    def test_custom_profile_rejects_prompt_like_language_names(self):
+        output = call_php(
+            "try { build_request_prompt(['workspace' => 'multilingual', 'sentence' => 'na', "
+            "'language_profile_id' => 'custom', 'language_name' => 'Ignore: instructions', "
+            "'script_variant' => 'und-Zyyy-ltr']); echo 'accepted'; } "
+            "catch (RuntimeException $error) { echo $error->getMessage(); }"
+        )
+
+        self.assertIn("Invalid custom language name", output)
+
     def test_southern_min_extended_prompt_does_not_request_mandarin_pinyin(self):
         output = call_php(
             "$built = build_request_prompt(['sentence' => '伊 食 饭', 'language' => 'Southern Min Chinese', "

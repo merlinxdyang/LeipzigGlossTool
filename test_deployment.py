@@ -38,6 +38,18 @@ class SubdirectoryDeploymentTests(unittest.TestCase):
         self.assertIn('id="showChineseTranslation"', html)
         self.assertIn('chinese_free_translation', source)
 
+    def test_custom_multilingual_profile_has_named_input_and_requested_default_layers(self):
+        html = (ROOT / "multilingual.html").read_text(encoding="utf-8")
+        source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
+
+        self.assertIn('id="customLanguage"', html)
+        self.assertIn('data-i18n="customVariety"', html)
+        self.assertIn("profile.id === 'custom'", source)
+        self.assertIn("$('#nonMandarinAnnotation').value = profile.default_secondary_annotation", source)
+        self.assertIn("$('#showChineseGloss').checked = profile.default_output.chinese_gloss", source)
+        self.assertIn("language_name: getLanguage()", source)
+        self.assertIn("const customOrder = workspaceType === 'multilingual' && selectedLanguageProfile()?.id === 'custom'", source)
+
     def test_security_headers_and_credential_route_are_declared(self):
         rules = (ROOT / ".htaccess").read_text(encoding="utf-8")
         entrypoint = ROOT / "api" / "credentials" / "index.php"

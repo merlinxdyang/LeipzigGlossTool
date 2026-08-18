@@ -32,10 +32,10 @@
     </section>
     <div class="divider"></div>
     <h2 class="group-title" data-i18n="lingSettings">语言与转写</h2>
-    <div class="field"><label for="languagePreset" data-i18n="variety">语言</label><select id="languagePreset"><option value="japanese">日语</option><option value="german">德语</option><option value="french">法语</option><option value="spanish">西班牙语</option><option value="dutch">荷兰语</option><option value="sanskrit">梵语</option><option value="uyghur">维吾尔语</option><option value="mongolian">蒙古语</option><option value="tibetan">藏语</option></select></div>
+    <div class="field"><label for="languagePreset" data-i18n="variety">语言</label><select id="languagePreset"><option value="japanese">日语</option><option value="german">德语</option><option value="french">法语</option><option value="spanish">西班牙语</option><option value="dutch">荷兰语</option><option value="sanskrit">梵语</option><option value="uyghur">维吾尔语</option><option value="mongolian">蒙古语</option><option value="tibetan">藏语</option><option value="custom">自定义语言</option></select></div>
     <div class="field"><label for="scriptVariant">文字 / Script</label><select id="scriptVariant"><option value="ja-Jpan">日文原文</option></select></div>
     <div class="field"><label for="inputFormat" data-i18n="inputFormat">输入格式</label><select id="inputFormat"><option value="hanzi">原文字</option><option value="romanized" data-i18n-opt="romanized">罗马字 / IPA</option></select></div>
-    <div id="customLanguageWrap" class="hidden"><input id="customLanguage" type="text"></div>
+    <div id="customLanguageWrap" class="field hidden"><label for="customLanguage" data-i18n="customVariety">自定义语言名称</label><input id="customLanguage" type="text" maxlength="80" autocomplete="off" placeholder="例如：祖鲁语 / Zulu"></div>
     <div id="mandarinTranscriptionSettings" class="hidden"><input type="radio" name="pinyinMode" value="tone_marks" checked><select id="otherTranscriptionSystem"><option value=""></option></select></div>
     <div class="field" id="transcriptionWrap"><label for="transcriptionSystem" data-primary-line-label>主要转写</label><select id="transcriptionSystem"><option>Modified Hepburn</option></select><div class="hint" data-i18n="transcriptionHint">选择主要转写体系。</div></div>
     <div class="field" id="nonMandarinAnnotationWrap"><label for="nonMandarinAnnotation" data-i18n="otherTranscriptionSettings">其他注音设置</label><select id="nonMandarinAnnotation"><option value=""></option><option value="Chinese aligned gloss">汉语释义（逐词对齐）</option><option value="IPA">IPA</option><option value="Other">Other</option></select><div class="hint" data-i18n="chineseGlossHint">“汉语释义”保持原语序并与原文逐词对齐。</div></div>
@@ -50,7 +50,7 @@
       <div class="preview-controls"><fieldset><legend data-i18n="outputLines">输出行</legend>
         <label class="checkline"><input type="checkbox" id="showForm" checked><span data-i18n="form">原文</span></label>
         <label class="checkline"><input type="checkbox" id="showPinyin" checked><span data-primary-line-label>主要转写</span></label>
-        <label class="checkline"><input type="checkbox" id="showTranscription"><span data-i18n="otherTranscriptionOutput">其他注音</span></label>
+        <label class="checkline"><input type="checkbox" id="showTranscription"><span data-secondary-line-label>其他注音</span></label>
         <label class="checkline"><input type="checkbox" id="showChineseGloss"><span data-i18n="chineseGloss">汉语释义</span></label>
         <label class="checkline"><input type="checkbox" id="showGloss" checked><span>Gloss</span></label>
         <label class="checkline"><input type="checkbox" id="showTranslation" checked><span data-i18n="freeTranslation">英语自由翻译</span></label>
@@ -67,7 +67,7 @@
         <div style="overflow:auto"><table class="type-settings"><thead><tr><th data-i18n="outputLine">输出行</th><th data-i18n="font">字体</th><th data-i18n="fontSize">字号</th><th data-i18n="bold">加粗</th><th data-i18n="italic">斜体</th></tr></thead><tbody>
           <tr data-style-row="form"><th data-i18n="form">原文</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
           <tr data-style-row="pinyin"><th data-primary-line-label>主要转写</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
-          <tr data-style-row="transcription"><th data-i18n="otherTranscriptionOutput">其他注音</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
+          <tr data-style-row="transcription"><th data-secondary-line-label>其他注音</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
           <tr data-style-row="chineseGloss"><th data-i18n="chineseGloss">汉语释义</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
           <tr data-style-row="gloss"><th>Gloss</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
           <tr data-style-row="free"><th data-i18n="freeTranslation">英语自由翻译</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>

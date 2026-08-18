@@ -92,5 +92,25 @@
       {"id": "bo-Latn", "bcp47": "bo-Latn", "direction": "ltr", "input_label": {"zh": "EWTS", "zh-Hant": "EWTS", "en": "EWTS"}}
     ],
     "prompt_rules": "Use THL Extended Wylie for reversible orthographic transliteration. Preserve tsheg and stacked-letter sequences. A tsheg delimits a syllabic unit, not necessarily a linguistic word; respect the user's whitespace boundaries."
+  },
+  {
+    "id": "custom",
+    "bcp47": "und",
+    "labels": {"zh": "自定义语言", "zh-Hant": "自訂語言", "en": "Custom language"},
+    "primary_transcription": "Latin transcription",
+    "default_secondary_annotation": "IPA",
+    "default_output": {
+      "primary_transcription": true,
+      "secondary_annotation": true,
+      "english_gloss": true,
+      "chinese_gloss": true,
+      "english_free_translation": true,
+      "chinese_free_translation": false
+    },
+    "script_variants": [
+      {"id": "und-Zyyy-ltr", "bcp47": "und-Zyyy", "direction": "ltr", "input_label": {"zh": "原文字（从左到右）", "zh-Hant": "原文字（從左到右）", "en": "Original script (left to right)"}},
+      {"id": "und-Zyyy-rtl", "bcp47": "und-Zyyy", "direction": "rtl", "input_label": {"zh": "原文字（从右到左）", "zh-Hant": "原文字（從右到左）", "en": "Original script (right to left)"}}
+    ],
+    "prompt_rules": "The researcher supplies the language name. Use a conventional, widely used Latin-script transcription when one is established and state the selected system in note. Supply a broad IPA transcription as the secondary layer. If the language or a form is uncertain, preserve alignment and state the uncertainty instead of inventing a confident analysis."
   }
 ]
