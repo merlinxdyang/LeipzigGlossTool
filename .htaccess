@@ -3,6 +3,16 @@ DirectoryIndex index.html
 
 RewriteEngine On
 RewriteRule ^api/(validate|gloss)/?$ api.php?action=$1 [L,QSA]
+RewriteRule ^api/(credentials)/?$ api.php?action=$1 [L,QSA]
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "no-referrer"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    Header always set Strict-Transport-Security "max-age=31536000"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+</IfModule>
 
 <FilesMatch "\.(?:py|pyc|command|md)$">
     Require all denied
