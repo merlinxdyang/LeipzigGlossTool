@@ -1,0 +1,96 @@
+[
+  {
+    "id": "japanese",
+    "bcp47": "ja",
+    "labels": {"zh": "日语", "zh-Hant": "日語", "en": "Japanese"},
+    "primary_transcription": "Modified Hepburn",
+    "script_variants": [
+      {"id": "ja-Jpan", "bcp47": "ja-Jpan", "direction": "ltr", "input_label": {"zh": "日文原文", "zh-Hant": "日文原文", "en": "Japanese script"}}
+    ],
+    "prompt_rules": "Preserve Japanese script. Supply consistent Modified Hepburn romanization with macrons. Keep particles and auxiliaries aligned to the user's tokenization; do not claim that automatic word units settle morphological analysis."
+  },
+  {
+    "id": "german",
+    "bcp47": "de",
+    "labels": {"zh": "德语", "zh-Hant": "德語", "en": "German"},
+    "primary_transcription": "",
+    "script_variants": [
+      {"id": "de-Latn", "bcp47": "de-Latn", "direction": "ltr", "input_label": {"zh": "德语原文", "zh-Hant": "德語原文", "en": "German orthography"}}
+    ],
+    "prompt_rules": "Preserve German orthography, capitalization, compounds, and separable-verb word order. Do not invent segmentable affixes for fused exponents; use Leipzig periods for bundled features when appropriate."
+  },
+  {
+    "id": "french",
+    "bcp47": "fr",
+    "labels": {"zh": "法语", "zh-Hant": "法語", "en": "French"},
+    "primary_transcription": "",
+    "script_variants": [
+      {"id": "fr-Latn", "bcp47": "fr-Latn", "direction": "ltr", "input_label": {"zh": "法语原文", "zh-Hant": "法語原文", "en": "French orthography"}}
+    ],
+    "prompt_rules": "Preserve French accents, apostrophes, hyphens, and surface contractions. A fused form such as aux may receive a bundled gloss such as to.ART.PL; do not fabricate hyphen boundaries."
+  },
+  {
+    "id": "spanish",
+    "bcp47": "es",
+    "labels": {"zh": "西班牙语", "zh-Hant": "西班牙語", "en": "Spanish"},
+    "primary_transcription": "",
+    "script_variants": [
+      {"id": "es-Latn", "bcp47": "es-Latn", "direction": "ltr", "input_label": {"zh": "西班牙语原文", "zh-Hant": "西班牙語原文", "en": "Spanish orthography"}}
+    ],
+    "prompt_rules": "Preserve Spanish accents and ñ. Treat al, del, and attached clitics conservatively; keep the surface token and use equals signs only when the analysis is justified. Do not add an unexpressed subject token."
+  },
+  {
+    "id": "dutch",
+    "bcp47": "nl",
+    "labels": {"zh": "荷兰语", "zh-Hant": "荷蘭語", "en": "Dutch"},
+    "primary_transcription": "",
+    "script_variants": [
+      {"id": "nl-Latn", "bcp47": "nl-Latn", "direction": "ltr", "input_label": {"zh": "荷兰语原文", "zh-Hant": "荷蘭語原文", "en": "Dutch orthography"}}
+    ],
+    "prompt_rules": "Preserve Dutch orthographic tokens and separable-particle order. Do not split fixed contractions mechanically. Avoid COM for common gender because Leipzig COM means comitative; use an explicitly declared label such as COMMON."
+  },
+  {
+    "id": "sanskrit",
+    "bcp47": "sa-Deva",
+    "labels": {"zh": "梵语", "zh-Hant": "梵語", "en": "Sanskrit"},
+    "primary_transcription": "IAST",
+    "script_variants": [
+      {"id": "sa-Deva", "bcp47": "sa-Deva", "direction": "ltr", "input_label": {"zh": "天城文", "zh-Hant": "天城文", "en": "Devanagari"}},
+      {"id": "sa-Latn", "bcp47": "sa-Latn", "direction": "ltr", "input_label": {"zh": "IAST 罗马字", "zh-Hant": "IAST 羅馬字", "en": "IAST romanization"}}
+    ],
+    "prompt_rules": "Use scholarly IAST for Devanagari input. Preserve the surface form and user-supplied boundaries. Sandhi segmentation is analysis, not character transliteration; place uncertain alternatives in the note instead of silently rewriting the source."
+  },
+  {
+    "id": "uyghur",
+    "bcp47": "ug-Arab",
+    "labels": {"zh": "维吾尔语", "zh-Hant": "維吾爾語", "en": "Uyghur"},
+    "primary_transcription": "ULY/NUL",
+    "script_variants": [
+      {"id": "ug-Arab", "bcp47": "ug-Arab", "direction": "rtl", "input_label": {"zh": "维吾尔阿拉伯文", "zh-Hant": "維吾爾阿拉伯文", "en": "Uyghur Arabic script"}},
+      {"id": "ug-Latn", "bcp47": "ug-Latn", "direction": "ltr", "input_label": {"zh": "ULY 拉丁字母", "zh-Hant": "ULY 拉丁字母", "en": "ULY Latin script"}}
+    ],
+    "prompt_rules": "Use modern reversible ULY/NUL: خ=x, چ=ch, ش=sh, ق=q, ك=k, غ=gh, ې=ë, ە=e, ۆ=ö, and ۈ=ü. Preserve logical token order. Never emit bidi override characters; Arabic form is RTL while romanization and glosses are LTR."
+  },
+  {
+    "id": "mongolian",
+    "bcp47": "mn-Cyrl",
+    "labels": {"zh": "蒙古语", "zh-Hant": "蒙古語", "en": "Mongolian"},
+    "primary_transcription": "ALA-LC / declared scholarly system",
+    "script_variants": [
+      {"id": "mn-Cyrl", "bcp47": "mn-Cyrl", "direction": "ltr", "input_label": {"zh": "西里尔蒙古文", "zh-Hant": "西里爾蒙古文", "en": "Mongolian Cyrillic"}},
+      {"id": "mn-Mong", "bcp47": "mn-Mong", "direction": "ltr", "input_label": {"zh": "传统蒙古文", "zh-Hant": "傳統蒙古文", "en": "Traditional Mongolian"}}
+    ],
+    "prompt_rules": "Keep Cyrillic and traditional Mongolian as distinct script profiles; they are not losslessly interchangeable. Preserve variation selectors and joiners in traditional-script forms and name the selected romanization scheme explicitly."
+  },
+  {
+    "id": "tibetan",
+    "bcp47": "bo-Tibt",
+    "labels": {"zh": "藏语", "zh-Hant": "藏語", "en": "Tibetan"},
+    "primary_transcription": "THL EWTS",
+    "script_variants": [
+      {"id": "bo-Tibt", "bcp47": "bo-Tibt", "direction": "ltr", "input_label": {"zh": "藏文", "zh-Hant": "藏文", "en": "Tibetan script"}},
+      {"id": "bo-Latn", "bcp47": "bo-Latn", "direction": "ltr", "input_label": {"zh": "EWTS", "zh-Hant": "EWTS", "en": "EWTS"}}
+    ],
+    "prompt_rules": "Use THL Extended Wylie for reversible orthographic transliteration. Preserve tsheg and stacked-letter sequences. A tsheg delimits a syllabic unit, not necessarily a linguistic word; respect the user's whitespace boundaries."
+  }
+]

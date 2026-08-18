@@ -1,7 +1,7 @@
 (function (root) {
   'use strict';
 
-  const ROW_KEYS = ['form', 'transcription', 'pinyin', 'gloss', 'free'];
+  const ROW_KEYS = ['form', 'transcription', 'pinyin', 'chineseGloss', 'gloss', 'free', 'chineseFree'];
   const FONT_OPTIONS = Object.freeze({
     'times-songti': {
       label: 'Times New Roman / 宋体',
@@ -26,6 +26,14 @@
     'courier-songti': {
       label: 'Courier New / 宋体',
       stack: '"Courier New","Songti SC","STSong","SimSun",monospace',
+    },
+    'multilingual-serif': {
+      label: 'Multilingual Serif / 多语种衬线',
+      stack: '"Times New Roman","Noto Serif CJK JP","Yu Mincho","Noto Serif Devanagari","Kohinoor Devanagari","Noto Naskh Arabic","Geeza Pro","Noto Serif Tibetan",Kailasa,"Mongolian Baiti","Songti SC",serif',
+    },
+    'multilingual-sans': {
+      label: 'Multilingual Sans / 多语种无衬线',
+      stack: 'Arial,"Noto Sans CJK JP","Hiragino Sans","Noto Sans Devanagari","Kohinoor Devanagari","Noto Sans Arabic","Geeza Pro","Noto Sans Tibetan",Kailasa,"Noto Sans Mongolian","Heiti SC",sans-serif',
     },
   });
   const BASE_STYLE = Object.freeze({

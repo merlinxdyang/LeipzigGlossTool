@@ -58,6 +58,7 @@
       form: String(token?.form ?? ''),
       transcription: String(token?.transcription ?? ''),
       pinyin_diacritic: String(token?.pinyin_diacritic ?? ''),
+      chinese_gloss: String(token?.chinese_gloss ?? ''),
       gloss: String(token?.gloss ?? ''),
     }));
   }

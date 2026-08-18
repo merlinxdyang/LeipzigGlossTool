@@ -10,7 +10,7 @@ const {
 } = require('./typography.js');
 
 test('every output row defaults to Times New Roman with Songti at 10.5 pt', () => {
-  for (const key of ['form', 'transcription', 'pinyin', 'gloss', 'free']) {
+  for (const key of ['form', 'transcription', 'pinyin', 'chineseGloss', 'gloss', 'free', 'chineseFree']) {
     assert.deepEqual(DEFAULT_TYPOGRAPHY[key], {
       font: 'times-songti',
       size: 10.5,

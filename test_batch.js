@@ -60,16 +60,16 @@ test('project results supports new batches and legacy single-result projects', (
   assert.deepEqual(projectResults({}), []);
 });
 
-test('responsive editor items keep every token and its four aligned layers together', () => {
+test('responsive editor items keep every token and all aligned layers together', () => {
   const result = {
     tokens: [
-      {form: '张三', transcription: 'Zhang1san1', pinyin_diacritic: 'Zhāngsān', gloss: 'Zhangsan'},
-      {form: '把', transcription: 'ba3', pinyin_diacritic: 'bǎ', gloss: 'BA'},
+      {form: '张三', transcription: 'Zhang1san1', pinyin_diacritic: 'Zhāngsān', chinese_gloss: '张三', gloss: 'Zhangsan'},
+      {form: '把', transcription: 'ba3', pinyin_diacritic: 'bǎ', chinese_gloss: '把', gloss: 'BA'},
     ],
   };
 
   assert.deepEqual(tokenEditorItems(result), [
-    {index: 0, form: '张三', transcription: 'Zhang1san1', pinyin_diacritic: 'Zhāngsān', gloss: 'Zhangsan'},
-    {index: 1, form: '把', transcription: 'ba3', pinyin_diacritic: 'bǎ', gloss: 'BA'},
+    {index: 0, form: '张三', transcription: 'Zhang1san1', pinyin_diacritic: 'Zhāngsān', chinese_gloss: '张三', gloss: 'Zhangsan'},
+    {index: 1, form: '把', transcription: 'ba3', pinyin_diacritic: 'bǎ', chinese_gloss: '把', gloss: 'BA'},
   ]);
 });
