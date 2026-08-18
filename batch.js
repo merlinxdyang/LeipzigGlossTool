@@ -24,7 +24,11 @@
   }
 
   function moveOutputLayer(order, key, offset) {
-    const normalized = normalizeOutputOrder(order);
+    const allowed = new Set(DEFAULT_OUTPUT_ORDER);
+    const normalized = Array.isArray(order)
+      ? order.filter((item, index, values) => allowed.has(item) && values.indexOf(item) === index)
+      : [...DEFAULT_OUTPUT_ORDER];
+    if (!normalized.length) return [...DEFAULT_OUTPUT_ORDER];
     const from = normalized.indexOf(key);
     if (from < 0 || !Number.isInteger(offset)) return normalized;
     const to = Math.max(0, Math.min(normalized.length - 1, from + offset));

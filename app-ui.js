@@ -525,6 +525,16 @@ function commitOutputOrder(order, movedKey = '') {
   persist();
   if (movedKey) announceOutputOrder(movedKey);
 }
+function moveVisibleOutputLayer(key, offset) {
+  const visibleKeys = [...document.querySelectorAll('.output-order-item')]
+    .filter(item => getComputedStyle(item).display !== 'none')
+    .map(item => item.dataset.outputKey);
+  const moved = moveOutputLayer(visibleKeys, key, offset);
+  const movedIndex = moved.indexOf(key);
+  if (movedIndex === visibleKeys.indexOf(key)) return state.outputOrder;
+  const targetKey = offset < 0 ? moved[movedIndex + 1] : moved[movedIndex - 1];
+  return placeOutputLayer(state.outputOrder, key, targetKey, offset > 0);
+}
 function setOutputOrderEditing(editing) {
   state.outputOrderEditing = editing;
   clearOutputDropIndicators();
@@ -578,7 +588,7 @@ function initializeOutputOrderControls() {
       if (!state.outputOrderEditing || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
       event.preventDefault();
       const offset = event.key === 'ArrowLeft' ? -1 : 1;
-      const next = moveOutputLayer(state.outputOrder, key, offset);
+      const next = moveVisibleOutputLayer(key, offset);
       commitOutputOrder(next, key);
       requestAnimationFrame(() => list.querySelector(`[data-output-key="${key}"] .output-drag-handle`)?.focus());
     });

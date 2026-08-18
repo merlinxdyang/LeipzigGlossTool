@@ -96,6 +96,10 @@ test('output layers move left or right without changing the layer set', () => {
   );
   assert.deepEqual(moveOutputLayer(DEFAULT_OUTPUT_ORDER, 'form', -1), DEFAULT_OUTPUT_ORDER);
   assert.deepEqual(moveOutputLayer(DEFAULT_OUTPUT_ORDER, 'unknown', 1), DEFAULT_OUTPUT_ORDER);
+  assert.deepEqual(
+    moveOutputLayer(['form', 'gloss', 'free'], 'gloss', -1),
+    ['gloss', 'form', 'free'],
+  );
 });
 
 test('drag placement can put an output layer before or after another layer', () => {
