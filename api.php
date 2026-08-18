@@ -7,6 +7,7 @@ const CLG_MAX_REQUEST_BYTES = 1048576;
 const CLG_CREDENTIAL_COOKIE = '__Secure-clg-vault';
 const CLG_CREDENTIAL_AAD = 'ailinguistics.cloud/clg/credential-v1';
 const CLG_CREDENTIAL_TTL = 7776000;
+const CLG_MAX_API_KEY_BYTES = 512;
 const CLG_SUPPORTED_PROVIDERS = ['deepseek', 'openai', 'claude', 'openrouter'];
 
 final class RateLimitException extends RuntimeException {}
@@ -120,7 +121,7 @@ function decrypt_credential_vault(string $token): ?array
         }
         $keys = [];
         foreach ($payload['keys'] as $provider => $key) {
-            if (in_array($provider, CLG_SUPPORTED_PROVIDERS, true) && is_string($key) && $key !== '' && strlen($key) <= 4096) {
+            if (in_array($provider, CLG_SUPPORTED_PROVIDERS, true) && is_string($key) && $key !== '' && strlen($key) <= CLG_MAX_API_KEY_BYTES) {
                 $keys[$provider] = $key;
             }
         }
@@ -222,7 +223,7 @@ function http_json(
         CURLOPT_TIMEOUT => $timeout,
         CURLOPT_CUSTOMREQUEST => $method,
         CURLOPT_HTTPHEADER => $requestHeaders,
-        CURLOPT_USERAGENT => 'Chinese-Leipzig-Gloss-Tool/1.0',
+        CURLOPT_USERAGENT => 'Merlins-Leipzig-Gloss-Tool/2.0',
     ];
     if ($payload !== null) {
         $encoded = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -577,6 +578,14 @@ PROMPT;
 function build_extended_sinitic_prompt(array $data): array
 {
     [$system, $user, $tokens] = build_prompt($data);
+    if (($data['language'] ?? '') === 'Southern Min Chinese') {
+        $user = preg_replace(
+            '/In pinyin_diacritic, supply Standard Mandarin Hanyu Pinyin.*?(?=For every token,)/s',
+            'For every token, set pinyin_diacritic to an empty string. ',
+            $user
+        ) ?? $user;
+        $system .= "\nFor Southern Min, use the researcher-selected Tâi-lô or Pe̍h-ōe-jī system in transcription. Do not generate Mandarin Pinyin.\n";
+    }
     $user = str_replace(
         '"pinyin_diacritic": "...", "gloss": "..."}',
         '"pinyin_diacritic": "...", "chinese_gloss": "...", "gloss": "..."}',
@@ -702,7 +711,7 @@ function call_model(string $provider, string $apiKey, string $model, string $sys
             $headers = [
                 'Authorization: Bearer ' . $apiKey,
                 'HTTP-Referer: ' . request_origin(),
-                "X-Title: Merlin's Leipzig Gloss Tool 1.0",
+                "X-Title: Merlin's Leipzig Gloss Tool 2.0",
             ];
             $payload = [
                 'model' => $model,
@@ -895,7 +904,7 @@ function handle_credentials_request(): void
     }
     $apiKey = trim((string)($data['api_key'] ?? ''));
     $model = trim((string)($data['model'] ?? ''));
-    if ($apiKey === '' || strlen($apiKey) > 4096 || preg_match('/\s/', $apiKey) === 1) {
+    if ($apiKey === '' || strlen($apiKey) > CLG_MAX_API_KEY_BYTES || preg_match('/\s/', $apiKey) === 1) {
         throw new RuntimeException('API key format is invalid.');
     }
     validate_key($provider, $apiKey, $model);

@@ -77,6 +77,48 @@ class CredentialEnvelopeTests(unittest.TestCase):
         self.assertEqual(options["path"], "/clg/api/")
         self.assertGreater(options["expires"], 0)
 
+    def test_mandarin_keeps_legacy_prompt_while_multilingual_uses_extended_prompt(self):
+        output = call_php(
+            "$mandarin = build_request_prompt(['sentence' => '我 吃', 'language' => 'Mandarin Chinese']); "
+            "$uyghur = build_request_prompt(['workspace' => 'multilingual', 'sentence' => 'مۇخبىر گېزىت', "
+            "'language_profile_id' => 'uyghur', 'script_variant' => 'ug-Arab', 'include_chinese_gloss' => true]); "
+            "echo json_encode(['mandarin_extended' => $mandarin[3], 'mandarin_user' => $mandarin[1], "
+            "'uyghur_extended' => $uyghur[3], 'uyghur_user' => $uyghur[1], 'uyghur_tokens' => $uyghur[2]]);"
+        )
+        result = json.loads(output)
+
+        self.assertFalse(result["mandarin_extended"])
+        self.assertNotIn("chinese_free_translation", result["mandarin_user"])
+        self.assertTrue(result["uyghur_extended"])
+        self.assertIn("ULY/NUL", result["uyghur_user"])
+        self.assertEqual(result["uyghur_tokens"], ["مۇخبىر", "گېزىت"])
+
+    def test_southern_min_extended_prompt_does_not_request_mandarin_pinyin(self):
+        output = call_php(
+            "$built = build_request_prompt(['sentence' => '伊 食 饭', 'language' => 'Southern Min Chinese', "
+            "'other_transcription_system' => 'Tâi-lô', 'extended_output' => true]); "
+            "echo json_encode(['system' => $built[0], 'user' => $built[1], 'extended' => $built[3]]);"
+        )
+        result = json.loads(output)
+
+        self.assertTrue(result["extended"])
+        self.assertIn("Tâi-lô", result["user"])
+        self.assertNotIn("Standard Mandarin Hanyu Pinyin", result["user"])
+
+    def test_multilingual_normalization_preserves_model_transcription_and_original_form(self):
+        output = call_php(
+            "$result = normalize_result(['tokens' => [["
+            "'form' => 'changed', 'pinyin_diacritic' => 'muxbir', 'transcription' => 'mʊxbɪr', "
+            "'chinese_gloss' => '记者', 'gloss' => 'reporter']], 'free_translation' => 'A reporter.', "
+            "'chinese_free_translation' => '一名记者。', 'note' => ''], ['مۇخبىر'], 'hanzi', '', true, false); "
+            "echo json_encode($result);"
+        )
+        result = json.loads(output)
+
+        self.assertEqual(result["tokens"][0]["form"], "مۇخبىر")
+        self.assertEqual(result["tokens"][0]["pinyin_diacritic"], "muxbir")
+        self.assertEqual(result["tokens"][0]["transcription"], "mʊxbɪr")
+
 
 if __name__ == "__main__":
     unittest.main()

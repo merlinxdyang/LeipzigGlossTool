@@ -1,83 +1,87 @@
-# Merlin's Leipzig Gloss Tool 1.0
+# Merlin's Leipzig Gloss Tool 2.0
 
 [English](README.md) | **简体中文** | [正體中文](README.zh-TW.md)
 
-一个轻量、可编辑的汉语莱比锡标注工具，支持普通话、粤语及其他汉语方言。
+面向在线部署的可编辑莱比锡标注工具。正式地址为 [ailinguistics.cloud/clg](https://ailinguistics.cloud/clg/)。
 
-工具可通过 DeepSeek、OpenAI、Claude 或 OpenRouter 生成相互对齐的原文、可配置拼音、可选注音、Gloss 和英语自由翻译。所有结果均可逐格修改，并可复制到 Word，或导出为 SVG 和透明 PNG。
+## 三个页面
 
-![Merlin's Leipzig Gloss Tool 标题栏](docs/images/header.png)
+- `/clg/`：普通话、粤语、闽南语和自定义汉语方言。普通话、粤语默认继续使用已经验证的旧路径。
+- `/clg/multilingual.html`：日语、德语、法语、西班牙语、荷兰语、梵语、维吾尔语、蒙古语、藏语。
+- `/clg/ai-services.html`：两个工作页面共用的服务商、模型和 API key 管理中心。
 
-## 界面展示
+## 输出行
 
-### 普通话批量处理
+所有输出行都可独立选择、编辑和设置排版：
 
-<img src="docs/images/mandarin-workflow.png" alt="普通话批量 Gloss 工作界面" width="820">
+- 原文；
+- 主要转写/原文注音；
+- 可选的其他注音；
+- 汉语释义（逐词对齐）；
+- 英语 Leipzig Gloss；
+- 英语自由翻译；
+- 汉语自由翻译。
 
-### 粤语与粤拼
+“汉语释义”严格保持原文语序，每个原文 token 对应一个单元格；“汉语自由翻译”是单独的自然汉语句子，可按汉语习惯调整语序。若论文只需要四行，可只勾选原文、主要转写、汉语释义和汉语自由翻译。
 
-<img src="docs/images/cantonese-workflow.png" alt="粤语和粤拼 Gloss 工作界面" width="820">
+## 多语言规范
 
-### 粘贴到 Word 与图片导出
+九种语言的版本化配置保存在 [`language-profiles.json`](language-profiles.json)。默认体系包括日语 Modified Hepburn、梵语 IAST、维吾尔语 ULY/NUL、藏语 THL EWTS，以及分别处理的 `mn-Cyrl` 与 `mn-Mong` 蒙古语文字变体。
 
-<img src="docs/images/word-export.png" alt="表格粘贴到 Word 以及图片导出效果" width="820">
+用户输入的空格始终是最终词界。维吾尔文按逻辑顺序保存，由页面负责 RTL 排版；输入中的 RLO/LRO 等方向控制符会被阻止。天城文、维吾尔阿拉伯文、传统蒙古文、藏文和日文使用多语种字体回退。
 
-## 主要功能
+## 在线 API key 安全
 
-- 一行输入一个例句，支持一行一句的 TXT 批量导入。
-- 支持普通话、粤语和自定义汉语方言。
-- 普通话拼音可选择带声调、数字声调或无声调；默认带声调，轻声不标 `0`。
-- 其他注音默认留空，可选择注音符号、两种 IPA 声调、粤拼 / Jyutping、Yale 或自定义体系。
-- 每个词的原文、拼音、可选注音和 Gloss 均可编辑，英语翻译也可修改。
-- 输出行可以任意组合，并可使用数字编号、`(a)` 编号、`a.` 编号或无编号。
-- 每行均可单独设置字体、字号、粗体和斜体；全大写语法标记自动使用小型大写字母，复制到 Word 时保留该格式。
-- 可复制无框表格到 Word，或导出 HTML / MD、SVG 和透明 PNG。
-- 支持英文、简体中文和正体中文界面。
-
-## 本地运行
-
-无需安装第三方 Python 包。在终端进入项目目录后运行：
-
-```bash
-python3 app.py
-```
-
-浏览器会自动打开：
+API key 不会写入项目文件或 `localStorage`。验证成功后，PHP 使用 AES-256-GCM 加密，并把认证密文存入：
 
 ```text
-http://127.0.0.1:8765/
+Secure; HttpOnly; SameSite=Strict; Path=/clg/api/
 ```
 
-按 `Control-C` 停止程序。
+用户可以选择仅当前浏览器会话，或主动勾选“记住 90 天”。服务器不建立逐用户 key 数据库，但每次调用服务商时必须在内存中临时解密。
+
+部署前在服务器 Web 根目录之外设置 32 字节随机主密钥：
+
+```bash
+openssl rand -base64 32
+```
+
+把结果保存为服务器环境变量 `CLG_CREDENTIAL_MASTER_KEY`。不得提交到 Git，也不得把真实值写进公开 `.htaccess`。更换主密钥会使所有旧浏览器凭据失效。
 
 ## LiteSpeed / PHP 部署
 
-将完整目录上传到网站目录，同时保留 `api/`、`api.php` 和隐藏文件 `.htaccess`。生产环境由 PHP 处理 API 请求，不需要反向代理。
-
 服务器要求：
 
-- PHP 7.4 或更高版本
-- `curl`、`json`、`openssl` 扩展
-- HTTPS
+- PHP 7.4 或更高版本；
+- `curl`、`json`、`openssl` 扩展；
+- HTTPS；
+- 已配置 `CLG_CREDENTIAL_MASTER_KEY`。
 
-## 使用流程
+上传完整目录，包括 `.htaccess`、`api.php`、`api/`、两个工作页面、AI 服务页面和 `language-profiles.json`。`.htaccess` 会增加 CSP、HSTS、防嵌套、Referrer-Policy、Permissions-Policy 和 `nosniff`。
 
-1. 选择 AI 服务商和模型，输入并验证 API key。
-2. 选择语言和输入格式；普通话选择拼音形式，并按需选择其他注音。
-3. 每行输入一个已经用空格分词的例句，或导入 TXT 文件。
-4. 点击“生成 Gloss”。
-5. 检查并逐格修改结果。
-6. 选择输出行、编号方式和排版。
-7. 复制表格、导出图片或保存项目。
+无真实 key 的检查方式：
 
-API key 只会发送到同源后端用于当前请求，不会写入项目文件或浏览器存储。AI 生成的语言学分析仍应由研究者复核。
+```bash
+curl -i 'https://你的域名/clg/api/credentials/'
+curl -i -X POST 'https://你的域名/clg/api/validate/' \
+  -H 'Content-Type: application/json' \
+  --data '{}'
+```
+
+凭据状态接口应返回 HTTP 200 和空服务商列表；空验证请求应返回 HTTP 400 JSON。
+
+## 数据边界
+
+每个非空物理行是一个例句。后端固定 token 数量和顺序，并把 `form` 恢复为用户原文；AI 返回的 token 数量不同会被拒绝。
+
+工程测试只能验证结构、方向和导出行为。AI 生成的转写、形态分析、汉语释义与翻译均保持可编辑，不等同于母语者或研究者已经验证的结论。
 
 ## 测试
 
 ```bash
 python3 -m unittest -v
-node --test test_batch.js test_typography.js test_interface_language.js
+node --test test_batch.js test_typography.js test_interface_language.js test_language_profiles.js test_ai_service.js
 php -l api.php
 ```
 
-更详细的中文说明参见 [使用说明.md](使用说明.md)。
+`app.py` 仅保留为 1.x 本地后端；2.0 的在线凭据和多语言流程以 PHP 部署为准。

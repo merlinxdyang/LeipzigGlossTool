@@ -19,7 +19,6 @@ const {
   projectResults,
   tokenEditorItems,
 } = GlossBatch;
-const {defaultAISettings} = GlossInterfaceLanguage;
 const {
   credentialRequestHeaders,
   loadAISettings,
@@ -38,7 +37,6 @@ const state = {
   configuredProviders: [],
   languageProfiles: [],
 };
-const defaults = {deepseek: 'deepseek-v4-flash', openai: 'gpt-5.6-luna', claude: 'claude-sonnet-5', openrouter: ''};
 const I18N = {
   zh: {
     demo: '载入示例', help: '使用说明', close: '关闭', settings: '项目设置', aiSettings: 'AI 服务', provider: '服务商', model: '模型名称',
@@ -54,11 +52,11 @@ const I18N = {
     preview: '输出预览', separateTables: '每个例句独立成表', export: '导出', copyTable: '复制表格', copyMD: '复制 HTML / MD', png: '透明 PNG',
     project: '项目', openProject: '打开', saveProject: '保存', hanzi: '汉字', romanized: '拼音 / 罗马字 / IPA', gloss: 'Gloss', validating: '正在验证…',
     valid: 'API key 可用', invalid: '验证失败', generating: '正在生成第 {current}/{total} 个例句…', generated: '已生成 {count} 个例句，可直接逐格修改',
-    copied: '已复制', saved: '项目已保存', loaded: '项目已载入', needInput: '请至少输入一个例句', needKey: '请输入 API key', needModel: '请输入模型名称',
+    copied: '已复制', saved: '项目已保存', loaded: '项目已载入', needInput: '请至少输入一个例句', needKey: '请先到“AI 服务”页面验证并保存当前服务商的 API key', needModel: '请输入模型名称',
     badKeyFormat: 'API key 不应包含空格；请清空后重新粘贴。', localUnavailable: '无法连接本机后端，请确认程序仍在运行。',
     emptyOutput: '请至少选择一项输出内容。', typographyReset: '排版已恢复默认。', invalidTxt: '只能导入扩展名为 .txt 的文本文件。',
     emptyTxt: 'TXT 文件中没有可用例句。', importedTxt: '已导入 {count} 个例句；点击“生成 Gloss”开始处理。', bidiControl: '输入含有 Unicode 方向控制符，请移除 RLO/LRO/embedding/isolate 控制符后再生成；页面会自动处理书写方向。', example: '例句', token: '词项', resultCount: '{count} 个例句',
-    batchFailed: '第 {line} 行生成失败：{error}', badProject: '项目文件无有效结果。', invalidResponse: '后端返回无效响应', modelUnavailable: '；模型名未出现在列表中',
+    batchFailed: '第 {line} 行生成失败：{error}', badProject: '项目文件无有效结果。', wrongWorkspace: '该项目属于另一个工作页面，请从正确的汉语或多语言页面打开。', invalidResponse: '后端返回无效响应', modelUnavailable: '；模型名未出现在列表中',
   },
   en: {
     demo: 'Load demo', help: 'Guide', close: 'Close', settings: 'Project settings', aiSettings: 'AI service', provider: 'Provider', model: 'Model name',
@@ -76,11 +74,11 @@ const I18N = {
     openProject: 'Open', saveProject: 'Save', hanzi: 'Hanzi', romanized: 'Pinyin / romanization / IPA', gloss: 'Gloss', validating: 'Validating…',
     valid: 'API key is valid', invalid: 'Validation failed', generating: 'Generating example {current}/{total}…',
     generated: 'Generated {count} examples; edit any cell directly', copied: 'Copied', saved: 'Project saved', loaded: 'Project loaded',
-    needInput: 'Enter at least one example', needKey: 'Enter an API key', needModel: 'Enter a model name',
+    needInput: 'Enter at least one example', needKey: 'Configure and validate this provider on the AI service page first', needModel: 'Enter a model name',
     badKeyFormat: 'API keys must not contain spaces. Clear the field and paste it again.', localUnavailable: 'Cannot reach the local backend. Check that the program is still running.',
     emptyOutput: 'Select at least one output line.', typographyReset: 'Typography restored to defaults.', invalidTxt: 'Only .txt text files can be imported.',
     emptyTxt: 'The TXT file contains no usable examples.', importedTxt: 'Imported {count} examples; click “Generate gloss” to process them.', bidiControl: 'The input contains Unicode bidi controls. Remove RLO/LRO/embedding/isolate controls; the page handles writing direction safely.', example: 'Example', token: 'Token',
-    resultCount: '{count} examples', batchFailed: 'Line {line} failed: {error}', badProject: 'The project has no valid results.', invalidResponse: 'The backend returned an invalid response', modelUnavailable: '; model was not found in the list',
+    resultCount: '{count} examples', batchFailed: 'Line {line} failed: {error}', badProject: 'The project has no valid results.', wrongWorkspace: 'This project belongs to the other workspace. Open it from the matching Sinitic or multilingual page.', invalidResponse: 'The backend returned an invalid response', modelUnavailable: '; model was not found in the list',
   },
 };
 
@@ -98,11 +96,11 @@ I18N['zh-Hant'] = {
   preview: '輸出預覽', separateTables: '每個例句各用一個表格', export: '匯出', copyTable: '複製表格', copyMD: '複製 HTML / MD', png: '透明 PNG',
   project: '專案', openProject: '開啟', saveProject: '儲存', hanzi: '漢字', romanized: '拼音 / 羅馬字 / IPA', gloss: 'Gloss', validating: '正在驗證…',
   valid: 'API key 可用', invalid: '驗證失敗', generating: '正在產生第 {current}/{total} 個例句…', generated: '已產生 {count} 個例句，可直接逐格修改',
-  copied: '已複製', saved: '專案已儲存', loaded: '專案已載入', needInput: '請至少輸入一個例句', needKey: '請輸入 API key', needModel: '請輸入模型名稱',
+  copied: '已複製', saved: '專案已儲存', loaded: '專案已載入', needInput: '請至少輸入一個例句', needKey: '請先至「AI 服務」頁面驗證並儲存目前服務提供者的 API key', needModel: '請輸入模型名稱',
   badKeyFormat: 'API key 不應包含空格；請清除後重新貼上。', localUnavailable: '無法連線至後端，請確認服務仍在執行。',
   emptyOutput: '請至少選擇一個輸出列。', typographyReset: '排版已還原為預設值。', invalidTxt: '只能匯入副檔名為 .txt 的文字檔案。',
   emptyTxt: 'TXT 檔案中沒有可用例句。', importedTxt: '已匯入 {count} 個例句；選取「產生 Gloss」開始處理。', bidiControl: '輸入含有 Unicode 方向控制符，請移除 RLO/LRO/embedding/isolate 控制符；頁面會安全處理書寫方向。', example: '例句', token: '詞項', resultCount: '{count} 個例句',
-  batchFailed: '第 {line} 行產生失敗：{error}', badProject: '專案檔案中沒有有效結果。', invalidResponse: '後端傳回無效回應', modelUnavailable: '；模型名稱不在清單中',
+  batchFailed: '第 {line} 行產生失敗：{error}', badProject: '專案檔案中沒有有效結果。', wrongWorkspace: '此專案屬於另一個工作頁面，請從正確的漢語或多語言頁面開啟。', invalidResponse: '後端傳回無效回應', modelUnavailable: '；模型名稱不在清單中',
 };
 
 function t(key, values = {}) {
@@ -141,8 +139,10 @@ function applyLang() {
     });
     $('#languagePreset').value = current;
     const profile = selectedLanguageProfile();
+    const currentPrimary = $('#transcriptionSystem')?.value || '';
     populateScriptVariants(profile, $('#scriptVariant')?.value || '');
-    applyProfileLabels(profile);
+    applyProfileLabels(profile, currentPrimary);
+    if (setRecommended) $('#showPinyin').checked = Boolean(profile?.primary_transcription);
   }
   ['#btnCloseHelp', '#btnCloseApiHelp'].forEach(selector => {
     const control = $(selector);
@@ -201,7 +201,7 @@ function populateScriptVariants(profile, preferred = '') {
   }));
   if (profile.script_variants.some(variant => variant.id === preferred)) select.value = preferred;
 }
-function applyProfileLabels(profile) {
+function applyProfileLabels(profile, preferredPrimary = '') {
   if (!profile) return;
   const primary = $('#transcriptionSystem');
   if (primary) {
@@ -213,6 +213,7 @@ function applyProfileLabels(profile) {
       option.textContent = value || (state.lang === 'en' ? 'None' : '无');
       return option;
     }));
+    if (values.includes(preferredPrimary)) primary.value = preferredPrimary;
   }
   document.querySelectorAll('[data-primary-line-label]').forEach(element => {
     element.textContent = state.lang === 'en' ? 'Primary transcription' : (state.lang === 'zh-Hant' ? '主要轉寫' : '主要转写');
@@ -293,9 +294,14 @@ function languageChanged(setRecommended = true) {
     if (isMandarin) {
       setPinyinMode('tone_marks');
       $('#otherTranscriptionSystem').value = '';
+      $('#showPinyin').checked = true;
       $('#showTranscription').checked = false;
+      if ($('#nonMandarinAnnotation')) $('#nonMandarinAnnotation').value = '';
+      $('#showChineseGloss').checked = false;
+      $('#showChineseTranslation').checked = false;
     } else if (value === 'Cantonese') {
       $('#transcriptionSystem').value = 'Jyutping';
+      $('#showPinyin').checked = true;
       $('#showTranscription').checked = true;
     } else if (value === 'Southern Min Chinese') {
       $('#transcriptionSystem').value = 'Tâi-lô';
@@ -303,6 +309,7 @@ function languageChanged(setRecommended = true) {
       $('#showTranscription').checked = true;
     } else {
       $('#transcriptionSystem').value = 'Other';
+      $('#showPinyin').checked = true;
       $('#showTranscription').checked = true;
     }
   }
@@ -601,7 +608,12 @@ function plainText() {
   return state.results.map((result, exampleIndex) => {
     const rows = outputRows(result);
     const number = selectedNumber(exampleIndex);
-    return rows.map((row, rowIndex) => `${number ? `${rowIndex === 0 ? number : ''}\t` : ''}${row.text !== undefined ? row.text : row.values.join('\t')}`).join('\n');
+    return rows.map((row, rowIndex) => {
+      const values = row.key === 'form' && currentDirection() === 'rtl'
+        ? row.values.map(value => `\u2067${value}\u2069`).join('\t')
+        : row.values?.join('\t');
+      return `${number ? `${rowIndex === 0 ? number : ''}\t` : ''}${row.text !== undefined ? row.text : values}`;
+    }).join('\n');
   }).join('\n\n');
 }
 function inlineGlossHtml(value) {
@@ -611,7 +623,10 @@ function mdTable(result, exampleIndex) {
   const rows = outputRows(result);
   const number = selectedNumber(exampleIndex);
   const tokenCount = result.tokens.length;
-  const cells = row => row.values.map(value => `<td style="border:none;padding:0 12px 0 0;white-space:nowrap;${esc(styleCss(row.styleKey))}">${row.key === 'gloss' ? inlineGlossHtml(value) : esc(value)}</td>`).join('');
+  const cells = row => row.values.map(value => {
+    const direction = row.key === 'form' && currentDirection() === 'rtl' ? 'rtl' : 'ltr';
+    return `<td dir="${direction}" style="border:none;padding:0 12px 0 0;white-space:nowrap;unicode-bidi:isolate;${esc(styleCss(row.styleKey))}">${row.key === 'gloss' ? inlineGlossHtml(value) : esc(value)}</td>`;
+  }).join('');
   const direction = currentDirection() === 'rtl' ? 'direction:rtl;' : '';
   return `<table style="border-collapse:separate;border-spacing:0 4px;border:none;${direction}">\n${rows.map((row, rowIndex) => {
     let html = '<tr>';
@@ -690,6 +705,7 @@ function loadProjectObj(project, options = {}) {
   const loadedResults = projectResults(project);
   if (!loadedResults.length) throw new Error(t('badProject'));
   const settings = project.settings || {};
+  if (settings.workspace && settings.workspace !== workspaceType) throw new Error(t('wrongWorkspace'));
   const output = settings.output || {};
   $('#languagePreset').value = settings.languagePreset || 'Mandarin Chinese';
   $('#customLanguage').value = settings.customLanguage || '';
@@ -954,7 +970,7 @@ function auxiliaryAnnotationChanged() {
 }
 function scriptVariantChanged() {
   const profile = selectedLanguageProfile();
-  applyProfileLabels(profile);
+  applyProfileLabels(profile, $('#transcriptionSystem')?.value || '');
   if (hasResults()) renderEditor();
 }
 

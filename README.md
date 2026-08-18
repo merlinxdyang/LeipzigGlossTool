@@ -1,149 +1,89 @@
-# Merlin's Leipzig Gloss Tool 1.0
+# Merlin's Leipzig Gloss Tool 2.0
 
 **English** | [简体中文](README.zh-CN.md) | [正體中文](README.zh-TW.md)
 
-A lightweight local web tool for producing editable interlinear glosses for Mandarin, Cantonese, and other Sinitic varieties.
+An online-first, editable interlinear-glossing tool for Sinitic and multilingual research. The deployed application is available at [ailinguistics.cloud/clg](https://ailinguistics.cloud/clg/).
 
-It generates aligned Form, configurable Pinyin, optional phonetic annotation, Leipzig-style Gloss, and free English translation lines through DeepSeek, OpenAI, Claude, or OpenRouter. Every result remains editable and can be copied into Word or exported as SVG and transparent PNG.
+## Workspaces
 
-![Merlin's Leipzig Gloss Tool header](docs/images/header.png)
+- `/clg/` — Mandarin, Cantonese, Southern Min, and custom Sinitic varieties. The established Mandarin and Cantonese prompt behavior remains the legacy default.
+- `/clg/multilingual.html` — Japanese, German, French, Spanish, Dutch, Sanskrit, Uyghur, Mongolian, and Tibetan.
+- `/clg/ai-services.html` — one shared provider, model, and credential center for both workspaces.
 
-## Screenshots
+Every generated result is editable and can be copied to Word, copied as borderless HTML/Markdown, exported as SVG or transparent PNG, or saved as a versioned JSON project.
 
-### Mandarin batch workflow
+## Output layers
 
-<img src="docs/images/mandarin-workflow.png" alt="Mandarin batch glossing workflow" width="820">
+The standard layers are independently selectable:
 
-### Cantonese workflow
+- original form;
+- primary transcription or romanization;
+- optional secondary annotation;
+- token-aligned Modern Standard Chinese meaning;
+- English Leipzig-style gloss;
+- free English translation;
+- free Chinese translation.
 
-<img src="docs/images/cantonese-workflow.png" alt="Cantonese glossing workflow with Jyutping" width="820">
+The aligned Chinese layer keeps the source order and has exactly one cell per source token. The free Chinese translation is a separate idiomatic sentence and may reorder material naturally.
 
-### Copying tables into Word and exporting publication-ready images
+## Multilingual profiles
 
-<img src="docs/images/word-export.png" alt="Gloss tables pasted into Word and exported as an image" width="820">
+The versioned registry is [`language-profiles.json`](language-profiles.json). Defaults include Modified Hepburn for Japanese, IAST for Sanskrit, ULY/NUL for Uyghur, THL EWTS for Tibetan, and distinct `mn-Cyrl` / `mn-Mong` Mongolian variants. Every profile retains the user's whitespace tokenization as authoritative.
 
-## Run on macOS
+Uyghur source text uses logical-order Unicode. The UI handles RTL through markup and rejects embedded RLO/LRO/isolate controls in input. Traditional Mongolian, Tibetan, Devanagari, Arabic-script Uyghur, and Japanese use multilingual font fallbacks.
 
-1. Unzip the folder.
-2. Open Terminal and `cd` into the unzipped folder.
-3. Run:
+## Browser credential vault
 
-```bash
-python3 app.py
-```
-
-The tool opens automatically at:
+API keys are never written to project JSON or `localStorage`. After validation, PHP seals the provider keys with AES-256-GCM and stores only authenticated ciphertext in a browser cookie with:
 
 ```text
-http://127.0.0.1:8765/
+Secure; HttpOnly; SameSite=Strict; Path=/clg/api/
 ```
 
-Press `Control-C` in Terminal to stop it.
+Users may choose a browser-session cookie or opt into a 90-day cookie. The server keeps no per-user credential database, but it necessarily decrypts a key transiently in memory when making a provider request.
 
-No third-party Python packages are required.
-
-## Deploy on LiteSpeed / PHP without a reverse proxy
-
-Upload the complete folder to the public `clg` directory, including the `api` directory and `api.php`. The production API is handled by PHP; `app.py` remains the local macOS backend and is not used by LiteSpeed. Uploading the hidden `.htaccess` file is strongly recommended because it blocks direct downloads of source and test files, but the API routes do not depend on URL rewriting.
-
-Server requirements:
-
-- PHP 7.4 or newer
-- PHP extensions: `curl`, `json`, and `openssl`
-- HTTPS enabled for the public site
-
-After uploading, check the route without using a real API key:
+Before deployment, configure a random 32-byte master key outside the web root:
 
 ```bash
+openssl rand -base64 32
+```
+
+Set the generated value as the server environment variable `CLG_CREDENTIAL_MASTER_KEY`. Never commit or place it in a public `.htaccess` file. Rotating this value invalidates all existing browser credential cookies.
+
+## LiteSpeed / PHP deployment
+
+Requirements:
+
+- PHP 7.4 or newer;
+- PHP extensions: `curl`, `json`, and `openssl`;
+- HTTPS;
+- `CLG_CREDENTIAL_MASTER_KEY` configured in the hosting control panel or virtual-host environment.
+
+Upload the complete directory, including `.htaccess`, `api.php`, all three physical API entrypoints, the two work pages, the shared AI page, and `language-profiles.json`. `.htaccess` adds CSP, HSTS, clickjacking, referrer, permission, and content-type protections.
+
+Check the deployment without a real key:
+
+```bash
+curl -i 'https://your-domain.example/clg/api/credentials/'
 curl -i -X POST 'https://your-domain.example/clg/api/validate/' \
   -H 'Content-Type: application/json' \
   --data '{}'
 ```
 
-The expected result is an HTTP `400` JSON response containing `{"ok":false,...}`. If it returns an HTML page, confirm that the complete `api/validate/index.php` path and `api.php` were uploaded and that PHP is enabled for the directory.
+The credential-status endpoint should return HTTP 200 with no configured providers. The empty validation request should return HTTP 400 JSON.
 
-## Main workflow
+## Input and validation
 
-1. Select an AI provider and model.
-2. Paste the provider API key and click **Validate API**.
-3. Choose language/variety and input format.
-4. Enter one example per line, with **spaces already marking the intended word boundaries**, or import a `.txt` file containing one example per line. Blank lines are ignored.
-5. Click **Generate gloss**.
-6. Review the preview directly below the input. Every example is rendered as a separate table.
-7. Edit any Form / Pinyin / optional annotation / Gloss cell and free translation in the per-example editor. Token groups wrap automatically to fit the available page width while keeping aligned layers together.
-8. Select output lines and choose no numbering, continuous numeric numbering, parenthesized alphabetic numbering `(a)`, or dotted alphabetic numbering `a.`. Numeric starts must be positive integers; both alphabetic formats accept a custom start and continue from `z` to `aa`.
-9. Copy all rich borderless tables or HTML-in-Markdown, export SVG/transparent PNG, or save the editable batch project as JSON.
+Each non-empty physical line is one example. Whitespace freezes token count and order; an AI response with a different token count is rejected. Source forms are restored from the original input rather than trusted from model output. Unicode bidi override controls are rejected before generation.
 
-Use **Load demo** to test editing and export without an API key.
-
-## Providers
-
-- DeepSeek — default model: `deepseek-v4-flash`; base URL and current model IDs follow the [official DeepSeek API quick start](https://api-docs.deepseek.com/zh-cn/)
-- OpenAI — default model field: `gpt-5.6-luna` (editable)
-- Claude / Anthropic — default model field: `claude-sonnet-5` (editable)
-- OpenRouter — model field is deliberately free-form; enter the desired model slug
-
-The Simplified Chinese interface defaults to DeepSeek / `deepseek-v4-flash`. The English and Traditional Chinese interfaces default to OpenAI / `gpt-5.6-luna`. Switching interface language applies that language's default; clicking the already active language does not overwrite a manually edited provider or model.
-
-The API key is kept only in the current browser form and sent to the same-origin Python or PHP backend for the outgoing provider request. It is **not** written to project files or localStorage, and the application does not log request bodies.
-
-The key field asks password managers not to autofill it and rejects values containing whitespace before sending. If validation returns HTTP 401, clear the field and paste a current key from the provider's API-key console.
-
-## Glossing behavior
-
-The prompt intentionally keeps the linguistic policy simple and editable:
-
-- lexical glosses: `book`, `eat`, `already`
-- grammatical glosses: `1SG`, `PFV`, `NEG`, `CLF`, `ASP`
-- conventional Chinese labels: `BA`, `BEI`, `DE`, `LE`
-- proper names: normally romanized/repeated, e.g. `Zhangsan`
-- uncertain forms: preserve the form or provide one short candidate
-- default practical orientation: Li & Thompson-style distinctions
-- requested project convention: `le1 = ASP`, `le2 = PFV` when applicable
-- sentence-final particles: `SFP`
-
-These conventions can be edited in the left sidebar before generation, and every generated cell can be corrected afterward.
-
-## Input behavior
-
-Each non-empty physical input line is one example. Whitespace within that line is authoritative: the backend freezes the number and order of tokens and rejects an AI response if it returns a different number of token objects. Batch examples are sent one at a time to avoid a burst of simultaneous API requests.
-
-TXT import accepts only filenames ending in `.txt`. Its contents follow the same one-example-per-line rule and are placed into the input area for review before generation.
-
-The backend requests JSON/structured output where the selected provider supports it. For user-selected OpenAI, Claude, or OpenRouter models that explicitly reject the structured-output parameter, it retries with the provider's compatible plain-JSON prompt. Authentication, quota, and network failures are not retried.
-
-- **Hanzi input** → Form + selected Pinyin form + optional other annotation + Gloss + free English translation
-- **Romanization / IPA input** → both transcription fields preserve the supplied form rather than inventing another reading
-
-For Mandarin Hanzi input, Pinyin can use tone marks (default), tone numbers, or no tones; neutral-tone syllables never take `0`. The optional annotation is blank by default and can use Zhuyin/Bopomofo, IPA with numeric tone values, IPA tone letters, 粤拼 / Jyutping, Yale, or another system. Numeric Mandarin IPA uses values such as `55/35/214/51`; IPA tone letters use forms such as `˥/˧˥/˨˩˦/˥˩`. Cantonese and custom varieties expose a primary transcription-system selector.
-
-## Typography
-
-Every output line defaults to Times New Roman with Songti (`Songti SC` / `STSong` / `SimSun`) fallback for Chinese, 10.5 pt, regular, and non-italic. Form, Pinyin, other annotation, Gloss, and free translation can each set font, point size, bold, and italic independently.
-
-“Keep current settings” remembers the current typography for future sessions. “Restore defaults” resets all five lines. All-uppercase grammatical abbreviations such as `SFP`, `PFV`, and `3SG` are rendered with small caps in rich preview/export formats. Word copy uses lowercase source letters plus classic small-caps formatting so the formatting survives Word's HTML importer.
-
-## Export notes
-
-- **Copy table** writes a rich HTML table plus plain-text fallback to the clipboard. It is intended for pasting into Word/Pages and has no visible borders in the publication representation.
-- **Copy borderless MD** produces HTML table markup suitable for Markdown environments that allow embedded HTML. Pure pipe-table Markdown cannot itself guarantee invisible borders.
-- **SVG** has a transparent background and keeps text/vector sharpness.
-- **Transparent PNG** is rendered from the SVG at 2× scale with no background fill.
-- Every example remains a separate table in the preview, rich copy, and HTML / MD output. SVG and PNG place the example tables in separate vertically spaced blocks.
-- Output-line selection and continuous-number settings apply consistently to the preview and every export format.
-
-## Security / limitations
-
-The local Python server binds only to `127.0.0.1` by default. The PHP deployment uses fixed provider endpoints and accepts requests only through its same-origin API routes. Keep HTTPS enabled; do not publish the local Python port.
-
-The tool has been built to preserve user segmentation and allow manual correction, rather than to guarantee a particular grammatical analysis. AI-generated transcriptions, glosses, and translations still require researcher review.
+The software validates structural alignment and export behavior. AI transcriptions, morphological analyses, aligned meanings, and translations remain researcher-editable outputs, not human-validated linguistic conclusions.
 
 ## Test
 
-Run the dependency-free regression suite with:
-
 ```bash
 python3 -m unittest -v
-node --test test_batch.js test_typography.js test_interface_language.js
+node --test test_batch.js test_typography.js test_interface_language.js test_language_profiles.js test_ai_service.js
 php -l api.php
 ```
+
+The retained `app.py` is the legacy local 1.x backend and is not the deployment target for the online-only 2.0 credential and multilingual workflows.

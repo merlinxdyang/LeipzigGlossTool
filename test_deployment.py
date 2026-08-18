@@ -110,13 +110,13 @@ class SubdirectoryDeploymentTests(unittest.TestCase):
         self.assertIn("element.classList.toggle('hidden'", source)
         self.assertIn("document.querySelectorAll('[data-lang]')", source)
 
-    def test_language_change_applies_the_language_specific_ai_default(self):
+    def test_workspaces_use_the_shared_ai_service_settings_module(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
 
-        self.assertIn('src="interface-language.js', html)
-        self.assertIn("defaultAISettings", source)
-        self.assertIn("applyInterfaceLanguage", source)
+        self.assertIn('src="ai-service.js', html)
+        self.assertIn("loadAISettings", source)
+        self.assertIn("saveAISettings", source)
 
     def test_alphabetic_numbering_controls_are_available_in_all_interfaces(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
@@ -168,6 +168,15 @@ class SubdirectoryDeploymentTests(unittest.TestCase):
         self.assertIn('id="showTranscription"><span data-i18n="otherTranscriptionOutput"', html)
         self.assertIn('id="showGloss" checked', html)
         self.assertIn('id="showTranslation" checked', html)
+
+    def test_returning_from_southern_min_restores_legacy_mandarin_and_cantonese_lines(self):
+        source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
+
+        mandarin_branch = source[source.index("if (isMandarin) {"):source.index("} else if (value === 'Cantonese')")]
+        cantonese_branch = source[source.index("} else if (value === 'Cantonese')"):source.index("} else if (value === 'Southern Min Chinese')")]
+        self.assertIn("$('#showPinyin').checked = true", mandarin_branch)
+        self.assertIn("$('#showPinyin').checked = true", cantonese_branch)
+        self.assertIn("$('#showTranscription').checked = true", cantonese_branch)
 
     def test_word_copy_uses_a_dedicated_small_caps_formatter(self):
         source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
