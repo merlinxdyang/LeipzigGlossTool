@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?build=20260815-1">
 <title>Merlin's Leipzig Gloss Tool 2.0</title>
 <script src="typography.js?build=20260816-2"></script>
-<script src="batch.js?build=20260815-6"></script>
+<script src="batch.js?build=20260819-2"></script>
 <script src="ai-service.js?build=20260818-1"></script>
 <style>
 :root{
@@ -109,7 +109,7 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
 .type-toggle{text-align:center!important;width:64px}.type-toggle label{display:grid;place-items:center;margin:0}
 .preview-workspace{border-top:1px solid var(--rule);margin-top:22px;padding-top:20px}
 .preview-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;margin-bottom:12px;border:1px solid var(--rule);background:var(--surface-2);padding:12px 14px;align-items:end}
-.preview-controls fieldset{border:0;padding:0;margin:0;display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}.preview-controls legend{font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--navy);text-transform:uppercase;margin-bottom:5px}
+.preview-controls fieldset{border:0;padding:0;margin:0;position:relative}.preview-controls legend{font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--navy);text-transform:uppercase;margin-bottom:5px;padding-right:180px}.output-order-list{display:flex;align-items:center;gap:6px 16px;flex-wrap:wrap}.output-order-item{display:flex;align-items:center;gap:4px;min-width:0}.output-order-item .checkline{margin:0}.output-order-actions{position:absolute;right:0;top:-28px;display:flex;align-items:center;gap:5px}.output-order-action{min-height:28px!important;padding:3px 7px!important;border-color:transparent!important;background:transparent!important;color:var(--navy)!important;font-size:11px!important}.output-order-action:hover{background:var(--navy-soft)!important}.output-drag-handle{display:none;width:30px;min-width:30px;min-height:30px;padding:0;border-color:var(--rule);background:#fff;color:var(--navy);cursor:grab;touch-action:none}.output-drag-handle:active{cursor:grabbing}.output-drag-handle svg{width:14px;height:14px;pointer-events:none}.output-order-editing .output-drag-handle{display:grid;place-items:center}.output-order-item.dragging{opacity:.52;pointer-events:none}.output-order-item.drop-before{box-shadow:inset 2px 0 var(--navy)}.output-order-item.drop-after{box-shadow:inset -2px 0 var(--navy)}.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 .preview-controls .checkline{padding:2px 0}.number-controls{display:flex;align-items:end;gap:8px}.number-field{margin:0}.number-field label{white-space:nowrap}.number-field select{min-width:126px}.number-field input{width:82px;height:40px;padding:8px}
 .preview-panel{background:#fff;border:1px solid var(--rule)}
 .preview-head{padding:11px 14px;border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:11px;letter-spacing:.04em}
@@ -144,7 +144,7 @@ dialog::backdrop{background:rgba(15,30,37,.38);backdrop-filter:blur(2px)}
 html[lang="zh-Hant"] body{font-family:var(--hant-ui-font)}
 html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="zh-Hant"] .section-title,html[lang="zh-Hant"] .editor-example-title,html[lang="zh-Hant"] .dialog-head h2,html[lang="zh-Hant"] .dialog-body h3,html[lang="zh-Hant"] .empty-preview{font-family:var(--hant-ui-font)}
 @media(max-width:980px){.shell{grid-template-columns:1fr}.sidebar{position:static}.preview-controls{grid-template-columns:1fr}.number-controls{justify-content:flex-start}}
-@media(max-width:640px){.topbar{height:auto}.topbar-inner{padding:12px 15px;align-items:flex-start;flex-wrap:wrap}.brand-mark{width:36px;height:36px;border-radius:8px}.brand-copy{font-size:14px;white-space:normal}.brand-author{font-size:9px}.version{display:none}.top-actions{justify-content:flex-end;margin-left:auto}.shell{padding:14px 12px 28px;gap:14px}.sidebar,.main{padding:18px}.sidebar,.embedded-ai-service,.embedded-ai-service form,.api-key-wrap{min-width:0}.api-key-wrap{grid-template-columns:minmax(0,1fr) 38px}.api-key-wrap input{min-width:0}.main-head{display:block}.main-head .btnrow{justify-content:flex-start;margin-top:12px}.sentence{font-size:16px}.preview-controls fieldset{display:grid;grid-template-columns:1fr 1fr}.number-controls{display:grid;grid-template-columns:1fr 1fr}.number-field select,.number-field input{width:100%;min-width:0}.token-editor-card{flex-basis:144px;min-width:min(144px,100%);max-width:none}.token-editor-line{grid-template-columns:44px minmax(0,1fr)}.typography-summary-note{display:none}.typography-actions{align-items:flex-start}.type-settings{min-width:500px}.type-settings th,.type-settings td{padding:7px 6px}.type-settings tbody th{width:84px}.type-settings select{min-width:155px}.type-settings input[type=number]{width:66px}.type-toggle{width:48px}.preview-canvas{padding:17px}.toolbar{align-items:flex-start}.toolbar-group{width:100%}.separator-label{width:100%;margin-top:5px}.donation-card{align-items:flex-start;flex-direction:column}.alipay-button{width:100%}}
+@media(max-width:640px){.topbar{height:auto}.topbar-inner{padding:12px 15px;align-items:flex-start;flex-wrap:wrap}.brand-mark{width:36px;height:36px;border-radius:8px}.brand-copy{font-size:14px;white-space:normal}.brand-author{font-size:9px}.version{display:none}.top-actions{justify-content:flex-end;margin-left:auto}.shell{padding:14px 12px 28px;gap:14px}.sidebar,.main{padding:18px}.sidebar,.embedded-ai-service,.embedded-ai-service form,.api-key-wrap{min-width:0}.api-key-wrap{grid-template-columns:minmax(0,1fr) 38px}.api-key-wrap input{min-width:0}.main-head{display:block}.main-head .btnrow{justify-content:flex-start;margin-top:12px}.sentence{font-size:16px}.preview-controls fieldset{display:block}.preview-controls legend{padding-right:0}.output-order-actions{position:static;justify-content:flex-start;margin:2px 0 7px}.output-order-list{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}.output-order-editing .output-drag-handle{width:44px;min-width:44px;min-height:44px}.number-controls{display:grid;grid-template-columns:1fr 1fr}.number-field select,.number-field input{width:100%;min-width:0}.token-editor-card{flex-basis:144px;min-width:min(144px,100%);max-width:none}.token-editor-line{grid-template-columns:44px minmax(0,1fr)}.typography-summary-note{display:none}.typography-actions{align-items:flex-start}.type-settings{min-width:500px}.type-settings th,.type-settings td{padding:7px 6px}.type-settings tbody th{width:84px}.type-settings select{min-width:155px}.type-settings input[type=number]{width:66px}.type-toggle{width:48px}.preview-canvas{padding:17px}.toolbar{align-items:flex-start}.toolbar-group{width:100%}.separator-label{width:100%;margin-top:5px}.donation-card{align-items:flex-start;flex-direction:column}.alipay-button{width:100%}}
 </style>
 </head>
 <body data-workspace="sinitic">
@@ -249,15 +249,19 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
 
     <section class="preview-workspace hidden" id="previewWorkspace" aria-labelledby="previewTitle">
       <div class="preview-controls">
-        <fieldset>
+        <fieldset id="outputOrderFieldset">
           <legend data-i18n="outputLines">输出行</legend>
-          <label class="checkline"><input type="checkbox" id="showForm" checked><span data-i18n="form">原文</span></label>
-          <label class="checkline"><input type="checkbox" id="showPinyin" checked><span data-i18n="pinyinOutput">拼音</span></label>
-          <label class="checkline"><input type="checkbox" id="showTranscription"><span data-i18n="otherTranscriptionOutput">其他注音</span></label>
-          <label class="checkline"><input type="checkbox" id="showChineseGloss"><span data-i18n="chineseGloss">汉语释义</span></label>
-          <label class="checkline"><input type="checkbox" id="showGloss" checked><span>Gloss</span></label>
-          <label class="checkline"><input type="checkbox" id="showTranslation" checked><span data-i18n="freeTranslation">英语自由翻译</span></label>
-          <label class="checkline"><input type="checkbox" id="showChineseTranslation"><span data-i18n="chineseFreeTranslation">汉语自由翻译</span></label>
+          <div class="output-order-actions"><button id="btnEditOutputOrder" class="output-order-action" type="button" data-i18n="adjustOutputOrder">调整顺序</button><button id="btnResetOutputOrder" class="output-order-action hidden" type="button" data-i18n="restoreDefaultOrder">恢复默认顺序</button><button id="btnDoneOutputOrder" class="output-order-action hidden" type="button" data-i18n="done">完成</button></div>
+          <div id="outputOrderList" class="output-order-list" role="list">
+            <div class="output-order-item" data-output-key="form" role="listitem"><label class="checkline"><input type="checkbox" id="showForm" checked><span data-i18n="form">原文</span></label></div>
+            <div class="output-order-item" data-output-key="pinyin" role="listitem"><label class="checkline"><input type="checkbox" id="showPinyin" checked><span data-i18n="pinyinOutput">拼音</span></label></div>
+            <div class="output-order-item" data-output-key="transcription" role="listitem"><label class="checkline"><input type="checkbox" id="showTranscription"><span data-i18n="otherTranscriptionOutput">其他注音</span></label></div>
+            <div class="output-order-item" data-output-key="chinese-gloss" role="listitem"><label class="checkline"><input type="checkbox" id="showChineseGloss"><span data-i18n="chineseGloss">汉语释义</span></label></div>
+            <div class="output-order-item" data-output-key="gloss" role="listitem"><label class="checkline"><input type="checkbox" id="showGloss" checked><span>Gloss</span></label></div>
+            <div class="output-order-item" data-output-key="free" role="listitem"><label class="checkline"><input type="checkbox" id="showTranslation" checked><span data-i18n="freeTranslation">英语自由翻译</span></label></div>
+            <div class="output-order-item" data-output-key="chinese-free" role="listitem"><label class="checkline"><input type="checkbox" id="showChineseTranslation"><span data-i18n="chineseFreeTranslation">汉语自由翻译</span></label></div>
+          </div>
+          <span id="outputOrderStatus" class="sr-only" role="status" aria-live="polite"></span>
         </fieldset>
         <div class="number-controls">
           <div class="number-field"><label for="numberingMode" data-i18n="numberingMode">编号方式</label><select id="numberingMode"><option value="none" data-i18n-opt="noNumber">无编号</option><option value="continuous" data-i18n-opt="continuousNumber" selected>连续数字</option><option value="alphabetic" data-i18n-opt="alphabeticNumber">字母：(a)</option><option value="alphabetic-dot" data-i18n-opt="alphabeticDotNumber">字母：a.</option></select></div>
@@ -362,7 +366,7 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
   </section>
   <div class="dialog-body help-zh">
     <h3>基本流程</h3>
-    <ol><li>在页面左上端“AI 服务”中选择服务商和模型，并验证保存 API key。</li><li>选择语言和输入格式；普通话保留拼音设置，非普通话材料可增加逐词汉语释义。</li><li>在输入框中一行输入一个例句，每行内部用空格标出最终词边界；也可导入一行一个例句的 TXT 文件。</li><li>生成后，预览会立即显示在输入区下方；每个例句使用一个独立表格。</li><li>按需选择原文、注音、汉语释义、Gloss、英语或汉语自由翻译，并设置编号。</li><li>在编辑区修改所有生成内容并调整排版。</li><li>从预览区下方复制或导出；保存项目可保留全部例句、编辑内容、输出选择和排版设置。</li></ol>
+    <ol><li>在页面左上端“AI 服务”中选择服务商和模型，并验证保存 API key。</li><li>选择语言和输入格式；普通话保留拼音设置，非普通话材料可增加逐词汉语释义。</li><li>在输入框中一行输入一个例句，每行内部用空格标出最终词边界；也可导入一行一个例句的 TXT 文件。</li><li>生成后，预览会立即显示在输入区下方；每个例句使用一个独立表格。</li><li>按需选择输出行；点击“调整顺序”后可横向拖动，也可用键盘左右方向键移动。</li><li>设置编号，在编辑区修改生成内容并调整排版。</li><li>从预览区下方复制或导出；保存项目可保留输出选择、输出顺序和排版设置。</li></ol>
     <h3>批量输入与编号</h3><p>输入框和 TXT 文件都以“物理行”为例句边界，空行会被忽略。TXT 导入只接受 <code>.txt</code> 文件。“连续数字”默认从 <code>(1)</code> 开始，并可填写任意正整数起点；负数、零或无效输入会自动重置为 <code>1</code>。“字母：(a)”输出 <code>(a)</code>、<code>(b)</code>；“字母：a.”输出 <code>a.</code>、<code>b.</code>。两种字母编号都可填写 <code>c</code>、<code>aa</code> 等起始字母，并在 <code>z</code> 后继续为 <code>aa</code>。选择“无编号”则完全移除编号列。</p>
     <h3>拼音与其他注音</h3><p>普通话可在“拼音有声调”（默认，如 <code>wǒ</code>）、“拼音数字声调”（如 <code>wo3</code>）和“拼音无声调”（如 <code>wo</code>）之间单选；轻声始终不标 <code>0</code>。其他注音默认留空，也可选注音符号、IPA + 数字声调、IPA 固有声调、粤拼 / Jyutping、Yale 或其他体系。IPA 数字声调使用 <code>55/35/214/51</code> 这类调值；IPA 固有声调使用 <code>˥/˧˥/˨˩˦/˥˩</code> 等调符。粤语或自定义方言则使用“主要转写体系”。</p>
     <h3>排版设置</h3><p>五条输出行默认使用 Times New Roman，中文字符自动回退到宋体，字号为 10.5 pt，均不加粗、不斜体。“保持现有设置”会把当前排版留给下次使用；“恢复默认”立即重置全部行。Gloss 中的全大写语法缩写自动显示为小型大写字母；“复制表格”使用 Word 兼容的底层小写字符与小型大写格式。</p>
@@ -371,7 +375,7 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
   </div>
   <div class="dialog-body help-zh-hant hidden">
     <h3>基本流程</h3>
-    <ol><li>選擇服務提供者和模型，輸入 API key。可先選取「驗證 API」。</li><li>選擇語言和輸入格式；國語可設定拼音形式，並視需要增加一種其他注音。</li><li>在輸入框中每行輸入一個例句，每行內部用空格標出最終詞界；也可匯入每行一個例句的 TXT 檔案。</li><li>產生後，預覽會立即顯示在輸入區下方；每個例句各用一個表格。</li><li>選擇輸出列以及無編號、連續數字或兩種字母編號；數字和字母起點均可自訂。</li><li>在編輯區逐例修改原文、拼音、選填注音、Gloss 和英文翻譯，並依需求調整排版。</li><li>從預覽區下方複製或匯出；儲存專案可保留全部例句、編輯內容、輸出選擇和排版設定。</li></ol>
+    <ol><li>選擇服務提供者和模型，輸入 API key。可先選取「驗證 API」。</li><li>選擇語言和輸入格式；國語可設定拼音形式，並視需要增加一種其他注音。</li><li>在輸入框中每行輸入一個例句，每行內部用空格標出最終詞界；也可匯入每行一個例句的 TXT 檔案。</li><li>產生後，預覽會立即顯示在輸入區下方；每個例句各用一個表格。</li><li>選擇輸出列；按下「調整順序」後可水平拖曳，也可用鍵盤左右方向鍵移動。</li><li>選擇編號，在編輯區修改內容並調整排版。</li><li>從預覽區下方複製或匯出；儲存專案可保留輸出選擇、輸出順序和排版設定。</li></ol>
     <h3>批次輸入與編號</h3><p>輸入框和 TXT 檔案都以每一個非空白行為例句邊界，空白行會被忽略。TXT 匯入只接受 <code>.txt</code> 檔案。「連續數字」預設從 <code>(1)</code> 開始，並可填寫任意正整數起點；負數、零或無效輸入會自動重設為 <code>1</code>。「字母：(a)」輸出 <code>(a)</code>、<code>(b)</code>；「字母：a.」輸出 <code>a.</code>、<code>b.</code>。兩種字母編號都可填寫 <code>c</code>、<code>aa</code> 等起始字母，並在 <code>z</code> 後接續為 <code>aa</code>。選擇「無編號」則完全移除編號欄。</p>
     <h3>拼音與其他注音</h3><p>國語可在「拼音附聲調符號」（預設，如 <code>wǒ</code>）、「拼音數字聲調」（如 <code>wo3</code>）和「拼音不標聲調」（如 <code>wo</code>）之間單選；輕聲一律不標 <code>0</code>。其他注音預設留白，也可選注音符號、IPA + 數字聲調、IPA 聲調符號、粵拼 / Jyutping、Yale 或其他系統。IPA 數字聲調使用 <code>55/35/214/51</code> 等調值；IPA 聲調符號使用 <code>˥/˧˥/˨˩˦/˥˩</code>。粵語或自訂方言則使用「主要轉寫系統」。</p>
     <h3>排版設定</h3><p>五個輸出列預設使用 Times New Roman，中文字元會自動改用宋體，字號為 10.5 pt，均不使用粗體或斜體。「保留目前設定」會保留目前排版供下次使用；「還原預設值」會立即重設全部輸出列。Gloss 中的全大寫語法縮寫會自動顯示為小型大寫字母；「複製表格」使用與 Word 相容的底層小寫字元及小型大寫格式。</p>
@@ -379,7 +383,7 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
     <h3>資料與安全</h3><p>空格分詞具有最高優先順序。API key 不會寫入專案檔案或 localStorage；驗證後只以認證加密密文儲存在 Secure、HttpOnly、SameSite=Strict Cookie。AI 產生的分析應由研究者確認。</p>
   </div>
   <div class="dialog-body help-en hidden">
-    <h3>Workflow</h3><ol><li>Select a provider and model, enter an API key, and optionally validate it.</li><li>Select the language and input format. For Mandarin, choose the Pinyin form and optionally add one other annotation.</li><li>Enter one example per line, using spaces for final token boundaries, or import a one-example-per-line TXT file.</li><li>The preview appears directly below the input, with one independent table per example.</li><li>Select the output lines and choose no numbering, numeric numbering, or either alphabetic format with a custom start.</li><li>Edit each example and set typography independently for every output line.</li><li>Copy or export all preview tables, or save the editable batch project.</li></ol>
+    <h3>Workflow</h3><ol><li>Select a provider and model, enter an API key, and optionally validate it.</li><li>Select the language and input format. For Mandarin, choose the Pinyin form and optionally add one other annotation.</li><li>Enter one example per line, using spaces for final token boundaries, or import a one-example-per-line TXT file.</li><li>The preview appears directly below the input, with one independent table per example.</li><li>Select the output lines. Choose “Adjust order” to drag lines horizontally or move them with the keyboard arrow keys.</li><li>Choose numbering, edit each example, and set typography independently for every output line.</li><li>Copy or export all preview tables, or save the editable batch project with its output order.</li></ol>
     <h3>Batch input and numbering</h3><p>Physical lines delimit examples and blank lines are ignored. Import accepts only <code>.txt</code> files. Numeric numbering defaults to <code>(1)</code> and accepts only a positive integer start; negative, zero, or invalid input resets to <code>1</code>. “Alphabetic: (a)” outputs <code>(a)</code>, <code>(b)</code>; “Alphabetic: a.” outputs <code>a.</code>, <code>b.</code>. Both accept a custom letter start and continue from <code>z</code> to <code>aa</code>. Select no numbering to remove the number column.</p>
     <h3>Pinyin and other annotations</h3><p>Mandarin Pinyin can use tone marks (default, e.g. <code>wǒ</code>), tone numbers (e.g. <code>wo3</code>), or no tones (e.g. <code>wo</code>); neutral tone never takes <code>0</code>. The optional annotation can be Zhuyin, IPA with numeric tone values, IPA tone letters, 粤拼 / Jyutping, Yale, or another system. Numeric IPA uses values such as <code>55/35/214/51</code>; IPA tone letters use forms such as <code>˥/˧˥/˨˩˦/˥˩</code>.</p>
     <h3>Typography</h3><p>All five output lines default to Times New Roman with Songti fallback for Chinese, 10.5 pt, regular, and non-italic. “Keep current settings” remembers the typography for later use; “Restore defaults” resets every line. Uppercase grammatical glosses use small caps automatically. “Copy tables” sends lowercase source characters plus Word-compatible small-caps formatting.</p>
@@ -393,6 +397,6 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
 </dialog>
 
 <script src="ai-services-ui.js?build=20260818-2"></script>
-<script src="app-ui.js?build=20260819-1"></script>
+<script src="app-ui.js?build=20260819-2"></script>
 </body>
 </html>

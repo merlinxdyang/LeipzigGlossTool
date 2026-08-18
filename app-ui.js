@@ -11,11 +11,15 @@ const {
   typographyCss,
 } = GlossTypography;
 const {
+  DEFAULT_OUTPUT_ORDER,
   exampleNumber,
   isTxtFilename,
+  moveOutputLayer,
   normalizeStartLetter,
   normalizeStartNumber,
+  normalizeOutputOrder,
   parseExampleLines,
+  placeOutputLayer,
   projectResults,
   tokenEditorItems,
 } = GlossBatch;
@@ -36,6 +40,9 @@ const state = {
   aiSettings: loadAISettings('zh'),
   configuredProviders: [],
   languageProfiles: [],
+  outputOrder: [...DEFAULT_OUTPUT_ORDER],
+  outputOrderCustomized: false,
+  outputOrderEditing: false,
 };
 const I18N = {
   zh: {
@@ -45,7 +52,7 @@ const I18N = {
     transcriptionHint: '为非普通话材料选择主要转写体系。',
     conventions: 'Gloss 约定（可修改）', input: '输入例句', importTxt: '导入 TXT', clear: '清空', analyze: '生成 Gloss',
     segHint: '每行一个例句；请用空格分词，空行将被忽略。也可导入一行一个例句的 TXT 文件。', editResult: '编辑结果', aligned: '词数已对齐',
-    outputLines: '输出行', form: '原文', transcription1: '转写 1', transcription2: '转写 2', pinyinOutput: '拼音', otherTranscriptionOutput: '其他注音', freeTranslation: '英语自由翻译',
+    outputLines: '输出行', adjustOutputOrder: '调整顺序', restoreDefaultOrder: '恢复默认顺序', done: '完成', moveOutputLine: '移动输出行', outputOrderMoved: '已移动：{line}', form: '原文', transcription1: '转写 1', transcription2: '转写 2', pinyinOutput: '拼音', otherTranscriptionOutput: '其他注音', freeTranslation: '英语自由翻译',
     numberingMode: '编号方式', noNumber: '无编号', continuousNumber: '连续数字', alphabeticNumber: '字母：(a)', alphabeticDotNumber: '字母：a.', startNumber: '起始数字', startLetter: '起始字母', typography: '排版设置',
     typographyNote: '逐行控制字体、字号和字形', rememberTypography: '保持现有设置', resetTypography: '恢复默认', outputLine: '输出行',
     font: '字体', fontSize: '字号（pt）', bold: '加粗', italic: '斜体', smallCapsHint: 'Gloss 中的全大写语法缩写将自动显示为小型大写字母。',
@@ -65,7 +72,7 @@ const I18N = {
     transcriptionHint: 'Select the primary system for non-Mandarin material.',
     conventions: 'Gloss conventions (editable)', input: 'Input examples', importTxt: 'Import TXT', clear: 'Clear', analyze: 'Generate gloss',
     segHint: 'Enter one example per line, segmenting tokens with spaces. Blank lines are ignored. You may also import a one-example-per-line TXT file.',
-    editResult: 'Edit results', aligned: 'tokens aligned', outputLines: 'Output lines', form: 'Form', transcription1: 'Transcription 1', transcription2: 'Transcription 2', pinyinOutput: 'Pinyin', otherTranscriptionOutput: 'Other annotation',
+    editResult: 'Edit results', aligned: 'tokens aligned', outputLines: 'Output lines', adjustOutputOrder: 'Adjust order', restoreDefaultOrder: 'Restore default order', done: 'Done', moveOutputLine: 'Move output line', outputOrderMoved: 'Moved: {line}', form: 'Form', transcription1: 'Transcription 1', transcription2: 'Transcription 2', pinyinOutput: 'Pinyin', otherTranscriptionOutput: 'Other annotation',
     freeTranslation: 'Free English translation', numberingMode: 'Numbering', noNumber: 'No numbers', continuousNumber: 'Numeric', alphabeticNumber: 'Alphabetic: (a)', alphabeticDotNumber: 'Alphabetic: a.', startNumber: 'Start number', startLetter: 'Start letter',
     typography: 'Typography', typographyNote: 'Control font, size, and emphasis for each line', rememberTypography: 'Keep current settings', resetTypography: 'Restore defaults',
     outputLine: 'Output line', font: 'Font', fontSize: 'Size (pt)', bold: 'Bold', italic: 'Italic',
@@ -89,7 +96,7 @@ I18N['zh-Hant'] = {
   transcriptionHint: '為非國語材料選擇主要轉寫系統。',
   conventions: 'Gloss 約定（可修改）', input: '輸入例句', importTxt: '匯入 TXT', clear: '清除', analyze: '產生 Gloss',
   segHint: '每行一個例句；請用空格分詞，空行將被忽略。也可匯入一行一個例句的 TXT 檔案。', editResult: '編輯結果', aligned: '詞數已對齊',
-  outputLines: '輸出列', form: '原文', transcription1: '轉寫 1', transcription2: '轉寫 2', pinyinOutput: '拼音', otherTranscriptionOutput: '其他注音', freeTranslation: '英文自由翻譯',
+  outputLines: '輸出列', adjustOutputOrder: '調整順序', restoreDefaultOrder: '還原預設順序', done: '完成', moveOutputLine: '移動輸出列', outputOrderMoved: '已移動：{line}', form: '原文', transcription1: '轉寫 1', transcription2: '轉寫 2', pinyinOutput: '拼音', otherTranscriptionOutput: '其他注音', freeTranslation: '英文自由翻譯',
   numberingMode: '編號方式', noNumber: '無編號', continuousNumber: '連續數字', alphabeticNumber: '字母：(a)', alphabeticDotNumber: '字母：a.', startNumber: '起始數字', startLetter: '起始字母', typography: '排版設定',
   typographyNote: '逐列控制字型、字號和字形', rememberTypography: '保留目前設定', resetTypography: '還原預設值', outputLine: '輸出列',
   font: '字型', fontSize: '字號（pt）', bold: '粗體', italic: '斜體', smallCapsHint: 'Gloss 中的全大寫語法縮寫會自動顯示為小型大寫字母。',
@@ -147,6 +154,7 @@ function applyLang() {
     const control = $(selector);
     if (control) { control.setAttribute('aria-label', t('close')); control.title = t('close'); }
   });
+  renderOutputOrderControls();
   renderAIServiceSummary();
   if (hasResults()) renderEditor();
 }
@@ -189,6 +197,17 @@ function selectedScriptVariant() {
   return profile?.script_variants.find(variant => variant.id === $('#scriptVariant')?.value) || profile?.script_variants[0] || null;
 }
 function currentDirection() { return selectedScriptVariant()?.direction === 'rtl' ? 'rtl' : 'ltr'; }
+function defaultOutputOrder() {
+  if (workspaceType === 'multilingual' && selectedLanguageProfile()?.id === 'custom') {
+    return ['form', 'pinyin', 'transcription', 'gloss', 'chinese-gloss', 'free', 'chinese-free'];
+  }
+  return [...DEFAULT_OUTPUT_ORDER];
+}
+function applyLanguageDefaultOutputOrder() {
+  if (!state.outputOrderCustomized) state.outputOrder = defaultOutputOrder();
+  renderOutputOrderControls();
+  reorderTypographyRows();
+}
 function populateScriptVariants(profile, preferred = '') {
   const select = $('#scriptVariant');
   if (!select || !profile) return;
@@ -280,7 +299,7 @@ function languageChanged(setRecommended = true) {
     $('#mandarinTranscriptionSettings').style.display = 'none';
     $('#transcriptionWrap').style.display = 'block';
     if ($('#nonMandarinAnnotationWrap')) $('#nonMandarinAnnotationWrap').style.display = 'block';
-    ['#showChineseGloss', '#showChineseTranslation'].forEach(selector => { if ($(selector)) $(selector).closest('label').style.display = 'flex'; });
+    ['#showChineseGloss', '#showChineseTranslation'].forEach(selector => { if ($(selector)) $(selector).closest('[data-output-key]').style.display = 'flex'; });
     ['chineseGloss', 'chineseFree'].forEach(key => { const row = document.querySelector(`[data-style-row="${key}"]`); if (row) row.style.display = 'table-row'; });
     if (setRecommended && profile?.id === 'custom') {
       $('#transcriptionSystem').value = profile.primary_transcription;
@@ -294,6 +313,7 @@ function languageChanged(setRecommended = true) {
     } else if (setRecommended && wasCustom) {
       $('#showChineseGloss').checked = selectedSecondaryAnnotationSystem() === 'Chinese aligned gloss';
     }
+    applyLanguageDefaultOutputOrder();
     if (hasResults()) renderEditor();
     return;
   }
@@ -304,7 +324,7 @@ function languageChanged(setRecommended = true) {
   if (annotationWrap) annotationWrap.style.display = !isMandarin ? 'block' : 'none';
   ['#showChineseGloss', '#showChineseTranslation'].forEach(selector => {
     const control = $(selector);
-    if (control) control.closest('label').style.display = isMandarin ? 'none' : 'flex';
+    if (control) control.closest('[data-output-key]').style.display = isMandarin ? 'none' : 'flex';
   });
   ['chineseGloss', 'chineseFree'].forEach(key => {
     const row = document.querySelector(`[data-style-row="${key}"]`);
@@ -333,6 +353,7 @@ function languageChanged(setRecommended = true) {
       $('#showTranscription').checked = true;
     }
   }
+  applyLanguageDefaultOutputOrder();
   if (hasResults()) renderEditor();
 }
 function inputFormatChanged() {
@@ -441,6 +462,185 @@ function renderTypographyControls() {
     row.querySelector('.style-italic').checked = style.italic;
   });
   $('#rememberTypography').checked = state.rememberTypography;
+  reorderTypographyRows();
+}
+function reorderTypographyRows() {
+  const body = document.querySelector('.type-settings tbody');
+  if (!body) return;
+  const styleKeys = {
+    form: 'form',
+    pinyin: 'pinyin',
+    transcription: 'transcription',
+    'chinese-gloss': 'chineseGloss',
+    gloss: 'gloss',
+    free: 'free',
+    'chinese-free': 'chineseFree',
+  };
+  normalizeOutputOrder(state.outputOrder, defaultOutputOrder()).forEach(key => {
+    const row = body.querySelector(`[data-style-row="${styleKeys[key]}"]`);
+    if (row) body.appendChild(row);
+  });
+}
+function outputLayerLabel(key) {
+  return document.querySelector(`[data-output-key="${key}"] .checkline span`)?.textContent?.trim() || key;
+}
+function clearOutputDropTargets() {
+  document.querySelectorAll('.output-order-item').forEach(item => item.classList.remove('drop-before', 'drop-after'));
+}
+function clearOutputDropIndicators() {
+  clearOutputDropTargets();
+  document.querySelectorAll('.output-order-item').forEach(item => item.classList.remove('dragging'));
+}
+function renderOutputOrderControls() {
+  const list = $('#outputOrderList');
+  if (!list) return;
+  state.outputOrder = normalizeOutputOrder(state.outputOrder, defaultOutputOrder());
+  state.outputOrder.forEach(key => {
+    const item = list.querySelector(`[data-output-key="${key}"]`);
+    if (item) list.appendChild(item);
+  });
+  list.classList.toggle('output-order-editing', state.outputOrderEditing);
+  $('#btnEditOutputOrder').classList.toggle('hidden', state.outputOrderEditing);
+  $('#btnResetOutputOrder').classList.toggle('hidden', !state.outputOrderEditing);
+  $('#btnDoneOutputOrder').classList.toggle('hidden', !state.outputOrderEditing);
+  list.querySelectorAll('.output-drag-handle').forEach(handle => {
+    const key = handle.closest('[data-output-key]').dataset.outputKey;
+    handle.draggable = state.outputOrderEditing;
+    handle.tabIndex = state.outputOrderEditing ? 0 : -1;
+    handle.setAttribute('aria-hidden', String(!state.outputOrderEditing));
+    handle.setAttribute('aria-label', `${t('moveOutputLine')}: ${outputLayerLabel(key)}`);
+  });
+}
+function announceOutputOrder(key) {
+  const status = $('#outputOrderStatus');
+  if (status) status.textContent = t('outputOrderMoved', {line: outputLayerLabel(key)});
+}
+function commitOutputOrder(order, movedKey = '') {
+  state.outputOrder = normalizeOutputOrder(order, defaultOutputOrder());
+  state.outputOrderCustomized = true;
+  clearOutputDropIndicators();
+  renderOutputOrderControls();
+  reorderTypographyRows();
+  if (hasResults()) renderPreview();
+  persist();
+  if (movedKey) announceOutputOrder(movedKey);
+}
+function setOutputOrderEditing(editing) {
+  state.outputOrderEditing = editing;
+  clearOutputDropIndicators();
+  renderOutputOrderControls();
+  const focusTarget = editing ? $('#outputOrderList .output-drag-handle') : $('#btnEditOutputOrder');
+  requestAnimationFrame(() => focusTarget?.focus());
+}
+function resetOutputOrder() {
+  state.outputOrderCustomized = false;
+  state.outputOrder = defaultOutputOrder();
+  renderOutputOrderControls();
+  reorderTypographyRows();
+  if (hasResults()) renderPreview();
+  persist();
+}
+function outputDropAfter(event, item) {
+  const bounds = item.getBoundingClientRect();
+  const verticalDistance = Math.abs(event.clientY - (bounds.top + bounds.height / 2));
+  return verticalDistance > bounds.height / 3
+    ? event.clientY >= bounds.top + bounds.height / 2
+    : event.clientX >= bounds.left + bounds.width / 2;
+}
+function createOutputDragHandle(item) {
+  const handle = document.createElement('button');
+  handle.type = 'button';
+  handle.className = 'output-drag-handle';
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 16 16');
+  icon.setAttribute('aria-hidden', 'true');
+  [[5, 4], [11, 4], [5, 8], [11, 8], [5, 12], [11, 12]].forEach(([cx, cy]) => {
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('cx', String(cx));
+    dot.setAttribute('cy', String(cy));
+    dot.setAttribute('r', '1.25');
+    dot.setAttribute('fill', 'currentColor');
+    icon.appendChild(dot);
+  });
+  handle.appendChild(icon);
+  item.prepend(handle);
+  return handle;
+}
+function initializeOutputOrderControls() {
+  const list = $('#outputOrderList');
+  if (!list) return;
+  let draggedKey = '';
+  let pointerDrag = null;
+  list.querySelectorAll('.output-order-item').forEach(item => {
+    const key = item.dataset.outputKey;
+    const handle = createOutputDragHandle(item);
+    handle.addEventListener('keydown', event => {
+      if (!state.outputOrderEditing || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+      event.preventDefault();
+      const offset = event.key === 'ArrowLeft' ? -1 : 1;
+      const next = moveOutputLayer(state.outputOrder, key, offset);
+      commitOutputOrder(next, key);
+      requestAnimationFrame(() => list.querySelector(`[data-output-key="${key}"] .output-drag-handle`)?.focus());
+    });
+    handle.addEventListener('dragstart', event => {
+      if (!state.outputOrderEditing) return event.preventDefault();
+      draggedKey = key;
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', key);
+      requestAnimationFrame(() => item.classList.add('dragging'));
+    });
+    handle.addEventListener('dragend', () => {
+      draggedKey = '';
+      clearOutputDropIndicators();
+    });
+    handle.addEventListener('pointerdown', event => {
+      if (!state.outputOrderEditing || event.pointerType === 'mouse') return;
+      pointerDrag = {key, item, handle, pointerId: event.pointerId, targetKey: '', after: false};
+      handle.setPointerCapture(event.pointerId);
+      item.classList.add('dragging');
+    });
+    handle.addEventListener('pointermove', event => {
+      if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
+      event.preventDefault();
+      const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.output-order-item');
+      if (!target || target === pointerDrag.item || target.parentElement !== list) return;
+      pointerDrag.targetKey = target.dataset.outputKey;
+      pointerDrag.after = outputDropAfter(event, target);
+      clearOutputDropTargets();
+      target.classList.add(pointerDrag.after ? 'drop-after' : 'drop-before');
+    });
+    handle.addEventListener('pointerup', event => {
+      if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
+      const finished = pointerDrag;
+      pointerDrag = null;
+      finished.handle.releasePointerCapture(event.pointerId);
+      finished.item.classList.remove('dragging');
+      if (finished.targetKey) {
+        commitOutputOrder(placeOutputLayer(state.outputOrder, finished.key, finished.targetKey, finished.after), finished.key);
+      } else clearOutputDropTargets();
+    });
+    handle.addEventListener('pointercancel', event => {
+      if (!pointerDrag || pointerDrag.pointerId !== event.pointerId) return;
+      pointerDrag = null;
+      clearOutputDropIndicators();
+      renderOutputOrderControls();
+    });
+    item.addEventListener('dragover', event => {
+      if (!state.outputOrderEditing || !draggedKey || draggedKey === key) return;
+      event.preventDefault();
+      clearOutputDropTargets();
+      item.classList.add(outputDropAfter(event, item) ? 'drop-after' : 'drop-before');
+    });
+    item.addEventListener('drop', event => {
+      if (!state.outputOrderEditing || !draggedKey || draggedKey === key) return;
+      event.preventDefault();
+      const movedKey = draggedKey;
+      const next = placeOutputLayer(state.outputOrder, movedKey, key, outputDropAfter(event, item));
+      draggedKey = '';
+      commitOutputOrder(next, movedKey);
+    });
+  });
+  renderOutputOrderControls();
 }
 function readTypographyControls() {
   const next = {};
@@ -594,23 +794,17 @@ function selectedNumber(exampleIndex) {
 function outputRows(result) {
   const options = outputOptions();
   const tokens = result.tokens;
-  const rows = [];
-  if (options.form) rows.push({key: 'form', styleKey: 'form', values: tokens.map(token => token.form)});
-  if (options.pinyin_diacritic) rows.push({key: 'pinyin', styleKey: 'pinyin', values: tokens.map(token => token.pinyin_diacritic)});
-  if (options.transcription) rows.push({key: 'transcription', styleKey: 'transcription', values: tokens.map(token => token.transcription)});
-  const customOrder = workspaceType === 'multilingual' && selectedLanguageProfile()?.id === 'custom';
-  const chineseGlossRow = {key: 'chinese-gloss', styleKey: 'chineseGloss', values: tokens.map(token => token.chinese_gloss)};
-  const glossRow = {key: 'gloss', styleKey: 'gloss', values: tokens.map(token => token.gloss)};
-  if (customOrder) {
-    if (options.gloss) rows.push(glossRow);
-    if (options.chinese_gloss) rows.push(chineseGlossRow);
-  } else {
-    if (options.chinese_gloss) rows.push(chineseGlossRow);
-    if (options.gloss) rows.push(glossRow);
-  }
-  if (options.translation) rows.push({key: 'free', styleKey: 'free', text: `‘${result.free_translation}’`});
-  if (options.chinese_translation) rows.push({key: 'chinese-free', styleKey: 'chineseFree', text: `“${result.chinese_free_translation}”`});
-  return rows;
+  const rows = {
+    form: options.form ? {key: 'form', styleKey: 'form', values: tokens.map(token => token.form)} : null,
+    pinyin: options.pinyin_diacritic ? {key: 'pinyin', styleKey: 'pinyin', values: tokens.map(token => token.pinyin_diacritic)} : null,
+    transcription: options.transcription ? {key: 'transcription', styleKey: 'transcription', values: tokens.map(token => token.transcription)} : null,
+    'chinese-gloss': options.chinese_gloss ? {key: 'chinese-gloss', styleKey: 'chineseGloss', values: tokens.map(token => token.chinese_gloss)} : null,
+    gloss: options.gloss ? {key: 'gloss', styleKey: 'gloss', values: tokens.map(token => token.gloss)} : null,
+    free: options.translation ? {key: 'free', styleKey: 'free', text: `‘${result.free_translation}’`} : null,
+    'chinese-free': options.chinese_translation ? {key: 'chinese-free', styleKey: 'chineseFree', text: `“${result.chinese_free_translation}”`} : null,
+  };
+  state.outputOrder = normalizeOutputOrder(state.outputOrder, defaultOutputOrder());
+  return state.outputOrder.map(key => rows[key]).filter(Boolean);
 }
 function publicationTableHTML(result, exampleIndex, glossFormatter = formatGlossHtml) {
   const rows = outputRows(result);
@@ -725,6 +919,7 @@ function getProject() {
       startNumber: normalizeStartNumber($('#startNumber').value),
       startLetter: normalizeStartLetter($('#startLetter').value),
       output: getOutputSettings(),
+      outputOrder: state.outputOrder,
       typography: state.typography,
       rememberTypography: state.rememberTypography,
       provider: state.aiSettings.provider,
@@ -747,6 +942,8 @@ function loadProjectObj(project, options = {}) {
   if (settings.workspace && settings.workspace !== workspaceType) throw new Error(t('wrongWorkspace'));
   const output = settings.output || {};
   $('#languagePreset').value = settings.languagePreset || 'Mandarin Chinese';
+  state.outputOrderCustomized = Array.isArray(settings.outputOrder);
+  state.outputOrder = normalizeOutputOrder(settings.outputOrder, defaultOutputOrder());
   $('#customLanguage').value = settings.customLanguage || '';
   $('#inputFormat').value = settings.inputFormat || 'hanzi';
   setPinyinMode(settings.pinyinMode || 'tone_marks');
@@ -1051,6 +1248,9 @@ document.querySelectorAll('.style-font,.style-bold,.style-italic').forEach(contr
 document.querySelectorAll('.style-size').forEach(control => control.addEventListener('input', typographyChanged));
 $('#rememberTypography').addEventListener('change', rememberTypographyChanged);
 $('#btnResetTypography').addEventListener('click', resetTypography);
+$('#btnEditOutputOrder').addEventListener('click', () => setOutputOrderEditing(true));
+$('#btnDoneOutputOrder').addEventListener('click', () => setOutputOrderEditing(false));
+$('#btnResetOutputOrder').addEventListener('click', resetOutputOrder);
 if ($('#btnApiHelp')) $('#btnApiHelp').addEventListener('click', () => $('#apiKeyDialog')?.showModal());
 if ($('#btnCloseApiHelp')) $('#btnCloseApiHelp').addEventListener('click', () => $('#apiKeyDialog').close());
 if ($('#apiKeyDialog')) $('#apiKeyDialog').addEventListener('click', event => { if (event.target === $('#apiKeyDialog')) $('#apiKeyDialog').close(); });
@@ -1075,6 +1275,7 @@ try {
   const remembered = localStorage.getItem('chineseGlossToolTypography');
   if (remembered) state.typography = normalizeTypography(JSON.parse(remembered));
 } catch (error) {}
+initializeOutputOrderControls();
 initializeTypographyControls();
 applyLang();
 renderAIServiceSummary();

@@ -27,6 +27,8 @@ The standard layers are independently selectable:
 
 The aligned Chinese layer keeps the source order and has exactly one cell per source token. The free Chinese translation is a separate idiomatic sentence and may reorder material naturally.
 
+Output controls remain in a compact horizontal row. “Adjust order” exposes temporary drag handles; the same order is used by the preview, Word/HTML copy, SVG, PNG, typography table, and saved project. Keyboard users can move a focused handle with the left and right arrow keys.
+
 ## Multilingual profiles
 
 The versioned registry is [`language-profiles.json`](language-profiles.json). Defaults include Modified Hepburn for Japanese, IAST for Sanskrit, ULY/NUL for Uyghur, THL EWTS for Tibetan, and distinct `mn-Cyrl` / `mn-Mong` Mongolian variants. The custom profile defaults to Latin transcription, IPA, English and aligned Chinese glosses, and free English translation. Every profile retains the user's whitespace tokenization as authoritative.

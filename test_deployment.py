@@ -59,6 +59,36 @@ class SubdirectoryDeploymentTests(unittest.TestCase):
         self.assertIn("const wasCustom", multilingual_change)
         self.assertIn("setRecommended && wasCustom", multilingual_change)
 
+    def test_both_workspaces_keep_compact_horizontal_output_controls_with_sort_mode(self):
+        expected_layers = ("form", "pinyin", "transcription", "chinese-gloss", "gloss", "free", "chinese-free")
+
+        for filename in ("index.html", "multilingual.html"):
+            html = (ROOT / filename).read_text(encoding="utf-8")
+            self.assertIn('id="outputOrderList"', html)
+            self.assertIn('id="btnEditOutputOrder"', html)
+            self.assertIn('id="btnResetOutputOrder"', html)
+            self.assertIn('id="btnDoneOutputOrder"', html)
+            for layer in expected_layers:
+                self.assertIn(f'data-output-key="{layer}"', html)
+
+    def test_output_order_is_validated_saved_and_shared_by_preview_and_exports(self):
+        source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
+
+        self.assertIn("outputOrder: [...DEFAULT_OUTPUT_ORDER]", source)
+        self.assertIn("outputOrder: state.outputOrder", source)
+        self.assertIn("normalizeOutputOrder(settings.outputOrder", source)
+        self.assertIn("state.outputOrder.map", source)
+        self.assertIn("function reorderTypographyRows()", source)
+
+    def test_output_sorting_supports_drag_touch_and_keyboard_without_permanent_handles(self):
+        source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
+
+        self.assertIn("addEventListener('dragstart'", source)
+        self.assertIn("addEventListener('pointerdown'", source)
+        self.assertIn("['ArrowLeft', 'ArrowRight'].includes(event.key)", source)
+        self.assertIn("event.key === 'ArrowLeft'", source)
+        self.assertIn("output-order-editing", source)
+
     def test_guide_leads_with_product_identity_obfuscated_contact_and_alipay_modal(self):
         source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
         literal_email = "".join(map(chr, [120, 100, 121, 97, 110, 103, 64, 122, 106, 117, 116, 46, 101, 100, 117, 46, 99, 110]))

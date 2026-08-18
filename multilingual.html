@@ -7,7 +7,7 @@
 <title>Multilingual · Merlin's Leipzig Gloss Tool 2.0</title>
 <link rel="stylesheet" href="v2.css?build=20260819-1">
 <script src="typography.js?build=20260818-1"></script>
-<script src="batch.js?build=20260818-1"></script>
+<script src="batch.js?build=20260819-2"></script>
 <script src="ai-service.js?build=20260818-1"></script>
 </head>
 <body data-workspace="multilingual">
@@ -47,14 +47,18 @@
     <textarea id="sentence" class="sentence" placeholder="ここ に 例文 を 入れます。" aria-describedby="segHint"></textarea><div class="hint" id="segHint" data-i18n="segHint">每行一个例句；请用空格标出最终词界。</div><div class="status" id="workStatus" role="status" aria-live="polite"></div>
 
     <section class="preview-workspace hidden" id="previewWorkspace" aria-labelledby="previewTitle">
-      <div class="preview-controls"><fieldset><legend data-i18n="outputLines">输出行</legend>
-        <label class="checkline"><input type="checkbox" id="showForm" checked><span data-i18n="form">原文</span></label>
-        <label class="checkline"><input type="checkbox" id="showPinyin" checked><span data-primary-line-label>主要转写</span></label>
-        <label class="checkline"><input type="checkbox" id="showTranscription"><span data-secondary-line-label>其他注音</span></label>
-        <label class="checkline"><input type="checkbox" id="showChineseGloss"><span data-i18n="chineseGloss">汉语释义</span></label>
-        <label class="checkline"><input type="checkbox" id="showGloss" checked><span>Gloss</span></label>
-        <label class="checkline"><input type="checkbox" id="showTranslation" checked><span data-i18n="freeTranslation">英语自由翻译</span></label>
-        <label class="checkline"><input type="checkbox" id="showChineseTranslation"><span data-i18n="chineseFreeTranslation">汉语自由翻译</span></label>
+      <div class="preview-controls"><fieldset id="outputOrderFieldset"><legend data-i18n="outputLines">输出行</legend>
+        <div class="output-order-actions"><button id="btnEditOutputOrder" class="output-order-action" type="button" data-i18n="adjustOutputOrder">调整顺序</button><button id="btnResetOutputOrder" class="output-order-action hidden" type="button" data-i18n="restoreDefaultOrder">恢复默认顺序</button><button id="btnDoneOutputOrder" class="output-order-action hidden" type="button" data-i18n="done">完成</button></div>
+        <div id="outputOrderList" class="output-order-list" role="list">
+          <div class="output-order-item" data-output-key="form" role="listitem"><label class="checkline"><input type="checkbox" id="showForm" checked><span data-i18n="form">原文</span></label></div>
+          <div class="output-order-item" data-output-key="pinyin" role="listitem"><label class="checkline"><input type="checkbox" id="showPinyin" checked><span data-primary-line-label>主要转写</span></label></div>
+          <div class="output-order-item" data-output-key="transcription" role="listitem"><label class="checkline"><input type="checkbox" id="showTranscription"><span data-secondary-line-label>其他注音</span></label></div>
+          <div class="output-order-item" data-output-key="chinese-gloss" role="listitem"><label class="checkline"><input type="checkbox" id="showChineseGloss"><span data-i18n="chineseGloss">汉语释义</span></label></div>
+          <div class="output-order-item" data-output-key="gloss" role="listitem"><label class="checkline"><input type="checkbox" id="showGloss" checked><span>Gloss</span></label></div>
+          <div class="output-order-item" data-output-key="free" role="listitem"><label class="checkline"><input type="checkbox" id="showTranslation" checked><span data-i18n="freeTranslation">英语自由翻译</span></label></div>
+          <div class="output-order-item" data-output-key="chinese-free" role="listitem"><label class="checkline"><input type="checkbox" id="showChineseTranslation"><span data-i18n="chineseFreeTranslation">汉语自由翻译</span></label></div>
+        </div>
+        <span id="outputOrderStatus" class="sr-only" role="status" aria-live="polite"></span>
       </fieldset></div>
       <div class="field"><label for="numberingMode" data-i18n="numberingMode">编号方式</label><select id="numberingMode"><option value="none" data-i18n-opt="noNumber">无编号</option><option value="continuous" selected data-i18n-opt="continuousNumber">连续数字</option><option value="alphabetic" data-i18n-opt="alphabeticNumber">字母：(a)</option><option value="alphabetic-dot" data-i18n-opt="alphabeticDotNumber">字母：a.</option></select></div>
       <div id="startNumberWrap" class="field"><label for="startNumber" data-i18n="startNumber">起始数字</label><input id="startNumber" type="number" min="1" step="1" value="1"></div><div id="startLetterWrap" class="field hidden"><label for="startLetter" data-i18n="startLetter">起始字母</label><input id="startLetter" type="text" value="a"></div>
@@ -84,12 +88,12 @@
     <div class="tool-identity"><div class="section-kicker">About</div><h3 id="toolAboutTitle">Merlin's Leipzig Gloss Tool</h3><dl class="tool-meta"><dt data-i18n="toolNameLabel">工具名</dt><dd>Merlin's Leipzig Gloss Tool</dd><dt data-i18n="versionLabel">版本</dt><dd>2.0</dd><dt data-i18n="developerLabel">开发者</dt><dd>Merlin X. D. Yang</dd></dl><p class="contact-copy" data-i18n="contactPrompt">如有意见或建议，可与开发者联系。</p><div class="contact-action"><button id="btnRevealEmail" type="button" data-i18n="revealEmail">显示联系邮箱</button><span id="emailContact" class="contact-email" aria-live="polite"></span></div></div>
     <section class="donation-card" aria-labelledby="donationCardTitle"><div><h3 id="donationCardTitle">Buy me a coffee</h3><p data-i18n="donationCopy">如果您觉得这个工具对您有帮助，可以给我买一杯加浓美式。</p></div><button id="btnAlipayDonation" class="alipay-button" type="button" data-i18n="alipay">支付宝</button></section>
   </section>
-  <div class="dialog-body help-zh"><h3>多语言工作页</h3><p>选择语言与文字后，一行输入一个例句，并用空格标出最终词界。自定义语言默认生成拉丁转写、IPA、英语 Gloss、汉语 Gloss 和英语自由翻译，并保留可选的汉语自由翻译。模型生成的分析都必须由研究者复核。</p></div>
-  <div class="dialog-body help-zh-hant hidden"><h3>多語言工作頁</h3><p>選擇語言與文字後，每行輸入一個例句，並用空格標出最終詞界。自訂語言預設產生拉丁轉寫、IPA、英語 Gloss、漢語 Gloss 與英語自由翻譯，並保留選填的漢語自由翻譯。</p></div>
-  <div class="dialog-body help-en hidden"><h3>Multilingual workspace</h3><p>Select a language and script, enter one example per line, and mark final token boundaries with spaces. The custom profile defaults to Latin transcription, IPA, English gloss, aligned Chinese gloss, and free English translation; free Chinese translation remains available.</p></div>
+  <div class="dialog-body help-zh"><h3>多语言工作页</h3><p>选择语言与文字后，一行输入一个例句，并用空格标出最终词界。自定义语言默认生成拉丁转写、IPA、英语 Gloss、汉语 Gloss 和英语自由翻译，并保留可选的汉语自由翻译。生成后可点击“调整顺序”，横向拖动输出行或用键盘左右方向键移动；顺序同步用于预览和全部导出。模型生成的分析都必须由研究者复核。</p></div>
+  <div class="dialog-body help-zh-hant hidden"><h3>多語言工作頁</h3><p>選擇語言與文字後，每行輸入一個例句，並用空格標出最終詞界。自訂語言預設產生拉丁轉寫、IPA、英語 Gloss、漢語 Gloss 與英語自由翻譯，並保留選填的漢語自由翻譯。產生後可按下「調整順序」，水平拖曳輸出列或用鍵盤左右方向鍵移動。</p></div>
+  <div class="dialog-body help-en hidden"><h3>Multilingual workspace</h3><p>Select a language and script, enter one example per line, and mark final token boundaries with spaces. The custom profile defaults to Latin transcription, IPA, English gloss, aligned Chinese gloss, and free English translation; free Chinese translation remains available. After generation, choose “Adjust order” to drag lines horizontally or move them with the keyboard arrow keys.</p></div>
 </dialog>
 <dialog id="donationDialog" class="donation-dialog" aria-labelledby="donationDialogTitle"><div class="donation-dialog-card"><div class="dialog-head"><h2 id="donationDialogTitle" data-i18n="donationDialogTitle">支付宝打赏</h2><button id="btnCloseDonation" class="icon-button" type="button" aria-label="关闭" title="关闭">×</button></div><div class="donation-qr-wrap"><img src="assets/alipay-donation-qr.png" width="776" height="998" loading="lazy" decoding="async" alt="支付宝收款二维码"></div></div></dialog>
 <script src="ai-services-ui.js?build=20260818-2"></script>
-<script src="app-ui.js?build=20260819-1"></script>
+<script src="app-ui.js?build=20260819-2"></script>
 </body>
 </html>

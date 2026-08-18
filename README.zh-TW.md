@@ -25,6 +25,8 @@
 
 「漢語釋義」嚴格保留原文語序，每個原文 token 對應一個儲存格；「漢語自由翻譯」是獨立的自然漢語句子，可依漢語習慣調整語序。
 
+輸出控制項維持水平緊湊排列。按下「調整順序」後才顯示拖曳把手；預覽、Word/HTML 複製、SVG、PNG、排版設定表和專案檔案統一使用該順序。鍵盤使用者可用左右方向鍵移動。
+
 ## 多語言規範
 
 版本化設定儲存在 [`language-profiles.json`](language-profiles.json)。預設系統包括日語 Modified Hepburn、梵語 IAST、維吾爾語 ULY/NUL、藏語 THL EWTS，以及分別處理的 `mn-Cyrl` 與 `mn-Mong` 蒙古語文字變體。自訂語言預設產生拉丁轉寫、IPA、英語及逐詞漢語 Gloss 與英語自由翻譯。
