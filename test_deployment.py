@@ -8,15 +8,26 @@ ROOT = Path(__file__).resolve().parent
 
 
 class SubdirectoryDeploymentTests(unittest.TestCase):
-    def test_v2_has_separate_multilingual_and_shared_ai_service_pages(self):
+    def test_both_workspaces_embed_the_shared_ai_service_panel_at_top_left(self):
+        sinitic = (ROOT / "index.html").read_text(encoding="utf-8")
         multilingual = (ROOT / "multilingual.html").read_text(encoding="utf-8")
-        services = (ROOT / "ai-services.html").read_text(encoding="utf-8")
 
         self.assertIn('data-workspace="multilingual"', multilingual)
         self.assertIn('id="languagePreset"', multilingual)
-        self.assertIn('id="credentialForm"', services)
-        self.assertIn('ai-service.js', multilingual)
-        self.assertIn('ai-service.js', services)
+        for html in (sinitic, multilingual):
+            self.assertIn('class="embedded-ai-service"', html)
+            self.assertIn('id="credentialForm"', html)
+            self.assertIn('id="providerStatus"', html)
+            self.assertIn('ai-service.js', html)
+            self.assertIn('ai-services-ui.js', html)
+            self.assertNotIn('href="ai-services.html"', html)
+
+    def test_generation_refreshes_shared_provider_and_credential_state(self):
+        source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
+        analyze = source[source.index("async function analyze() {"):source.index("function esc(value)")]
+
+        self.assertIn("state.aiSettings = loadAISettings(state.lang)", analyze)
+        self.assertIn("await refreshCredentialStatus()", analyze)
 
     def test_v2_exposes_chinese_aligned_and_free_translation_controls(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")

@@ -1,8 +1,8 @@
+(function() {
 'use strict';
 
 const $ = selector => document.querySelector(selector);
 const {DEFAULT_MODELS, credentialRequestHeaders, loadAISettings, saveAISettings} = GlossAIService;
-const providers = ['deepseek', 'openai', 'claude', 'openrouter'];
 const providerLabels = {deepseek: 'DeepSeek', openai: 'OpenAI', claude: 'Claude / Anthropic', openrouter: 'OpenRouter'};
 let interfaceLanguage = 'zh';
 let configuredProviders = [];
@@ -23,18 +23,15 @@ function applyLanguage() {
 }
 function renderProviderStatus() {
   const root = $('#providerStatus');
-  root.replaceChildren(...providers.map(provider => {
-    const row = document.createElement('div');
-    row.className = 'provider-status-row';
-    const name = document.createElement('strong');
-    name.textContent = providerLabels[provider];
-    const badge = document.createElement('span');
-    const configured = configuredProviders.includes(provider);
-    badge.className = `badge ${configured ? 'good' : ''}`;
-    badge.textContent = configured ? text('configured') : text('notConfigured');
-    row.append(name, badge);
-    return row;
-  }));
+  const line = document.createElement('div');
+  line.className = 'embedded-provider-status';
+  if (configuredProviders.length) {
+    line.textContent = `${text('configured')}: ${configuredProviders.map(provider => providerLabels[provider]).join(', ')}`;
+    line.classList.add('good');
+  } else {
+    line.textContent = text('notConfigured');
+  }
+  root.replaceChildren(line);
 }
 async function requestCredentials(method, body) {
   const response = await fetch('api/credentials/', {method, headers: credentialRequestHeaders(), body: body === undefined ? undefined : JSON.stringify(body), credentials: 'same-origin'});
@@ -42,6 +39,7 @@ async function requestCredentials(method, body) {
   if (!response.ok || data.ok === false) throw new Error(data.error || `HTTP ${response.status}`);
   configuredProviders = Array.isArray(data.configured_providers) ? data.configured_providers : [];
   renderProviderStatus();
+  window.dispatchEvent(new CustomEvent('gloss-credentials-updated', {detail: {configuredProviders}}));
   return data;
 }
 async function refreshStatus() {
@@ -80,3 +78,4 @@ $('#deleteCredential').addEventListener('click', async () => {
 });
 applyLanguage();
 refreshStatus();
+})();

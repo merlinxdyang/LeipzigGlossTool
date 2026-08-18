@@ -8,7 +8,8 @@ An online-first, editable interlinear-glossing tool for Sinitic and multilingual
 
 - `/clg/` — Mandarin, Cantonese, Southern Min, and custom Sinitic varieties. The established Mandarin and Cantonese prompt behavior remains the legacy default.
 - `/clg/multilingual.html` — Japanese, German, French, Spanish, Dutch, Sanskrit, Uyghur, Mongolian, and Tibetan.
-- `/clg/ai-services.html` — one shared provider, model, and credential center for both workspaces.
+
+The complete AI service panel appears at the upper left of both workspaces. Provider and model settings are shared through non-secret browser settings, and encrypted credential cookies are shared automatically.
 
 Every generated result is editable and can be copied to Word, copied as borderless HTML/Markdown, exported as SVG or transparent PNG, or saved as a versioned JSON project.
 

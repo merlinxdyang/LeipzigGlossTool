@@ -31,7 +31,7 @@ button{cursor:pointer}
 .version{font:700 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.08em;color:var(--navy);border:1px solid rgba(23,63,82,.34);padding:4px 6px;text-transform:uppercase}
 .top-actions,.btnrow,.toolbar-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .workspace-nav{display:flex;align-items:center;gap:3px;flex-wrap:wrap}.workspace-nav a{padding:5px 8px;color:var(--navy);text-decoration:none;font-size:11px;border:1px solid transparent}.workspace-nav a[aria-current=page]{border-color:var(--rule-strong);background:var(--surface-2);font-weight:750}
-.ai-summary{padding:11px 12px;border:1px solid var(--rule);background:var(--surface-2)}.ai-summary strong{display:block;font-size:12px}.ai-summary span{display:block;color:var(--muted);font-size:11px;margin:3px 0 8px}.ai-summary a{font-size:12px;color:var(--navy);text-underline-offset:3px}
+.embedded-ai-service{padding:12px;border:1px solid var(--rule);background:var(--surface-2)}.embedded-ai-service .field{margin-bottom:10px}.embedded-ai-service select,.embedded-ai-service input[type=text],.embedded-ai-service input[type=password]{height:36px;padding:7px 9px}.embedded-ai-service .remember-setting{margin:2px 0 9px}.embedded-ai-actions{gap:6px}.embedded-ai-actions button{padding-inline:8px}.embedded-provider-wrap{margin-top:8px}.embedded-provider-status{font-size:11px;color:var(--muted)}.embedded-provider-status.good{color:var(--good)}
 .language-switch{display:flex;align-items:center;border:1px solid var(--rule-strong);border-radius:4px;overflow:hidden;background:var(--surface)}
 .language-switch button{min-width:34px;min-height:30px;padding:4px 8px;border:0;border-right:1px solid var(--rule);border-radius:0;background:transparent;font-size:11px;font-weight:700;color:#536168}
 .language-switch button:last-child{border-right:0}.language-switch button:hover{background:var(--surface-2);border-color:var(--rule)}
@@ -140,7 +140,7 @@ dialog::backdrop{background:rgba(15,30,37,.38);backdrop-filter:blur(2px)}
 html[lang="zh-Hant"] body{font-family:var(--hant-ui-font)}
 html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="zh-Hant"] .section-title,html[lang="zh-Hant"] .editor-example-title,html[lang="zh-Hant"] .dialog-head h2,html[lang="zh-Hant"] .dialog-body h3,html[lang="zh-Hant"] .empty-preview{font-family:var(--hant-ui-font)}
 @media(max-width:980px){.shell{grid-template-columns:1fr}.sidebar{position:static}.preview-controls{grid-template-columns:1fr}.number-controls{justify-content:flex-start}}
-@media(max-width:640px){.topbar{height:auto}.topbar-inner{padding:12px 15px;align-items:flex-start;flex-wrap:wrap}.brand-mark{width:36px;height:36px;border-radius:8px}.brand-copy{font-size:14px;white-space:normal}.brand-author{font-size:9px}.version{display:none}.top-actions{justify-content:flex-end;margin-left:auto}.shell{padding:14px 12px 28px;gap:14px}.sidebar,.main{padding:18px}.main-head{display:block}.main-head .btnrow{justify-content:flex-start;margin-top:12px}.sentence{font-size:16px}.preview-controls fieldset{display:grid;grid-template-columns:1fr 1fr}.number-controls{display:grid;grid-template-columns:1fr 1fr}.number-field select,.number-field input{width:100%;min-width:0}.token-editor-card{flex-basis:144px;min-width:min(144px,100%);max-width:none}.token-editor-line{grid-template-columns:44px minmax(0,1fr)}.typography-summary-note{display:none}.typography-actions{align-items:flex-start}.type-settings{min-width:500px}.type-settings th,.type-settings td{padding:7px 6px}.type-settings tbody th{width:84px}.type-settings select{min-width:155px}.type-settings input[type=number]{width:66px}.type-toggle{width:48px}.preview-canvas{padding:17px}.toolbar{align-items:flex-start}.toolbar-group{width:100%}.separator-label{width:100%;margin-top:5px}}
+@media(max-width:640px){.topbar{height:auto}.topbar-inner{padding:12px 15px;align-items:flex-start;flex-wrap:wrap}.brand-mark{width:36px;height:36px;border-radius:8px}.brand-copy{font-size:14px;white-space:normal}.brand-author{font-size:9px}.version{display:none}.top-actions{justify-content:flex-end;margin-left:auto}.shell{padding:14px 12px 28px;gap:14px}.sidebar,.main{padding:18px}.sidebar,.embedded-ai-service,.embedded-ai-service form,.api-key-wrap{min-width:0}.api-key-wrap{grid-template-columns:minmax(0,1fr) 38px}.api-key-wrap input{min-width:0}.main-head{display:block}.main-head .btnrow{justify-content:flex-start;margin-top:12px}.sentence{font-size:16px}.preview-controls fieldset{display:grid;grid-template-columns:1fr 1fr}.number-controls{display:grid;grid-template-columns:1fr 1fr}.number-field select,.number-field input{width:100%;min-width:0}.token-editor-card{flex-basis:144px;min-width:min(144px,100%);max-width:none}.token-editor-line{grid-template-columns:44px minmax(0,1fr)}.typography-summary-note{display:none}.typography-actions{align-items:flex-start}.type-settings{min-width:500px}.type-settings th,.type-settings td{padding:7px 6px}.type-settings tbody th{width:84px}.type-settings select{min-width:155px}.type-settings input[type=number]{width:66px}.type-toggle{width:48px}.preview-canvas{padding:17px}.toolbar{align-items:flex-start}.toolbar-group{width:100%}.separator-label{width:100%;margin-top:5px}}
 </style>
 </head>
 <body data-workspace="sinitic">
@@ -152,7 +152,7 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
       <span class="version">v2.0</span>
     </div>
     <nav class="top-actions" aria-label="Utilities">
-      <div class="workspace-nav"><a href="./" aria-current="page">汉语</a><a href="multilingual.html">多语言</a><a href="ai-services.html">AI 服务</a></div>
+      <div class="workspace-nav"><a href="./" aria-current="page">汉语</a><a href="multilingual.html">多语言</a></div>
       <button class="small ghost" id="btnDemo" data-i18n="demo">载入示例</button>
       <button class="small ghost" id="btnHelp" data-i18n="help">使用说明</button>
       <div class="language-switch" role="group" aria-label="界面语言 / Interface language">
@@ -168,8 +168,16 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
     <h1 class="section-title" data-i18n="settings">项目设置</h1>
 
     <h2 class="group-title" data-i18n="aiSettings">AI 服务</h2>
-    <div class="ai-summary"><strong id="aiServiceName">—</strong><span id="aiCredentialState">正在读取凭据状态…</span><a href="ai-services.html">管理 AI 服务与 API key</a> · <button id="btnApiHelp" class="text-link" type="button" data-i18n="apiKeyHelp">如何申请</button></div>
-    <div class="status" id="apiStatus" role="status" aria-live="polite"></div>
+    <section class="embedded-ai-service">
+      <form id="credentialForm">
+        <div class="field"><label for="provider" data-i18n="provider">服务商</label><select id="provider"><option value="deepseek">DeepSeek</option><option value="openai">OpenAI</option><option value="claude">Claude / Anthropic</option><option value="openrouter">OpenRouter</option></select></div>
+        <div class="field"><label for="model" data-i18n="model">模型名称</label><input id="model" type="text" autocomplete="off" required></div>
+        <div class="field"><label for="apiKey">API key</label><div class="api-key-wrap"><input id="apiKey" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" data-1p-ignore data-lpignore="true" required><button id="toggleKey" class="icon-button" type="button" aria-label="显示或隐藏 API key">◉</button></div><div class="hint" data-i18n="keyHint">验证成功后以加密 Cookie 保存。</div></div>
+        <label class="remember-setting"><input id="rememberKey" type="checkbox"><span data-i18n="remember">在此浏览器记住 90 天</span></label>
+        <div class="btnrow embedded-ai-actions"><button class="primary small" type="submit" data-i18n="validateSave">验证并保存</button><button class="small" id="deleteCredential" type="button" data-i18n="forget">忘记 key</button><button id="btnApiHelp" class="text-link" type="button" data-i18n="apiKeyHelp">如何申请</button></div>
+        <div id="providerStatus" class="embedded-provider-wrap" aria-live="polite"></div><div class="status" id="credentialStatus" role="status" aria-live="polite"></div>
+      </form>
+    </section>
 
     <div class="divider"></div>
     <h2 class="group-title" data-i18n="lingSettings">语言与转写</h2>
@@ -340,7 +348,7 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
   <div class="dialog-head"><h2 id="helpTitle" data-i18n="help">使用说明</h2><button id="btnCloseHelp" class="icon-button" aria-label="关闭" title="关闭">×</button></div>
   <div class="dialog-body help-zh">
     <h3>基本流程</h3>
-    <ol><li>在统一“AI 服务”页面选择服务商和模型，并验证保存 API key。</li><li>选择语言和输入格式；普通话保留拼音设置，非普通话材料可增加逐词汉语释义。</li><li>在输入框中一行输入一个例句，每行内部用空格标出最终词边界；也可导入一行一个例句的 TXT 文件。</li><li>生成后，预览会立即显示在输入区下方；每个例句使用一个独立表格。</li><li>按需选择原文、注音、汉语释义、Gloss、英语或汉语自由翻译，并设置编号。</li><li>在编辑区修改所有生成内容并调整排版。</li><li>从预览区下方复制或导出；保存项目可保留全部例句、编辑内容、输出选择和排版设置。</li></ol>
+    <ol><li>在页面左上端“AI 服务”中选择服务商和模型，并验证保存 API key。</li><li>选择语言和输入格式；普通话保留拼音设置，非普通话材料可增加逐词汉语释义。</li><li>在输入框中一行输入一个例句，每行内部用空格标出最终词边界；也可导入一行一个例句的 TXT 文件。</li><li>生成后，预览会立即显示在输入区下方；每个例句使用一个独立表格。</li><li>按需选择原文、注音、汉语释义、Gloss、英语或汉语自由翻译，并设置编号。</li><li>在编辑区修改所有生成内容并调整排版。</li><li>从预览区下方复制或导出；保存项目可保留全部例句、编辑内容、输出选择和排版设置。</li></ol>
     <h3>批量输入与编号</h3><p>输入框和 TXT 文件都以“物理行”为例句边界，空行会被忽略。TXT 导入只接受 <code>.txt</code> 文件。“连续数字”默认从 <code>(1)</code> 开始，并可填写任意正整数起点；负数、零或无效输入会自动重置为 <code>1</code>。“字母：(a)”输出 <code>(a)</code>、<code>(b)</code>；“字母：a.”输出 <code>a.</code>、<code>b.</code>。两种字母编号都可填写 <code>c</code>、<code>aa</code> 等起始字母，并在 <code>z</code> 后继续为 <code>aa</code>。选择“无编号”则完全移除编号列。</p>
     <h3>拼音与其他注音</h3><p>普通话可在“拼音有声调”（默认，如 <code>wǒ</code>）、“拼音数字声调”（如 <code>wo3</code>）和“拼音无声调”（如 <code>wo</code>）之间单选；轻声始终不标 <code>0</code>。其他注音默认留空，也可选注音符号、IPA + 数字声调、IPA 固有声调、粤拼 / Jyutping、Yale 或其他体系。IPA 数字声调使用 <code>55/35/214/51</code> 这类调值；IPA 固有声调使用 <code>˥/˧˥/˨˩˦/˥˩</code> 等调符。粤语或自定义方言则使用“主要转写体系”。</p>
     <h3>排版设置</h3><p>五条输出行默认使用 Times New Roman，中文字符自动回退到宋体，字号为 10.5 pt，均不加粗、不斜体。“保持现有设置”会把当前排版留给下次使用；“恢复默认”立即重置全部行。Gloss 中的全大写语法缩写自动显示为小型大写字母；“复制表格”使用 Word 兼容的底层小写字符与小型大写格式。</p>
@@ -366,6 +374,7 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
   </div>
 </dialog>
 
-<script src="app-ui.js?build=20260818-1"></script>
+<script src="ai-services-ui.js?build=20260818-2"></script>
+<script src="app-ui.js?build=20260818-2"></script>
 </body>
 </html>
