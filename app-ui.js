@@ -758,7 +758,7 @@ function editorExampleHTML(result, exampleIndex) {
   }).join('');
   return `<article class="editor-example" data-example-editor="${exampleIndex}">
     <div class="editor-example-head"><span class="editor-example-title">${esc(t('example'))} ${exampleIndex + 1}</span><span class="editor-example-status">${esc(t('aligned'))}</span></div>
-    <div class="token-editor-grid ${currentDirection() === 'rtl' ? 'rtl' : ''}">${tokenCards}</div>
+    <div class="token-editor-grid" dir="ltr">${tokenCards}</div>
     <div class="translation-row"><label for="freeTranslation-${exampleIndex}">${esc(t('freeTranslation'))}</label><input type="text" id="freeTranslation-${exampleIndex}" data-free-translation value="${esc(result.free_translation)}" placeholder="I have already eaten three apples."></div>
     ${hasChineseLayers ? `<div class="translation-row"><label for="chineseFreeTranslation-${exampleIndex}">${esc(t('chineseFreeTranslation'))}</label><input type="text" id="chineseFreeTranslation-${exampleIndex}" data-chinese-free-translation value="${esc(result.chinese_free_translation)}" placeholder="我已经吃了三个苹果。"></div>` : ''}
     <div class="note model-note">${esc(result.note)}</div>
@@ -820,12 +820,12 @@ function publicationTableHTML(result, exampleIndex, glossFormatter = formatGloss
   const rows = outputRows(result);
   const number = selectedNumber(exampleIndex);
   const tokenCount = result.tokens.length;
-  const rtl = currentDirection() === 'rtl';
-  return `<table class="pubtable${rtl ? ' rtl' : ''}"${rtl ? ' dir="rtl"' : ''}><tbody>${rows.map((row, rowIndex) => {
+  const sourceRtl = currentDirection() === 'rtl';
+  return `<table class="pubtable" dir="ltr"><tbody>${rows.map((row, rowIndex) => {
     let html = `<tr class="${row.key}" style="${esc(styleCss(row.styleKey))}">`;
     if (rowIndex === 0 && number) html += `<td class="num" rowspan="${rows.length}" valign="top" style="vertical-align:top">${esc(number)}</td>`;
     if (row.text !== undefined) html += `<td colspan="${Math.max(1, tokenCount)}">${esc(row.text)}</td>`;
-    else html += row.values.map(value => `<td dir="${row.key === 'form' && rtl ? 'rtl' : 'ltr'}">${row.key === 'gloss' ? glossFormatter(value) : esc(value)}</td>`).join('');
+    else html += row.values.map(value => `<td dir="${row.key === 'form' && sourceRtl ? 'rtl' : 'ltr'}">${row.key === 'gloss' ? glossFormatter(value) : esc(value)}</td>`).join('');
     return `${html}</tr>`;
   }).join('')}</tbody></table>`;
 }
@@ -870,8 +870,8 @@ function mdTable(result, exampleIndex) {
     const direction = row.key === 'form' && currentDirection() === 'rtl' ? 'rtl' : 'ltr';
     return `<td dir="${direction}" style="border:none;padding:0 12px 0 0;white-space:nowrap;unicode-bidi:isolate;${esc(styleCss(row.styleKey))}">${row.key === 'gloss' ? inlineGlossHtml(value) : esc(value)}</td>`;
   }).join('');
-  const direction = currentDirection() === 'rtl' ? 'direction:rtl;' : '';
-  return `<table style="border-collapse:separate;border-spacing:0 4px;border:none;${direction}">\n${rows.map((row, rowIndex) => {
+  const tableDirection = 'direction:ltr;';
+  return `<table dir="ltr" style="border-collapse:separate;border-spacing:0 4px;border:none;${tableDirection}">\n${rows.map((row, rowIndex) => {
     let html = '<tr>';
     if (rowIndex === 0 && number) html += `<td rowspan="${rows.length}" style="border:none;padding:0 12px 0 0;vertical-align:top;${esc(styleCss(row.styleKey))}">${esc(number)}</td>`;
     html += row.text !== undefined ? `<td colspan="${Math.max(1, tokenCount)}" style="border:none;padding-top:6px;${esc(styleCss(row.styleKey))}">${esc(row.text)}</td>` : cells(row);
@@ -881,7 +881,7 @@ function mdTable(result, exampleIndex) {
 function mdHTML() { syncFromEditor(); return state.results.map(mdTable).join('\n\n'); }
 async function copyTable() {
   if (!requireOutput()) return;
-  const html = `<!doctype html><meta charset="utf-8"><style>.example-preview+.example-preview{margin-top:18px}table{border-collapse:separate;border-spacing:0 4px}td{border:none;padding:0 14px 0 0;white-space:nowrap}table.rtl{direction:rtl}table.rtl td{direction:ltr}table.rtl tr.form td{direction:rtl;text-align:right}td.num{vertical-align:top!important}.free td,.chinese-free td{padding-top:6px}</style>${publicationHTML(false, formatGlossHtmlForWord)}`;
+  const html = `<!doctype html><meta charset="utf-8"><style>.example-preview+.example-preview{margin-top:18px}table{border-collapse:separate;border-spacing:0 4px;direction:ltr}td{border:none;padding:0 14px 0 0;white-space:nowrap}tr.form td{unicode-bidi:isolate}td.num{vertical-align:top!important}.free td,.chinese-free td{padding-top:6px}</style>${publicationHTML(false, formatGlossHtmlForWord)}`;
   const plain = plainText();
   try {
     if (window.ClipboardItem) {
@@ -1140,7 +1140,7 @@ function measureSvgExample(result, exampleIndex, context) {
   freeRows.forEach(row => { context.font = canvasFont(row.styleKey); freeWidth = Math.max(freeWidth, context.measureText(row.text).width); });
   const rowHeights = rows.map(row => Math.max(22, state.typography[row.styleKey].size * 96 / 72 * 1.55));
   return {
-    rows, widths, number, numberWidth, rowHeights, pad, contentWidth, rtl: currentDirection() === 'rtl',
+    rows, widths, number, numberWidth, rowHeights, pad, contentWidth, gap, sourceRtl: currentDirection() === 'rtl',
     width: Math.ceil(pad * 2 + numberWidth + Math.max(contentWidth, freeWidth)),
     height: Math.ceil(pad * 2 + rowHeights.reduce((sum, height) => sum + height, 0)),
   };
@@ -1162,13 +1162,14 @@ function makeSVG() {
     layout.rows.forEach((row, rowIndex) => {
       const baseline = top + state.typography[row.styleKey].size * 96 / 72;
       if (rowIndex === 0 && layout.number) parts.push(`<text x="${layout.pad}" y="${baseline}" ${svgTextAttributes(row.styleKey)}>${svgEscape(layout.number)}</text>`);
-      let x = row.text !== undefined ? contentX : (layout.rtl ? contentX + layout.contentWidth : contentX);
+      let x = contentX;
       if (row.text !== undefined) parts.push(`<text x="${x}" y="${baseline}" ${svgTextAttributes(row.styleKey)}>${svgEscape(row.text)}</text>`);
       else row.values.forEach((value, tokenIndex) => {
-        if (layout.rtl) x -= layout.widths[tokenIndex];
-        const direction = row.key === 'form' && layout.rtl ? ' direction="rtl" unicode-bidi="isolate"' : '';
-        parts.push(`<text x="${x}" y="${baseline}"${direction} ${svgTextAttributes(row.styleKey, row.key === 'gloss' && isGlossAbbreviation(value))}>${svgEscape(value)}</text>`);
-        if (!layout.rtl) x += layout.widths[tokenIndex];
+        const sourceRtl = row.key === 'form' && layout.sourceRtl;
+        const textX = sourceRtl ? x + layout.widths[tokenIndex] - layout.gap : x;
+        const direction = sourceRtl ? ' direction="rtl" unicode-bidi="isolate" text-anchor="start"' : '';
+        parts.push(`<text x="${textX}" y="${baseline}"${direction} ${svgTextAttributes(row.styleKey, row.key === 'gloss' && isGlossAbbreviation(value))}>${svgEscape(value)}</text>`);
+        x += layout.widths[tokenIndex];
       });
       top += layout.rowHeights[rowIndex];
     });

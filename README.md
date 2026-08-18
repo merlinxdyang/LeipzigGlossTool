@@ -33,7 +33,7 @@ Output controls remain in a compact horizontal row. “Adjust order” exposes t
 
 The versioned registry is [`language-profiles.json`](language-profiles.json). Defaults include Modified Hepburn for Japanese, IAST for Sanskrit, ULY/NUL for Uyghur, THL EWTS for Tibetan, and distinct `mn-Cyrl` / `mn-Mong` Mongolian variants. The custom profile defaults to Latin transcription, IPA, English and aligned Chinese glosses, and free English translation. Every profile retains the user's whitespace tokenization as authoritative.
 
-Uyghur source text uses logical-order Unicode. The UI handles RTL through markup and rejects embedded RLO/LRO/isolate controls in input. Traditional Mongolian, Tibetan, Devanagari, Arabic-script Uyghur, and Japanese use multilingual font fallbacks.
+Uyghur source text uses logical-order Unicode. Uyghur and custom right-to-left profiles use RTL only for source input and source-form cells; interlinear columns, numbering, editing cards, and every export remain left-to-right. The UI rejects embedded RLO/LRO/isolate controls in input. Traditional Mongolian, Tibetan, Devanagari, Arabic-script Uyghur, and Japanese use multilingual font fallbacks.
 
 ## Browser credential vault
 

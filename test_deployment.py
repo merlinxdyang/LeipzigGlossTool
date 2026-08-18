@@ -89,6 +89,16 @@ class SubdirectoryDeploymentTests(unittest.TestCase):
         self.assertIn("event.key === 'ArrowLeft'", source)
         self.assertIn("output-order-editing", source)
 
+    def test_rtl_sources_keep_rtl_input_but_use_ltr_output_layouts(self):
+        source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
+
+        self.assertIn("sentence.dir = currentDirection();", source)
+        self.assertIn('<div class="token-editor-grid" dir="ltr">', source)
+        self.assertIn('<table class="pubtable" dir="ltr"><tbody>', source)
+        self.assertIn("const tableDirection = 'direction:ltr;'", source)
+        self.assertIn("sourceRtl: currentDirection() === 'rtl'", source)
+        self.assertNotIn("layout.rtl ?", source)
+
     def test_guide_leads_with_product_identity_obfuscated_contact_and_alipay_modal(self):
         source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
         literal_email = "".join(map(chr, [120, 100, 121, 97, 110, 103, 64, 122, 106, 117, 116, 46, 101, 100, 117, 46, 99, 110]))

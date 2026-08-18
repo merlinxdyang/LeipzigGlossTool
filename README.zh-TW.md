@@ -31,7 +31,7 @@
 
 版本化設定儲存在 [`language-profiles.json`](language-profiles.json)。預設系統包括日語 Modified Hepburn、梵語 IAST、維吾爾語 ULY/NUL、藏語 THL EWTS，以及分別處理的 `mn-Cyrl` 與 `mn-Mong` 蒙古語文字變體。自訂語言預設產生拉丁轉寫、IPA、英語及逐詞漢語 Gloss 與英語自由翻譯。
 
-使用者輸入的空格始終是最終詞界。維吾爾文按邏輯順序儲存，由頁面負責 RTL 排版；輸入中的 RLO/LRO 等方向控制字元會被阻擋。
+使用者輸入的空格始終是最終詞界。維吾爾文按邏輯順序儲存；維吾爾語和自訂語言「從右到左」設定只讓輸入框與原文詞項使用 RTL，例句欄、編號、編輯卡片和全部匯出仍按 LTR 從左到右排列。輸入中的 RLO/LRO 等方向控制字元會被阻擋。
 
 ## 線上 API key 安全
 
