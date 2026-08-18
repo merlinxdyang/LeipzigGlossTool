@@ -20,13 +20,29 @@ const {
   tokenEditorItems,
 } = GlossBatch;
 const {defaultAISettings} = GlossInterfaceLanguage;
+const {
+  credentialRequestHeaders,
+  loadAISettings,
+  normalizeAISettings,
+  saveAISettings,
+} = GlossAIService;
 
-const state = {lang: 'zh', results: [], typography: normalizeTypography(), rememberTypography: true};
+const workspaceType = document.body.dataset.workspace || 'sinitic';
+const autosaveKey = workspaceType === 'multilingual' ? 'multilingualGlossToolAutosaveV2' : 'chineseGlossToolAutosave';
+const state = {
+  lang: 'zh',
+  results: [],
+  typography: normalizeTypography(),
+  rememberTypography: true,
+  aiSettings: loadAISettings('zh'),
+  configuredProviders: [],
+  languageProfiles: [],
+};
 const defaults = {deepseek: 'deepseek-v4-flash', openai: 'gpt-5.6-luna', claude: 'claude-sonnet-5', openrouter: ''};
 const I18N = {
   zh: {
     demo: '载入示例', help: '使用说明', close: '关闭', settings: '项目设置', aiSettings: 'AI 服务', provider: '服务商', model: '模型名称',
-    keyHint: '仅用于本次 API 请求，不会保存。', validate: '验证 API', apiKeyHelp: '如何申请', apiKeyDialogTitle: '如何申请 API key', lingSettings: '语言与转写', variety: '语言 / 方言', mandarin: '普通话 / Mandarin', cantonese: '粤语 / Cantonese', other: '其他 / Other', zhuyin: '注音符号 / Zhuyin', jyutping: '粤拼 / Jyutping', ipaNumericTones: 'IPA + 数字声调', ipaToneLetters: 'IPA 固有声调',
+    keyHint: '请在统一 AI 服务页面配置。', validate: '验证 API', apiKeyHelp: '如何申请', apiKeyDialogTitle: '如何申请 API key', lingSettings: '语言与转写', variety: '语言 / 方言', mandarin: '普通话 / Mandarin', cantonese: '粤语 / Cantonese', minnan: '闽南语 / Southern Min', other: '其他 / Other', zhuyin: '注音符号 / Zhuyin', jyutping: '粤拼 / Jyutping', ipa: 'IPA', ipaNumericTones: 'IPA + 数字声调', ipaToneLetters: 'IPA 固有声调', chineseGloss: '汉语释义', chineseGlossHint: '“汉语释义”保持原语序并与原文逐词对齐。', chineseFreeTranslation: '汉语自由翻译',
     customVariety: '自定义语言 / 方言名称', inputFormat: '输入格式', transcriptionSystem: '主要转写体系', pinyinSettings: '拼音设置', pinyinToneMarks: '拼音有声调', pinyinToneNumbers: '拼音数字声调', pinyinNoTone: '拼音无声调', otherTranscriptionSettings: '其他注音设置', otherTranscriptionHint: '可选；留空时不生成其他注音行。',
     transcriptionHint: '为非普通话材料选择主要转写体系。',
     conventions: 'Gloss 约定（可修改）', input: '输入例句', importTxt: '导入 TXT', clear: '清空', analyze: '生成 Gloss',
@@ -41,12 +57,12 @@ const I18N = {
     copied: '已复制', saved: '项目已保存', loaded: '项目已载入', needInput: '请至少输入一个例句', needKey: '请输入 API key', needModel: '请输入模型名称',
     badKeyFormat: 'API key 不应包含空格；请清空后重新粘贴。', localUnavailable: '无法连接本机后端，请确认程序仍在运行。',
     emptyOutput: '请至少选择一项输出内容。', typographyReset: '排版已恢复默认。', invalidTxt: '只能导入扩展名为 .txt 的文本文件。',
-    emptyTxt: 'TXT 文件中没有可用例句。', importedTxt: '已导入 {count} 个例句；点击“生成 Gloss”开始处理。', example: '例句', token: '词项', resultCount: '{count} 个例句',
+    emptyTxt: 'TXT 文件中没有可用例句。', importedTxt: '已导入 {count} 个例句；点击“生成 Gloss”开始处理。', bidiControl: '输入含有 Unicode 方向控制符，请移除 RLO/LRO/embedding/isolate 控制符后再生成；页面会自动处理书写方向。', example: '例句', token: '词项', resultCount: '{count} 个例句',
     batchFailed: '第 {line} 行生成失败：{error}', badProject: '项目文件无有效结果。', invalidResponse: '后端返回无效响应', modelUnavailable: '；模型名未出现在列表中',
   },
   en: {
     demo: 'Load demo', help: 'Guide', close: 'Close', settings: 'Project settings', aiSettings: 'AI service', provider: 'Provider', model: 'Model name',
-    keyHint: 'Used only for this API request and never saved.', validate: 'Validate API', apiKeyHelp: 'How to apply', apiKeyDialogTitle: 'How to get an API key', lingSettings: 'Language & transcription', variety: 'Language / variety', mandarin: 'Mandarin', cantonese: 'Cantonese', other: 'Other', zhuyin: 'Zhuyin / Bopomofo', jyutping: '粤拼 / Jyutping', ipaNumericTones: 'IPA + numeric tone values', ipaToneLetters: 'IPA tone letters',
+    keyHint: 'Configure credentials on the shared AI service page.', validate: 'Validate API', apiKeyHelp: 'How to apply', apiKeyDialogTitle: 'How to get an API key', lingSettings: 'Language & transcription', variety: 'Language / variety', mandarin: 'Mandarin', cantonese: 'Cantonese', minnan: 'Southern Min', other: 'Other', zhuyin: 'Zhuyin / Bopomofo', jyutping: '粤拼 / Jyutping', ipa: 'IPA', ipaNumericTones: 'IPA + numeric tone values', ipaToneLetters: 'IPA tone letters', chineseGloss: 'Aligned Chinese meaning', chineseGlossHint: 'The aligned Chinese layer preserves source order and token alignment.', chineseFreeTranslation: 'Free Chinese translation',
     customVariety: 'Custom language / variety', inputFormat: 'Input format', transcriptionSystem: 'Primary transcription system', pinyinSettings: 'Pinyin settings', pinyinToneMarks: 'Pinyin with tone marks', pinyinToneNumbers: 'Pinyin with tone numbers', pinyinNoTone: 'Pinyin without tones', otherTranscriptionSettings: 'Other annotation', otherTranscriptionHint: 'Optional; leave blank to omit the other-annotation line.',
     transcriptionHint: 'Select the primary system for non-Mandarin material.',
     conventions: 'Gloss conventions (editable)', input: 'Input examples', importTxt: 'Import TXT', clear: 'Clear', analyze: 'Generate gloss',
@@ -63,14 +79,14 @@ const I18N = {
     needInput: 'Enter at least one example', needKey: 'Enter an API key', needModel: 'Enter a model name',
     badKeyFormat: 'API keys must not contain spaces. Clear the field and paste it again.', localUnavailable: 'Cannot reach the local backend. Check that the program is still running.',
     emptyOutput: 'Select at least one output line.', typographyReset: 'Typography restored to defaults.', invalidTxt: 'Only .txt text files can be imported.',
-    emptyTxt: 'The TXT file contains no usable examples.', importedTxt: 'Imported {count} examples; click “Generate gloss” to process them.', example: 'Example', token: 'Token',
+    emptyTxt: 'The TXT file contains no usable examples.', importedTxt: 'Imported {count} examples; click “Generate gloss” to process them.', bidiControl: 'The input contains Unicode bidi controls. Remove RLO/LRO/embedding/isolate controls; the page handles writing direction safely.', example: 'Example', token: 'Token',
     resultCount: '{count} examples', batchFailed: 'Line {line} failed: {error}', badProject: 'The project has no valid results.', invalidResponse: 'The backend returned an invalid response', modelUnavailable: '; model was not found in the list',
   },
 };
 
 I18N['zh-Hant'] = {
   demo: '載入範例', help: '使用說明', close: '關閉', settings: '專案設定', aiSettings: 'AI 服務', provider: '服務提供者', model: '模型名稱',
-  keyHint: '僅用於本次 API 請求，不會儲存。', validate: '驗證 API', apiKeyHelp: '如何申請', apiKeyDialogTitle: '如何申請 API key', lingSettings: '語言與轉寫', variety: '語言 / 方言', mandarin: '國語 / Mandarin', cantonese: '粵語 / Cantonese', other: '其他 / Other', zhuyin: '注音符號 / Zhuyin', jyutping: '粵拼 / Jyutping', ipaNumericTones: 'IPA + 數字聲調', ipaToneLetters: 'IPA 聲調符號',
+  keyHint: '請在共用 AI 服務頁面設定。', validate: '驗證 API', apiKeyHelp: '如何申請', apiKeyDialogTitle: '如何申請 API key', lingSettings: '語言與轉寫', variety: '語言 / 方言', mandarin: '國語 / Mandarin', cantonese: '粵語 / Cantonese', minnan: '閩南語 / Southern Min', other: '其他 / Other', zhuyin: '注音符號 / Zhuyin', jyutping: '粵拼 / Jyutping', ipa: 'IPA', ipaNumericTones: 'IPA + 數字聲調', ipaToneLetters: 'IPA 聲調符號', chineseGloss: '漢語釋義', chineseGlossHint: '「漢語釋義」保留原語序並與原文逐詞對齊。', chineseFreeTranslation: '漢語自由翻譯',
   customVariety: '自訂語言 / 方言名稱', inputFormat: '輸入格式', transcriptionSystem: '主要轉寫系統', pinyinSettings: '拼音設定', pinyinToneMarks: '拼音附聲調符號', pinyinToneNumbers: '拼音數字聲調', pinyinNoTone: '拼音不標聲調', otherTranscriptionSettings: '其他注音設定', otherTranscriptionHint: '選填；留白時不產生其他注音列。',
   transcriptionHint: '為非國語材料選擇主要轉寫系統。',
   conventions: 'Gloss 約定（可修改）', input: '輸入例句', importTxt: '匯入 TXT', clear: '清除', analyze: '產生 Gloss',
@@ -85,7 +101,7 @@ I18N['zh-Hant'] = {
   copied: '已複製', saved: '專案已儲存', loaded: '專案已載入', needInput: '請至少輸入一個例句', needKey: '請輸入 API key', needModel: '請輸入模型名稱',
   badKeyFormat: 'API key 不應包含空格；請清除後重新貼上。', localUnavailable: '無法連線至後端，請確認服務仍在執行。',
   emptyOutput: '請至少選擇一個輸出列。', typographyReset: '排版已還原為預設值。', invalidTxt: '只能匯入副檔名為 .txt 的文字檔案。',
-  emptyTxt: 'TXT 檔案中沒有可用例句。', importedTxt: '已匯入 {count} 個例句；選取「產生 Gloss」開始處理。', example: '例句', token: '詞項', resultCount: '{count} 個例句',
+  emptyTxt: 'TXT 檔案中沒有可用例句。', importedTxt: '已匯入 {count} 個例句；選取「產生 Gloss」開始處理。', bidiControl: '輸入含有 Unicode 方向控制符，請移除 RLO/LRO/embedding/isolate 控制符；頁面會安全處理書寫方向。', example: '例句', token: '詞項', resultCount: '{count} 個例句',
   batchFailed: '第 {line} 行產生失敗：{error}', badProject: '專案檔案中沒有有效結果。', invalidResponse: '後端傳回無效回應', modelUnavailable: '；模型名稱不在清單中',
 };
 
@@ -108,39 +124,123 @@ function applyLang() {
     const value = I18N[state.lang][element.dataset.i18nOpt];
     if (value) element.textContent = value;
   });
-  $('.help-zh').classList.toggle('hidden', state.lang !== 'zh');
-  $('.help-zh-hant').classList.toggle('hidden', state.lang !== 'zh-Hant');
-  $('.help-en').classList.toggle('hidden', state.lang !== 'en');
-  $('.api-help-zh').classList.toggle('hidden', state.lang !== 'zh');
-  $('.api-help-zh-hant').classList.toggle('hidden', state.lang !== 'zh-Hant');
-  $('.api-help-en').classList.toggle('hidden', state.lang !== 'en');
+  [['.help-zh', 'zh'], ['.help-zh-hant', 'zh-Hant'], ['.help-en', 'en'], ['.api-help-zh', 'zh'], ['.api-help-zh-hant', 'zh-Hant'], ['.api-help-en', 'en']].forEach(([selector, language]) => {
+    const element = $(selector);
+    if (element) element.classList.toggle('hidden', state.lang !== language);
+  });
   document.querySelectorAll('[data-lang]').forEach(button => {
     const active = button.dataset.lang === state.lang;
     button.classList.toggle('active', active);
     button.setAttribute('aria-pressed', String(active));
   });
+  if (workspaceType === 'multilingual' && state.languageProfiles.length) {
+    const current = $('#languagePreset').value;
+    [...$('#languagePreset').options].forEach(option => {
+      const profile = state.languageProfiles.find(item => item.id === option.value);
+      if (profile) option.textContent = profile.labels[state.lang] || profile.labels.en;
+    });
+    $('#languagePreset').value = current;
+    const profile = selectedLanguageProfile();
+    populateScriptVariants(profile, $('#scriptVariant')?.value || '');
+    applyProfileLabels(profile);
+  }
   ['#btnCloseHelp', '#btnCloseApiHelp'].forEach(selector => {
-    $(selector).setAttribute('aria-label', t('close'));
-    $(selector).title = t('close');
+    const control = $(selector);
+    if (control) { control.setAttribute('aria-label', t('close')); control.title = t('close'); }
   });
+  renderAIServiceSummary();
   if (hasResults()) renderEditor();
 }
 
-function providerChanged() {
-  $('#model').value = defaults[$('#provider').value];
-  setStatus($('#apiStatus'), '');
-}
 function applyInterfaceLanguage(language) {
   if (language === state.lang) return;
   state.lang = language;
-  const settings = defaultAISettings(language);
-  $('#provider').value = settings.provider;
-  $('#model').value = settings.model;
-  setStatus($('#apiStatus'), '');
   applyLang();
+}
+function aiCredentialMessage() {
+  const configured = state.configuredProviders.includes(state.aiSettings.provider);
+  if (state.lang === 'en') return configured ? 'Credential configured in this browser' : 'Credential not configured';
+  if (state.lang === 'zh-Hant') return configured ? '此瀏覽器已設定憑證' : '尚未設定憑證';
+  return configured ? '此浏览器已配置凭据' : '尚未配置凭据';
+}
+function renderAIServiceSummary() {
+  const service = $('#aiServiceName');
+  const status = $('#aiCredentialState');
+  if (service) service.textContent = `${state.aiSettings.provider} · ${state.aiSettings.model}`;
+  if (status) status.textContent = aiCredentialMessage();
+}
+async function refreshCredentialStatus() {
+  try {
+    const response = await fetch('api/credentials/', {credentials: 'same-origin', cache: 'no-store'});
+    const data = await response.json();
+    state.configuredProviders = Array.isArray(data.configured_providers) ? data.configured_providers : [];
+  } catch (error) {
+    state.configuredProviders = [];
+  }
+  renderAIServiceSummary();
 }
 function selectedPinyinMode() {
   return document.querySelector('input[name="pinyinMode"]:checked')?.value || 'tone_marks';
+}
+function selectedLanguageProfile() {
+  return state.languageProfiles.find(profile => profile.id === $('#languagePreset').value) || null;
+}
+function selectedScriptVariant() {
+  const profile = selectedLanguageProfile();
+  return profile?.script_variants.find(variant => variant.id === $('#scriptVariant')?.value) || profile?.script_variants[0] || null;
+}
+function currentDirection() { return selectedScriptVariant()?.direction === 'rtl' ? 'rtl' : 'ltr'; }
+function populateScriptVariants(profile, preferred = '') {
+  const select = $('#scriptVariant');
+  if (!select || !profile) return;
+  select.replaceChildren(...profile.script_variants.map(variant => {
+    const option = document.createElement('option');
+    option.value = variant.id;
+    option.textContent = variant.input_label[state.lang] || variant.input_label.en;
+    return option;
+  }));
+  if (profile.script_variants.some(variant => variant.id === preferred)) select.value = preferred;
+}
+function applyProfileLabels(profile) {
+  if (!profile) return;
+  const primary = $('#transcriptionSystem');
+  if (primary) {
+    const recommended = profile.primary_transcription || '';
+    const values = recommended ? [recommended, 'IPA', 'Other'] : ['', 'IPA', 'Other'];
+    primary.replaceChildren(...values.map(value => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value || (state.lang === 'en' ? 'None' : '无');
+      return option;
+    }));
+  }
+  document.querySelectorAll('[data-primary-line-label]').forEach(element => {
+    element.textContent = state.lang === 'en' ? 'Primary transcription' : (state.lang === 'zh-Hant' ? '主要轉寫' : '主要转写');
+  });
+  const sentence = $('#sentence');
+  if (sentence) {
+    sentence.dir = currentDirection();
+    sentence.lang = selectedScriptVariant()?.bcp47 || profile.bcp47;
+  }
+}
+async function initializeLanguageProfiles() {
+  if (workspaceType !== 'multilingual') return;
+  const response = await fetch('language-profiles.json', {cache: 'no-store'});
+  if (!response.ok) throw new Error('Language profile registry is unavailable.');
+  state.languageProfiles = await response.json();
+  const select = $('#languagePreset');
+  const preferred = select.value || state.languageProfiles[0]?.id;
+  select.replaceChildren(...state.languageProfiles.map(profile => {
+    const option = document.createElement('option');
+    option.value = profile.id;
+    option.textContent = profile.labels[state.lang] || profile.labels.en;
+    return option;
+  }));
+  if (state.languageProfiles.some(profile => profile.id === preferred)) select.value = preferred;
+  const profile = selectedLanguageProfile();
+  populateScriptVariants(profile);
+  applyProfileLabels(profile);
+  languageChanged(true);
 }
 function setPinyinMode(value) {
   const valid = ['tone_marks', 'tone_numbers', 'no_tone'].includes(value) ? value : 'tone_marks';
@@ -148,15 +248,47 @@ function setPinyinMode(value) {
   if (control) control.checked = true;
 }
 function selectedOtherTranscriptionSystem() {
+  if (workspaceType === 'multilingual') {
+    const secondary = selectedSecondaryAnnotationSystem();
+    return secondary === 'Chinese aligned gloss' ? '' : secondary;
+  }
   return $('#languagePreset').value === 'Mandarin Chinese' ? $('#otherTranscriptionSystem').value : $('#transcriptionSystem').value;
 }
+function selectedSecondaryAnnotationSystem() {
+  const control = $('#nonMandarinAnnotation');
+  return control ? control.value : '';
+}
+function wantsChineseGloss() { return selectedSecondaryAnnotationSystem() === 'Chinese aligned gloss'; }
 function languageChanged(setRecommended = true) {
   const value = $('#languagePreset').value;
   const isHanzi = $('#inputFormat').value === 'hanzi';
   const isMandarin = value === 'Mandarin Chinese';
+  if (workspaceType === 'multilingual') {
+    const profile = selectedLanguageProfile();
+    populateScriptVariants(profile, $('#scriptVariant')?.value || '');
+    applyProfileLabels(profile);
+    $('#customLanguageWrap').style.display = 'none';
+    $('#mandarinTranscriptionSettings').style.display = 'none';
+    $('#transcriptionWrap').style.display = 'block';
+    if ($('#nonMandarinAnnotationWrap')) $('#nonMandarinAnnotationWrap').style.display = 'block';
+    ['#showChineseGloss', '#showChineseTranslation'].forEach(selector => { if ($(selector)) $(selector).closest('label').style.display = 'flex'; });
+    ['chineseGloss', 'chineseFree'].forEach(key => { const row = document.querySelector(`[data-style-row="${key}"]`); if (row) row.style.display = 'table-row'; });
+    if (hasResults()) renderEditor();
+    return;
+  }
   $('#customLanguageWrap').style.display = value === 'custom' ? 'block' : 'none';
   $('#mandarinTranscriptionSettings').style.display = isHanzi && isMandarin ? 'block' : 'none';
   $('#transcriptionWrap').style.display = isHanzi && !isMandarin ? 'block' : 'none';
+  const annotationWrap = $('#nonMandarinAnnotationWrap');
+  if (annotationWrap) annotationWrap.style.display = !isMandarin ? 'block' : 'none';
+  ['#showChineseGloss', '#showChineseTranslation'].forEach(selector => {
+    const control = $(selector);
+    if (control) control.closest('label').style.display = isMandarin ? 'none' : 'flex';
+  });
+  ['chineseGloss', 'chineseFree'].forEach(key => {
+    const row = document.querySelector(`[data-style-row="${key}"]`);
+    if (row) row.style.display = isMandarin ? 'none' : 'table-row';
+  });
   if (setRecommended && isHanzi) {
     if (isMandarin) {
       setPinyinMode('tone_marks');
@@ -164,6 +296,10 @@ function languageChanged(setRecommended = true) {
       $('#showTranscription').checked = false;
     } else if (value === 'Cantonese') {
       $('#transcriptionSystem').value = 'Jyutping';
+      $('#showTranscription').checked = true;
+    } else if (value === 'Southern Min Chinese') {
+      $('#transcriptionSystem').value = 'Tâi-lô';
+      $('#showPinyin').checked = false;
       $('#showTranscription').checked = true;
     } else {
       $('#transcriptionSystem').value = 'Other';
@@ -176,34 +312,35 @@ function inputFormatChanged() {
   languageChanged(false);
 }
 function getLanguage() {
+  if (workspaceType === 'multilingual') return selectedLanguageProfile()?.labels.en || $('#languagePreset').value;
   return $('#languagePreset').value === 'custom' ? ($('#customLanguage').value.trim() || 'Chinese variety') : $('#languagePreset').value;
 }
 function inputExamples() { return parseExampleLines($('#sentence').value); }
 function getPayload(sentence = '') {
+  const secondary = selectedSecondaryAnnotationSystem();
   return {
-    provider: $('#provider').value,
-    model: $('#model').value.trim(),
-    api_key: $('#apiKey').value.trim(),
+    provider: state.aiSettings.provider,
+    model: state.aiSettings.model,
+    workspace: workspaceType,
+    language_profile_id: workspaceType === 'multilingual' ? $('#languagePreset').value : '',
+    script_variant: workspaceType === 'multilingual' ? ($('#scriptVariant')?.value || '') : '',
+    primary_transcription_system: workspaceType === 'multilingual' ? $('#transcriptionSystem').value : '',
     language: getLanguage(),
     input_format: $('#inputFormat').value,
     pinyin_mode: selectedPinyinMode(),
     other_transcription_system: selectedOtherTranscriptionSystem(),
     transcription_system: selectedOtherTranscriptionSystem() || 'Pinyin',
+    secondary_annotation_system: secondary === 'Chinese aligned gloss' ? '' : secondary,
+    include_chinese_gloss: wantsChineseGloss(),
+    extended_output: getLanguage() !== 'Mandarin Chinese',
     conventions: $('#conventions').value,
     sentence,
   };
 }
-function validateKeyShape(payload, statusElement) {
-  if (/\s/.test(payload.api_key)) {
-    setStatus(statusElement, t('badKeyFormat'), 'bad');
-    return false;
-  }
-  return true;
-}
 async function postJSON(url, payload) {
   let response;
   try {
-    response = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)});
+    response = await fetch(url, {method: 'POST', headers: credentialRequestHeaders(), credentials: 'same-origin', body: JSON.stringify(payload)});
   } catch (error) {
     throw new Error(t('localUnavailable'));
   }
@@ -217,27 +354,12 @@ async function postJSON(url, payload) {
   if (!response.ok || data.ok === false) throw new Error(data.error || `HTTP ${response.status}`);
   return data;
 }
-async function validateAPI() {
-  const payload = getPayload(inputExamples()[0] || '');
-  if (!payload.api_key) return setStatus($('#apiStatus'), t('needKey'), 'bad');
-  if (!validateKeyShape(payload, $('#apiStatus'))) return;
-  if (!payload.model) return setStatus($('#apiStatus'), t('needModel'), 'bad');
-  setStatus($('#apiStatus'), t('validating'));
-  try {
-    const data = await postJSON('api/validate/', payload);
-    const unavailable = data.model_available === false;
-    const suffix = unavailable ? t('modelUnavailable') : '';
-    setStatus($('#apiStatus'), t('valid') + suffix, unavailable ? 'warn' : 'good');
-  } catch (error) {
-    setStatus($('#apiStatus'), `${t('invalid')}: ${error.message}`, 'bad');
-  }
-}
 async function analyze() {
   const sentences = inputExamples();
   const basePayload = getPayload(sentences[0] || '');
   if (!sentences.length) return setStatus($('#workStatus'), t('needInput'), 'bad');
-  if (!basePayload.api_key) return setStatus($('#workStatus'), t('needKey'), 'bad');
-  if (!validateKeyShape(basePayload, $('#workStatus'))) return;
+  if (/[\u202A-\u202E\u2066-\u2069]/u.test($('#sentence').value)) return setStatus($('#workStatus'), t('bidiControl'), 'bad');
+  if (!state.configuredProviders.includes(basePayload.provider)) return setStatus($('#workStatus'), t('needKey'), 'bad');
   if (!basePayload.model) return setStatus($('#workStatus'), t('needModel'), 'bad');
 
   $('#btnAnalyze').disabled = true;
@@ -328,18 +450,21 @@ function stripNeutralToneZero(value) { return String(value ?? '').replace(/([\p{
 function ensureResult(result) {
   const normalized = result && typeof result === 'object' ? result : {tokens: []};
   const isHanzi = $('#inputFormat').value === 'hanzi';
+  const isSinitic = workspaceType === 'sinitic';
   const isOtherPinyin = selectedOtherTranscriptionSystem().toLowerCase() === 'pinyin';
   normalized.tokens = Array.isArray(normalized.tokens) ? normalized.tokens.map(token => {
     const transcription = String(token.transcription ?? '');
     const pinyin = String(token.pinyin_diacritic ?? token.transcription ?? '');
     return {
       form: String(token.form ?? ''),
-      transcription: isHanzi && isOtherPinyin ? stripNeutralToneZero(transcription) : transcription,
-      pinyin_diacritic: isHanzi ? stripNeutralToneZero(pinyin) : pinyin,
+      transcription: isSinitic && isHanzi && isOtherPinyin ? stripNeutralToneZero(transcription) : transcription,
+      pinyin_diacritic: isSinitic && isHanzi ? stripNeutralToneZero(pinyin) : pinyin,
+      chinese_gloss: String(token.chinese_gloss ?? ''),
       gloss: String(token.gloss ?? ''),
     };
   }) : [];
   normalized.free_translation = String(normalized.free_translation ?? '');
+  normalized.chinese_free_translation = String(normalized.chinese_free_translation ?? '');
   normalized.note = String(normalized.note ?? '');
   return normalized;
 }
@@ -351,34 +476,43 @@ function syncFromEditor() {
     const forms = read('form');
     const transcriptions = read('transcription');
     const pinyin = read('pinyin_diacritic');
+    const chineseGlosses = read('chinese_gloss');
     const glosses = read('gloss');
     result.tokens = result.tokens.map((token, tokenIndex) => ({
       form: forms[tokenIndex] ?? token.form,
       transcription: transcriptions[tokenIndex] ?? token.transcription,
       pinyin_diacritic: pinyin[tokenIndex] ?? token.pinyin_diacritic,
+      chinese_gloss: chineseGlosses[tokenIndex] ?? token.chinese_gloss,
       gloss: glosses[tokenIndex] ?? token.gloss,
     }));
     const translation = root.querySelector('[data-free-translation]');
     if (translation) result.free_translation = translation.value;
+    const chineseTranslation = root.querySelector('[data-chinese-free-translation]');
+    if (chineseTranslation) result.chinese_free_translation = chineseTranslation.value;
   });
 }
 function editorFieldHTML(exampleIndex, tokenIndex, label, field, value, className, styleKey) {
   const ariaLabel = `${t('example')} ${exampleIndex + 1}, ${t('token')} ${tokenIndex + 1}, ${label}`;
-  return `<div class="token-editor-line" data-edit-style="${styleKey}"><span class="token-editor-label">${esc(label)}</span><div class="editable ${className}" contenteditable="true" role="textbox" aria-label="${esc(ariaLabel)}" spellcheck="false" data-field="${field}" data-i="${tokenIndex}">${esc(value)}</div></div>`;
+  const direction = field === 'form' ? currentDirection() : 'ltr';
+  const language = field === 'form' ? (selectedScriptVariant()?.bcp47 || '') : '';
+  return `<div class="token-editor-line" data-edit-style="${styleKey}"><span class="token-editor-label">${esc(label)}</span><div class="editable ${className}" contenteditable="true" role="textbox" aria-label="${esc(ariaLabel)}" spellcheck="false" dir="${direction}"${language ? ` lang="${esc(language)}"` : ''} data-field="${field}" data-i="${tokenIndex}">${esc(value)}</div></div>`;
 }
 function editorExampleHTML(result, exampleIndex) {
   const hasOtherAnnotation = Boolean(selectedOtherTranscriptionSystem()) || result.tokens.some(token => String(token.transcription ?? '').trim());
+  const hasChineseLayers = getLanguage() !== 'Mandarin Chinese' || result.tokens.some(token => String(token.chinese_gloss ?? '').trim()) || result.chinese_free_translation;
   const tokenCards = tokenEditorItems(result).map(token => `<section class="token-editor-card" data-token-index="${token.index}" aria-label="${esc(`${t('example')} ${exampleIndex + 1}, ${t('token')} ${token.index + 1}`)}">
     <div class="token-editor-index">${esc(t('token'))} ${token.index + 1}</div>
     ${editorFieldHTML(exampleIndex, token.index, t('form'), 'form', token.form, 'formcell', 'form')}
     ${editorFieldHTML(exampleIndex, token.index, t('pinyinOutput'), 'pinyin_diacritic', token.pinyin_diacritic, 'transcell', 'pinyin')}
     ${hasOtherAnnotation ? editorFieldHTML(exampleIndex, token.index, t('otherTranscriptionOutput'), 'transcription', token.transcription, 'transcell', 'transcription') : ''}
+    ${hasChineseLayers ? editorFieldHTML(exampleIndex, token.index, t('chineseGloss'), 'chinese_gloss', token.chinese_gloss, 'transcell', 'chineseGloss') : ''}
     ${editorFieldHTML(exampleIndex, token.index, t('gloss'), 'gloss', token.gloss, 'glosscell', 'gloss')}
   </section>`).join('');
   return `<article class="editor-example" data-example-editor="${exampleIndex}">
     <div class="editor-example-head"><span class="editor-example-title">${esc(t('example'))} ${exampleIndex + 1}</span><span class="editor-example-status">${esc(t('aligned'))}</span></div>
-    <div class="token-editor-grid">${tokenCards}</div>
+    <div class="token-editor-grid ${currentDirection() === 'rtl' ? 'rtl' : ''}">${tokenCards}</div>
     <div class="translation-row"><label for="freeTranslation-${exampleIndex}">${esc(t('freeTranslation'))}</label><input type="text" id="freeTranslation-${exampleIndex}" data-free-translation value="${esc(result.free_translation)}" placeholder="I have already eaten three apples."></div>
+    ${hasChineseLayers ? `<div class="translation-row"><label for="chineseFreeTranslation-${exampleIndex}">${esc(t('chineseFreeTranslation'))}</label><input type="text" id="chineseFreeTranslation-${exampleIndex}" data-chinese-free-translation value="${esc(result.chinese_free_translation)}" placeholder="我已经吃了三个苹果。"></div>` : ''}
     <div class="note model-note">${esc(result.note)}</div>
   </article>`;
 }
@@ -393,6 +527,10 @@ function renderEditor() {
     input.style.cssText = styleCss('free');
     input.addEventListener('input', resultChanged);
   });
+  document.querySelectorAll('[data-chinese-free-translation]').forEach(input => {
+    input.style.cssText = styleCss('chineseFree');
+    input.addEventListener('input', resultChanged);
+  });
   document.querySelectorAll('.editable').forEach(element => element.addEventListener('input', resultChanged));
   $('#resultCount').textContent = t('resultCount', {count: state.results.length});
   renderPreview();
@@ -404,8 +542,10 @@ function outputOptions() {
     form: $('#showForm').checked,
     transcription: $('#showTranscription').checked,
     pinyin_diacritic: $('#showPinyin').checked,
+    chinese_gloss: $('#showChineseGloss').checked,
     gloss: $('#showGloss').checked,
     translation: $('#showTranslation').checked,
+    chinese_translation: $('#showChineseTranslation').checked,
   };
 }
 function selectedNumber(exampleIndex) {
@@ -420,19 +560,22 @@ function outputRows(result) {
   if (options.form) rows.push({key: 'form', styleKey: 'form', values: tokens.map(token => token.form)});
   if (options.pinyin_diacritic) rows.push({key: 'pinyin', styleKey: 'pinyin', values: tokens.map(token => token.pinyin_diacritic)});
   if (options.transcription) rows.push({key: 'transcription', styleKey: 'transcription', values: tokens.map(token => token.transcription)});
+  if (options.chinese_gloss) rows.push({key: 'chinese-gloss', styleKey: 'chineseGloss', values: tokens.map(token => token.chinese_gloss)});
   if (options.gloss) rows.push({key: 'gloss', styleKey: 'gloss', values: tokens.map(token => token.gloss)});
   if (options.translation) rows.push({key: 'free', styleKey: 'free', text: `‘${result.free_translation}’`});
+  if (options.chinese_translation) rows.push({key: 'chinese-free', styleKey: 'chineseFree', text: `“${result.chinese_free_translation}”`});
   return rows;
 }
 function publicationTableHTML(result, exampleIndex, glossFormatter = formatGlossHtml) {
   const rows = outputRows(result);
   const number = selectedNumber(exampleIndex);
   const tokenCount = result.tokens.length;
-  return `<table class="pubtable"><tbody>${rows.map((row, rowIndex) => {
+  const rtl = currentDirection() === 'rtl';
+  return `<table class="pubtable${rtl ? ' rtl' : ''}"${rtl ? ' dir="rtl"' : ''}><tbody>${rows.map((row, rowIndex) => {
     let html = `<tr class="${row.key}" style="${esc(styleCss(row.styleKey))}">`;
     if (rowIndex === 0 && number) html += `<td class="num" rowspan="${rows.length}" valign="top" style="vertical-align:top">${esc(number)}</td>`;
-    if (row.key === 'free') html += `<td colspan="${Math.max(1, tokenCount)}">${esc(row.text)}</td>`;
-    else html += row.values.map(value => `<td>${row.key === 'gloss' ? glossFormatter(value) : esc(value)}</td>`).join('');
+    if (row.text !== undefined) html += `<td colspan="${Math.max(1, tokenCount)}">${esc(row.text)}</td>`;
+    else html += row.values.map(value => `<td dir="${row.key === 'form' && rtl ? 'rtl' : 'ltr'}">${row.key === 'gloss' ? glossFormatter(value) : esc(value)}</td>`).join('');
     return `${html}</tr>`;
   }).join('')}</tbody></table>`;
 }
@@ -458,7 +601,7 @@ function plainText() {
   return state.results.map((result, exampleIndex) => {
     const rows = outputRows(result);
     const number = selectedNumber(exampleIndex);
-    return rows.map((row, rowIndex) => `${number ? `${rowIndex === 0 ? number : ''}\t` : ''}${row.key === 'free' ? row.text : row.values.join('\t')}`).join('\n');
+    return rows.map((row, rowIndex) => `${number ? `${rowIndex === 0 ? number : ''}\t` : ''}${row.text !== undefined ? row.text : row.values.join('\t')}`).join('\n');
   }).join('\n\n');
 }
 function inlineGlossHtml(value) {
@@ -469,17 +612,18 @@ function mdTable(result, exampleIndex) {
   const number = selectedNumber(exampleIndex);
   const tokenCount = result.tokens.length;
   const cells = row => row.values.map(value => `<td style="border:none;padding:0 12px 0 0;white-space:nowrap;${esc(styleCss(row.styleKey))}">${row.key === 'gloss' ? inlineGlossHtml(value) : esc(value)}</td>`).join('');
-  return `<table style="border-collapse:separate;border-spacing:0 4px;border:none">\n${rows.map((row, rowIndex) => {
+  const direction = currentDirection() === 'rtl' ? 'direction:rtl;' : '';
+  return `<table style="border-collapse:separate;border-spacing:0 4px;border:none;${direction}">\n${rows.map((row, rowIndex) => {
     let html = '<tr>';
     if (rowIndex === 0 && number) html += `<td rowspan="${rows.length}" style="border:none;padding:0 12px 0 0;vertical-align:top;${esc(styleCss(row.styleKey))}">${esc(number)}</td>`;
-    html += row.key === 'free' ? `<td colspan="${Math.max(1, tokenCount)}" style="border:none;padding-top:6px;${esc(styleCss(row.styleKey))}">${esc(row.text)}</td>` : cells(row);
+    html += row.text !== undefined ? `<td colspan="${Math.max(1, tokenCount)}" style="border:none;padding-top:6px;${esc(styleCss(row.styleKey))}">${esc(row.text)}</td>` : cells(row);
     return `${html}</tr>`;
   }).join('\n')}\n</table>`;
 }
 function mdHTML() { syncFromEditor(); return state.results.map(mdTable).join('\n\n'); }
 async function copyTable() {
   if (!requireOutput()) return;
-  const html = `<!doctype html><meta charset="utf-8"><style>.example-preview+.example-preview{margin-top:18px}table{border-collapse:separate;border-spacing:0 4px}td{border:none;padding:0 14px 0 0;white-space:nowrap}td.num{vertical-align:top!important}.free td{padding-top:6px}</style>${publicationHTML(false, formatGlossHtmlForWord)}`;
+  const html = `<!doctype html><meta charset="utf-8"><style>.example-preview+.example-preview{margin-top:18px}table{border-collapse:separate;border-spacing:0 4px}td{border:none;padding:0 14px 0 0;white-space:nowrap}table.rtl{direction:rtl}table.rtl td{direction:ltr}table.rtl tr.form td{direction:rtl;text-align:right}td.num{vertical-align:top!important}.free td,.chinese-free td{padding-top:6px}</style>${publicationHTML(false, formatGlossHtmlForWord)}`;
   const plain = plainText();
   try {
     if (window.ClipboardItem) {
@@ -502,30 +646,35 @@ function getOutputSettings() {
     form: $('#showForm').checked,
     transcription: $('#showTranscription').checked,
     pinyin_diacritic: $('#showPinyin').checked,
+    chinese_gloss: $('#showChineseGloss').checked,
     gloss: $('#showGloss').checked,
     translation: $('#showTranslation').checked,
+    chinese_translation: $('#showChineseTranslation').checked,
   };
 }
 function getProject() {
   syncFromEditor();
   return {
-    version: '1.0',
+    version: '2.0',
     saved_at: new Date().toISOString(),
     settings: {
       languagePreset: $('#languagePreset').value,
+      workspace: workspaceType,
+      scriptVariant: $('#scriptVariant')?.value || '',
       customLanguage: $('#customLanguage').value,
       inputFormat: $('#inputFormat').value,
       pinyinMode: selectedPinyinMode(),
       otherTranscriptionSystem: $('#otherTranscriptionSystem').value,
       transcriptionSystem: $('#transcriptionSystem').value,
+      nonMandarinAnnotation: selectedSecondaryAnnotationSystem(),
       numberingMode: $('#numberingMode').value,
       startNumber: normalizeStartNumber($('#startNumber').value),
       startLetter: normalizeStartLetter($('#startLetter').value),
       output: getOutputSettings(),
       typography: state.typography,
       rememberTypography: state.rememberTypography,
-      provider: $('#provider').value,
-      model: $('#model').value,
+      provider: state.aiSettings.provider,
+      model: state.aiSettings.model,
       conventions: $('#conventions').value,
     },
     sentence: $('#sentence').value,
@@ -555,6 +704,7 @@ function loadProjectObj(project, options = {}) {
   } else {
     $('#otherTranscriptionSystem').value = '';
   }
+  if ($('#nonMandarinAnnotation')) $('#nonMandarinAnnotation').value = settings.nonMandarinAnnotation || '';
   const savedNumberingMode = settings.numberingMode || (settings.includeNumber === false ? 'none' : 'continuous');
   $('#numberingMode').value = ['none', 'continuous', 'alphabetic', 'alphabetic-dot'].includes(savedNumberingMode) ? savedNumberingMode : 'continuous';
   $('#startNumber').value = normalizeStartNumber(settings.startNumber ?? legacyStartNumber(settings.exampleNo));
@@ -562,25 +712,36 @@ function loadProjectObj(project, options = {}) {
   applyChecked('#showForm', output.form);
   applyChecked('#showTranscription', output.transcription, false);
   applyChecked('#showPinyin', output.pinyin_diacritic);
+  applyChecked('#showChineseGloss', output.chinese_gloss, false);
   applyChecked('#showGloss', output.gloss);
   applyChecked('#showTranslation', output.translation);
+  applyChecked('#showChineseTranslation', output.chinese_translation, false);
   state.rememberTypography = settings.rememberTypography !== false;
   state.typography = options.fromAutosave && !state.rememberTypography ? normalizeTypography(DEFAULT_TYPOGRAPHY) : normalizeTypography(settings.typography || state.typography);
   renderTypographyControls();
   rememberTypography();
-  $('#provider').value = settings.provider || 'deepseek';
-  $('#model').value = settings.model ?? defaults[$('#provider').value];
+  if (settings.provider || settings.model) {
+    state.aiSettings = saveAISettings(normalizeAISettings({provider: settings.provider, model: settings.model}, state.lang), state.lang);
+    renderAIServiceSummary();
+  }
   $('#conventions').value = settings.conventions || $('#conventions').value;
   $('#sentence').value = project.sentence || loadedResults.map(result => (result.tokens || []).map(token => token.form || '').join(' ')).join('\n');
   state.results = loadedResults.map(ensureResult);
   languageChanged(false);
+  if (workspaceType === 'multilingual') {
+    populateScriptVariants(selectedLanguageProfile(), settings.scriptVariant || '');
+    applyProfileLabels(selectedLanguageProfile());
+    if ([...$('#transcriptionSystem').options].some(option => option.value === legacyTranscriptionSystem)) {
+      $('#transcriptionSystem').value = legacyTranscriptionSystem;
+    }
+  }
   inputFormatChanged();
   revealResults();
   renderEditor();
   setStatus($('#workStatus'), t('loaded'), 'good');
 }
 function persist() {
-  try { if (hasResults()) localStorage.setItem('chineseGlossToolAutosave', JSON.stringify(getProject())); }
+  try { if (hasResults()) localStorage.setItem(autosaveKey, JSON.stringify(getProject())); }
   catch (error) {}
 }
 function downloadBlob(blob, name) {
@@ -592,10 +753,36 @@ function downloadBlob(blob, name) {
   setTimeout(() => { URL.revokeObjectURL(anchor.href); anchor.remove(); }, 500);
 }
 function saveProject() {
-  downloadBlob(new Blob([JSON.stringify(getProject(), null, 2)], {type: 'application/json'}), 'chinese-gloss-project-1.0.json');
+  downloadBlob(new Blob([JSON.stringify(getProject(), null, 2)], {type: 'application/json'}), 'leipzig-gloss-project-2.0.json');
   setStatus($('#workStatus'), t('saved'), 'good');
 }
 function demo() {
+  if (workspaceType === 'multilingual') {
+    $('#languagePreset').value = 'uyghur';
+    languageChanged(true);
+    $('#scriptVariant').value = 'ug-Arab';
+    scriptVariantChanged();
+    $('#nonMandarinAnnotation').value = 'Chinese aligned gloss';
+    $('#sentence').value = 'مۇخبىر گېزىت بېسىپ چىقاردى';
+    $('#showChineseGloss').checked = true;
+    $('#showChineseTranslation').checked = true;
+    state.results = [{
+      tokens: [
+        {form:'مۇخبىر',pinyin_diacritic:'muxbir',transcription:'',chinese_gloss:'记者',gloss:'reporter'},
+        {form:'گېزىت',pinyin_diacritic:'gëzit',transcription:'',chinese_gloss:'报纸',gloss:'newspaper'},
+        {form:'بېسىپ',pinyin_diacritic:'bësip',transcription:'',chinese_gloss:'印着',gloss:'print.CVB'},
+        {form:'چىقاردى',pinyin_diacritic:'chiqardi',transcription:'',chinese_gloss:'出了',gloss:'take.out-PST.3SG'},
+      ],
+      free_translation:'The reporter printed the newspaper.',
+      chinese_free_translation:'记者把报纸印了出来。',
+      note:'Mechanical ULY candidate; linguistic analysis requires researcher review.',
+    }].map(ensureResult);
+    revealResults();
+    renderEditor();
+    persist();
+    setStatus($('#workStatus'), t('generated', {count: 1}), 'good');
+    return;
+  }
   $('#languagePreset').value = 'Mandarin Chinese';
   $('#inputFormat').value = 'hanzi';
   setPinyinMode('tone_marks');
@@ -641,7 +828,7 @@ function clearAll() {
   $('#editExamples').innerHTML = '';
   hideResults();
   setStatus($('#workStatus'), '');
-  localStorage.removeItem('chineseGlossToolAutosave');
+  localStorage.removeItem(autosaveKey);
 }
 async function importTxt(event) {
   const file = event.target.files[0];
@@ -686,12 +873,12 @@ function measureSvgExample(result, exampleIndex, context) {
   context.font = canvasFont(rows[0].styleKey);
   const numberWidth = number ? context.measureText(number).width + 18 : 0;
   const contentWidth = widths.reduce((sum, width) => sum + width, 0);
-  const freeRow = rows.find(row => row.key === 'free');
+  const freeRows = rows.filter(row => row.text !== undefined);
   let freeWidth = 0;
-  if (freeRow) { context.font = canvasFont(freeRow.styleKey); freeWidth = context.measureText(freeRow.text).width; }
+  freeRows.forEach(row => { context.font = canvasFont(row.styleKey); freeWidth = Math.max(freeWidth, context.measureText(row.text).width); });
   const rowHeights = rows.map(row => Math.max(22, state.typography[row.styleKey].size * 96 / 72 * 1.55));
   return {
-    rows, widths, number, numberWidth, rowHeights, pad,
+    rows, widths, number, numberWidth, rowHeights, pad, contentWidth, rtl: currentDirection() === 'rtl',
     width: Math.ceil(pad * 2 + numberWidth + Math.max(contentWidth, freeWidth)),
     height: Math.ceil(pad * 2 + rowHeights.reduce((sum, height) => sum + height, 0)),
   };
@@ -713,11 +900,13 @@ function makeSVG() {
     layout.rows.forEach((row, rowIndex) => {
       const baseline = top + state.typography[row.styleKey].size * 96 / 72;
       if (rowIndex === 0 && layout.number) parts.push(`<text x="${layout.pad}" y="${baseline}" ${svgTextAttributes(row.styleKey)}>${svgEscape(layout.number)}</text>`);
-      let x = contentX;
-      if (row.key === 'free') parts.push(`<text x="${x}" y="${baseline}" ${svgTextAttributes(row.styleKey)}>${svgEscape(row.text)}</text>`);
+      let x = row.text !== undefined ? contentX : (layout.rtl ? contentX + layout.contentWidth : contentX);
+      if (row.text !== undefined) parts.push(`<text x="${x}" y="${baseline}" ${svgTextAttributes(row.styleKey)}>${svgEscape(row.text)}</text>`);
       else row.values.forEach((value, tokenIndex) => {
-        parts.push(`<text x="${x}" y="${baseline}" ${svgTextAttributes(row.styleKey, row.key === 'gloss' && isGlossAbbreviation(value))}>${svgEscape(value)}</text>`);
-        x += layout.widths[tokenIndex];
+        if (layout.rtl) x -= layout.widths[tokenIndex];
+        const direction = row.key === 'form' && layout.rtl ? ' direction="rtl" unicode-bidi="isolate"' : '';
+        parts.push(`<text x="${x}" y="${baseline}"${direction} ${svgTextAttributes(row.styleKey, row.key === 'gloss' && isGlossAbbreviation(value))}>${svgEscape(value)}</text>`);
+        if (!layout.rtl) x += layout.widths[tokenIndex];
       });
       top += layout.rowHeights[rowIndex];
     });
@@ -758,14 +947,24 @@ function transcriptionSettingChanged(controlOutput = false) {
     persist();
   }
 }
+function auxiliaryAnnotationChanged() {
+  if ($('#showChineseGloss')) $('#showChineseGloss').checked = wantsChineseGloss();
+  if ($('#showTranscription') && workspaceType === 'multilingual') $('#showTranscription').checked = Boolean(selectedOtherTranscriptionSystem());
+  if (hasResults()) { renderEditor(); persist(); }
+}
+function scriptVariantChanged() {
+  const profile = selectedLanguageProfile();
+  applyProfileLabels(profile);
+  if (hasResults()) renderEditor();
+}
 
-$('#provider').addEventListener('change', providerChanged);
 $('#languagePreset').addEventListener('change', languageChanged);
+if ($('#scriptVariant')) $('#scriptVariant').addEventListener('change', scriptVariantChanged);
 $('#inputFormat').addEventListener('change', inputFormatChanged);
 document.querySelectorAll('input[name="pinyinMode"]').forEach(control => control.addEventListener('change', () => transcriptionSettingChanged(false)));
 $('#otherTranscriptionSystem').addEventListener('change', () => transcriptionSettingChanged(true));
 $('#transcriptionSystem').addEventListener('change', () => transcriptionSettingChanged(true));
-$('#btnValidate').addEventListener('click', validateAPI);
+if ($('#nonMandarinAnnotation')) $('#nonMandarinAnnotation').addEventListener('change', auxiliaryAnnotationChanged);
 $('#btnAnalyze').addEventListener('click', analyze);
 $('#btnDemo').addEventListener('click', demo);
 $('#btnImportTxt').addEventListener('click', () => $('#sentenceFile').click());
@@ -785,8 +984,7 @@ $('#fileOpen').addEventListener('change', async event => {
   event.target.value = '';
 });
 document.querySelectorAll('[data-lang]').forEach(button => button.addEventListener('click', () => applyInterfaceLanguage(button.dataset.lang)));
-$('#toggleKey').addEventListener('click', () => { $('#apiKey').type = $('#apiKey').type === 'password' ? 'text' : 'password'; });
-['#showForm', '#showTranscription', '#showPinyin', '#showGloss', '#showTranslation'].forEach(selector => $(selector).addEventListener('change', outputSettingChanged));
+['#showForm', '#showTranscription', '#showPinyin', '#showChineseGloss', '#showGloss', '#showTranslation', '#showChineseTranslation'].forEach(selector => $(selector).addEventListener('change', outputSettingChanged));
 $('#numberingMode').addEventListener('change', outputSettingChanged);
 $('#startNumber').addEventListener('input', outputSettingChanged);
 $('#startNumber').addEventListener('blur', () => {
@@ -798,12 +996,12 @@ document.querySelectorAll('.style-font,.style-bold,.style-italic').forEach(contr
 document.querySelectorAll('.style-size').forEach(control => control.addEventListener('input', typographyChanged));
 $('#rememberTypography').addEventListener('change', rememberTypographyChanged);
 $('#btnResetTypography').addEventListener('click', resetTypography);
-$('#btnApiHelp').addEventListener('click', () => $('#apiKeyDialog').showModal());
-$('#btnCloseApiHelp').addEventListener('click', () => $('#apiKeyDialog').close());
-$('#apiKeyDialog').addEventListener('click', event => { if (event.target === $('#apiKeyDialog')) $('#apiKeyDialog').close(); });
-$('#btnHelp').addEventListener('click', () => $('#helpDialog').showModal());
-$('#btnCloseHelp').addEventListener('click', () => $('#helpDialog').close());
-$('#helpDialog').addEventListener('click', event => { if (event.target === $('#helpDialog')) $('#helpDialog').close(); });
+if ($('#btnApiHelp')) $('#btnApiHelp').addEventListener('click', () => $('#apiKeyDialog')?.showModal());
+if ($('#btnCloseApiHelp')) $('#btnCloseApiHelp').addEventListener('click', () => $('#apiKeyDialog').close());
+if ($('#apiKeyDialog')) $('#apiKeyDialog').addEventListener('click', event => { if (event.target === $('#apiKeyDialog')) $('#apiKeyDialog').close(); });
+if ($('#btnHelp')) $('#btnHelp').addEventListener('click', () => $('#helpDialog')?.showModal());
+if ($('#btnCloseHelp')) $('#btnCloseHelp').addEventListener('click', () => $('#helpDialog').close());
+if ($('#helpDialog')) $('#helpDialog').addEventListener('click', event => { if (event.target === $('#helpDialog')) $('#helpDialog').close(); });
 window.addEventListener('beforeunload', persist);
 
 try {
@@ -812,9 +1010,17 @@ try {
 } catch (error) {}
 initializeTypographyControls();
 applyLang();
-languageChanged();
-inputFormatChanged();
-try {
-  const saved = localStorage.getItem('chineseGlossToolAutosave');
-  if (saved) loadProjectObj(JSON.parse(saved), {fromAutosave: true});
-} catch (error) {}
+renderAIServiceSummary();
+refreshCredentialStatus();
+async function initializeWorkspace() {
+  try {
+    if (workspaceType === 'multilingual') await initializeLanguageProfiles();
+    else languageChanged();
+    inputFormatChanged();
+    const saved = localStorage.getItem(autosaveKey);
+    if (saved) loadProjectObj(JSON.parse(saved), {fromAutosave: true});
+  } catch (error) {
+    setStatus($('#workStatus'), error.message, 'bad');
+  }
+}
+initializeWorkspace();

@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?build=20260815-1">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?build=20260815-1">
-<title>Merlin's Leipzig Gloss Tool 1.0</title>
+<title>Merlin's Leipzig Gloss Tool 2.0</title>
 <script src="typography.js?build=20260816-2"></script>
 <script src="batch.js?build=20260815-6"></script>
 <script src="interface-language.js?build=20260815-1"></script>
+<script src="ai-service.js?build=20260818-1"></script>
 <style>
 :root{
   --paper:#f3f0e9;--surface:#fffefa;--surface-2:#f8f6f0;--ink:#17242c;--muted:#69747a;
@@ -30,6 +31,8 @@ button{cursor:pointer}
 .brand-author{font:500 10px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC",Arial,sans-serif;color:var(--muted);letter-spacing:.025em;white-space:nowrap}
 .version{font:700 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.08em;color:var(--navy);border:1px solid rgba(23,63,82,.34);padding:4px 6px;text-transform:uppercase}
 .top-actions,.btnrow,.toolbar-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.workspace-nav{display:flex;align-items:center;gap:3px;flex-wrap:wrap}.workspace-nav a{padding:5px 8px;color:var(--navy);text-decoration:none;font-size:11px;border:1px solid transparent}.workspace-nav a[aria-current=page]{border-color:var(--rule-strong);background:var(--surface-2);font-weight:750}
+.ai-summary{padding:11px 12px;border:1px solid var(--rule);background:var(--surface-2)}.ai-summary strong{display:block;font-size:12px}.ai-summary span{display:block;color:var(--muted);font-size:11px;margin:3px 0 8px}.ai-summary a{font-size:12px;color:var(--navy);text-underline-offset:3px}
 .language-switch{display:flex;align-items:center;border:1px solid var(--rule-strong);border-radius:4px;overflow:hidden;background:var(--surface)}
 .language-switch button{min-width:34px;min-height:30px;padding:4px 8px;border:0;border-right:1px solid var(--rule);border-radius:0;background:transparent;font-size:11px;font-weight:700;color:#536168}
 .language-switch button:last-child{border-right:0}.language-switch button:hover{background:var(--surface-2);border-color:var(--rule)}
@@ -115,6 +118,7 @@ button:disabled{opacity:.48;cursor:not-allowed;transform:none}
 .example-preview{min-width:max-content}.example-preview+.example-preview{border-top:1px solid var(--rule);padding-top:18px}.example-preview-title{font-size:10px;font-weight:750;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
 .pubtable{border-collapse:separate;border-spacing:0 5px;width:auto;font-family:"Times New Roman","Songti SC","STSong","SimSun",serif;font-size:10.5pt;font-style:normal}
 .pubtable td{border:0;padding:0 17px 0 0;white-space:nowrap;vertical-align:baseline}
+.pubtable.rtl{direction:rtl}.pubtable.rtl td{direction:ltr;text-align:left}.pubtable.rtl tr.form td:not(.num){direction:rtl;text-align:right;unicode-bidi:isolate}.token-editor-grid.rtl{direction:rtl}.token-editor-grid.rtl .token-editor-card{direction:ltr}
 .pubtable td.num{padding-right:15px;color:#506068;vertical-align:baseline}
 .pubtable tr.free td{padding-top:7px;white-space:normal}
 .small-caps{font-variant-caps:all-small-caps;font-feature-settings:"smcp" 1,"c2sc" 1;letter-spacing:.035em}
@@ -140,15 +144,16 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
 @media(max-width:640px){.topbar{height:auto}.topbar-inner{padding:12px 15px;align-items:flex-start;flex-wrap:wrap}.brand-mark{width:36px;height:36px;border-radius:8px}.brand-copy{font-size:14px;white-space:normal}.brand-author{font-size:9px}.version{display:none}.top-actions{justify-content:flex-end;margin-left:auto}.shell{padding:14px 12px 28px;gap:14px}.sidebar,.main{padding:18px}.main-head{display:block}.main-head .btnrow{justify-content:flex-start;margin-top:12px}.sentence{font-size:16px}.preview-controls fieldset{display:grid;grid-template-columns:1fr 1fr}.number-controls{display:grid;grid-template-columns:1fr 1fr}.number-field select,.number-field input{width:100%;min-width:0}.token-editor-card{flex-basis:144px;min-width:min(144px,100%);max-width:none}.token-editor-line{grid-template-columns:44px minmax(0,1fr)}.typography-summary-note{display:none}.typography-actions{align-items:flex-start}.type-settings{min-width:500px}.type-settings th,.type-settings td{padding:7px 6px}.type-settings tbody th{width:84px}.type-settings select{min-width:155px}.type-settings input[type=number]{width:66px}.type-toggle{width:48px}.preview-canvas{padding:17px}.toolbar{align-items:flex-start}.toolbar-group{width:100%}.separator-label{width:100%;margin-top:5px}}
 </style>
 </head>
-<body>
+<body data-workspace="sinitic">
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
       <img class="brand-mark" src="assets/gloss-tool-icon-256.png?build=20260815-1" alt="Merlin's Leipzig Gloss Tool icon" width="44" height="44">
       <div class="brand-text"><div class="brand-copy">Merlin's Leipzig Gloss Tool</div><div class="brand-author">Developed by Merlin X. D. Yang</div></div>
-      <span class="version">v1.0</span>
+      <span class="version">v2.0</span>
     </div>
     <nav class="top-actions" aria-label="Utilities">
+      <div class="workspace-nav"><a href="./" aria-current="page">汉语</a><a href="multilingual.html">多语言</a><a href="ai-services.html">AI 服务</a></div>
       <button class="small ghost" id="btnDemo" data-i18n="demo">载入示例</button>
       <button class="small ghost" id="btnHelp" data-i18n="help">使用说明</button>
       <div class="language-switch" role="group" aria-label="界面语言 / Interface language">
@@ -164,32 +169,14 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
     <h1 class="section-title" data-i18n="settings">项目设置</h1>
 
     <h2 class="group-title" data-i18n="aiSettings">AI 服务</h2>
-    <div class="field">
-      <label for="provider" data-i18n="provider">服务商</label>
-      <select id="provider">
-        <option value="deepseek">DeepSeek</option><option value="openai">OpenAI</option><option value="claude">Claude / Anthropic</option><option value="openrouter">OpenRouter</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="model" data-i18n="model">模型名称</label>
-      <input id="model" type="text" value="deepseek-v4-flash" autocomplete="off">
-    </div>
-    <div class="field">
-      <label for="apiKey">API key</label>
-      <div class="api-key-wrap">
-        <input id="apiKey" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false" data-1p-ignore data-lpignore="true" data-form-type="other">
-        <button id="toggleKey" class="icon-button" type="button" aria-label="显示或隐藏 API key" title="显示或隐藏 API key">◉</button>
-      </div>
-      <div class="hint" data-i18n="keyHint">仅用于本次 API 请求，不会保存。</div>
-    </div>
-    <div class="btnrow"><button id="btnValidate" class="small" data-i18n="validate">验证 API</button><button id="btnApiHelp" class="text-link" type="button" data-i18n="apiKeyHelp">如何申请</button></div>
+    <div class="ai-summary"><strong id="aiServiceName">—</strong><span id="aiCredentialState">正在读取凭据状态…</span><a href="ai-services.html">管理 AI 服务与 API key</a> · <button id="btnApiHelp" class="text-link" type="button" data-i18n="apiKeyHelp">如何申请</button></div>
     <div class="status" id="apiStatus" role="status" aria-live="polite"></div>
 
     <div class="divider"></div>
     <h2 class="group-title" data-i18n="lingSettings">语言与转写</h2>
     <div class="field">
       <label for="languagePreset" data-i18n="variety">语言 / 方言</label>
-      <select id="languagePreset"><option value="Mandarin Chinese" data-i18n-opt="mandarin">普通话 / Mandarin</option><option value="Cantonese" data-i18n-opt="cantonese">粤语 / Cantonese</option><option value="custom" data-i18n-opt="other">其他 / Other</option></select>
+      <select id="languagePreset"><option value="Mandarin Chinese" data-i18n-opt="mandarin">普通话 / Mandarin</option><option value="Cantonese" data-i18n-opt="cantonese">粤语 / Cantonese</option><option value="Southern Min Chinese" data-i18n-opt="minnan">闽南语 / Southern Min</option><option value="custom" data-i18n-opt="other">其他 / Other</option></select>
     </div>
     <div class="field" id="customLanguageWrap" style="display:none">
       <label for="customLanguage" data-i18n="customVariety">自定义语言 / 方言名称</label>
@@ -224,8 +211,13 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
     </div>
     <div class="field" id="transcriptionWrap" style="display:none">
       <label for="transcriptionSystem" data-i18n="transcriptionSystem">主要转写体系</label>
-      <select id="transcriptionSystem"><option>Pinyin</option><option value="Jyutping" data-i18n-opt="jyutping">粤拼 / Jyutping</option><option value="Zhuyin" data-i18n-opt="zhuyin">注音符号 / Zhuyin</option><option value="IPA numeric tones" data-i18n-opt="ipaNumericTones">IPA + 数字声调</option><option value="IPA tone letters" data-i18n-opt="ipaToneLetters">IPA 固有声调</option><option>Yale</option><option value="Other" data-i18n-opt="other">Other</option></select>
+      <select id="transcriptionSystem"><option>Pinyin</option><option value="Jyutping" data-i18n-opt="jyutping">粤拼 / Jyutping</option><option value="Tâi-lô">台罗 / Tâi-lô</option><option value="Pe̍h-ōe-jī">白话字 / Pe̍h-ōe-jī</option><option value="Zhuyin" data-i18n-opt="zhuyin">注音符号 / Zhuyin</option><option value="IPA numeric tones" data-i18n-opt="ipaNumericTones">IPA + 数字声调</option><option value="IPA tone letters" data-i18n-opt="ipaToneLetters">IPA 固有声调</option><option>Yale</option><option value="Other" data-i18n-opt="other">Other</option></select>
       <div class="hint" data-i18n="transcriptionHint">为非普通话材料选择主要转写体系。</div>
+    </div>
+    <div class="field" id="nonMandarinAnnotationWrap" style="display:none">
+      <label for="nonMandarinAnnotation" data-i18n="otherTranscriptionSettings">其他注音设置</label>
+      <select id="nonMandarinAnnotation"><option value=""></option><option value="Chinese aligned gloss" data-i18n-opt="chineseGloss">汉语释义（逐词对齐）</option></select>
+      <div class="hint" data-i18n="chineseGlossHint">“汉语释义”保持原语序并与原文逐词对齐。</div>
     </div>
 
     <div class="divider"></div>
@@ -251,8 +243,10 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
           <label class="checkline"><input type="checkbox" id="showForm" checked><span data-i18n="form">原文</span></label>
           <label class="checkline"><input type="checkbox" id="showPinyin" checked><span data-i18n="pinyinOutput">拼音</span></label>
           <label class="checkline"><input type="checkbox" id="showTranscription"><span data-i18n="otherTranscriptionOutput">其他注音</span></label>
+          <label class="checkline"><input type="checkbox" id="showChineseGloss"><span data-i18n="chineseGloss">汉语释义</span></label>
           <label class="checkline"><input type="checkbox" id="showGloss" checked><span>Gloss</span></label>
           <label class="checkline"><input type="checkbox" id="showTranslation" checked><span data-i18n="freeTranslation">英语自由翻译</span></label>
+          <label class="checkline"><input type="checkbox" id="showChineseTranslation"><span data-i18n="chineseFreeTranslation">汉语自由翻译</span></label>
         </fieldset>
         <div class="number-controls">
           <div class="number-field"><label for="numberingMode" data-i18n="numberingMode">编号方式</label><select id="numberingMode"><option value="none" data-i18n-opt="noNumber">无编号</option><option value="continuous" data-i18n-opt="continuousNumber" selected>连续数字</option><option value="alphabetic" data-i18n-opt="alphabeticNumber">字母：(a)</option><option value="alphabetic-dot" data-i18n-opt="alphabeticDotNumber">字母：a.</option></select></div>
@@ -292,8 +286,10 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
                 <tr data-style-row="form"><th data-i18n="form">原文</th><td><select class="style-font" aria-label="原文字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="原文字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="原文加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="原文斜体"></label></td></tr>
                 <tr data-style-row="pinyin"><th data-i18n="pinyinOutput">拼音</th><td><select class="style-font" aria-label="拼音字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="拼音字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="拼音加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="拼音斜体"></label></td></tr>
                 <tr data-style-row="transcription"><th data-i18n="otherTranscriptionOutput">其他注音</th><td><select class="style-font" aria-label="其他注音字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="其他注音字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="其他注音加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="其他注音斜体"></label></td></tr>
+                <tr data-style-row="chineseGloss"><th data-i18n="chineseGloss">汉语释义</th><td><select class="style-font" aria-label="汉语释义字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="汉语释义字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="汉语释义加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="汉语释义斜体"></label></td></tr>
                 <tr data-style-row="gloss"><th>Gloss</th><td><select class="style-font" aria-label="Gloss 字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="Gloss 字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="Gloss 加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="Gloss 斜体"></label></td></tr>
                 <tr data-style-row="free"><th data-i18n="freeTranslation">英语自由翻译</th><td><select class="style-font" aria-label="英语翻译字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="英语翻译字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="英语翻译加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="英语翻译斜体"></label></td></tr>
+                <tr data-style-row="chineseFree"><th data-i18n="chineseFreeTranslation">汉语自由翻译</th><td><select class="style-font" aria-label="汉语自由翻译字体"></select></td><td><input class="style-size" type="number" min="6" max="72" step="0.5" aria-label="汉语自由翻译字号"></td><td class="type-toggle"><label><input class="style-bold" type="checkbox" aria-label="汉语自由翻译加粗"></label></td><td class="type-toggle"><label><input class="style-italic" type="checkbox" aria-label="汉语自由翻译斜体"></label></td></tr>
               </tbody>
             </table>
           </div>
@@ -371,6 +367,6 @@ html[lang="zh-Hant"] .brand-copy,html[lang="zh-Hant"] .brand-author,html[lang="z
   </div>
 </dialog>
 
-<script src="app-ui.js?build=20260816-2"></script>
+<script src="app-ui.js?build=20260818-1"></script>
 </body>
 </html>

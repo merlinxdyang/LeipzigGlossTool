@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?build=20260815-1">
+<title>Multilingual · Merlin's Leipzig Gloss Tool 2.0</title>
+<link rel="stylesheet" href="v2.css?build=20260818-1">
+<script src="typography.js?build=20260818-1"></script>
+<script src="batch.js?build=20260818-1"></script>
+<script src="interface-language.js?build=20260815-1"></script>
+<script src="ai-service.js?build=20260818-1"></script>
+</head>
+<body data-workspace="multilingual">
+<header class="topbar"><div class="topbar-inner">
+  <div class="brand"><img src="assets/gloss-tool-icon-256.png?build=20260815-1" alt="" width="44" height="44"><div class="brand-text"><div class="brand-copy">Merlin's Leipzig Gloss Tool</div><div class="brand-author">Developed by Merlin X. D. Yang</div></div><span class="version">v2.0</span></div>
+  <div class="top-actions"><nav class="nav-links" aria-label="工具页面"><a href="./">汉语</a><a href="multilingual.html" aria-current="page">多语言</a><a href="ai-services.html">AI 服务</a></nav><button id="btnDemo" type="button">载入示例</button><button id="btnHelp" type="button" data-i18n="help">使用说明</button><div class="language-switch" aria-label="界面语言"><button id="btnLangEn" type="button" data-lang="en">EN</button><button id="btnLangZh" type="button" data-lang="zh" class="active">简</button><button id="btnLangZhHant" type="button" data-lang="zh-Hant">正</button></div></div>
+</div></header>
+
+<div class="page workspace-page"><div class="workspace-shell">
+  <aside class="panel sidebar">
+    <div class="section-kicker">Configuration</div><h1 class="group-title" data-i18n="settings">项目设置</h1>
+    <h2 class="group-title" data-i18n="aiSettings">AI 服务</h2>
+    <div class="ai-summary"><strong id="aiServiceName">—</strong><span id="aiCredentialState">正在读取凭据状态…</span><a href="ai-services.html">管理 AI 服务与 API key</a></div>
+    <div class="status" id="apiStatus" role="status" aria-live="polite"></div>
+    <div class="divider"></div>
+    <h2 class="group-title" data-i18n="lingSettings">语言与转写</h2>
+    <div class="field"><label for="languagePreset" data-i18n="variety">语言</label><select id="languagePreset"><option value="japanese">日语</option><option value="german">德语</option><option value="french">法语</option><option value="spanish">西班牙语</option><option value="dutch">荷兰语</option><option value="sanskrit">梵语</option><option value="uyghur">维吾尔语</option><option value="mongolian">蒙古语</option><option value="tibetan">藏语</option></select></div>
+    <div class="field"><label for="scriptVariant">文字 / Script</label><select id="scriptVariant"><option value="ja-Jpan">日文原文</option></select></div>
+    <div class="field"><label for="inputFormat" data-i18n="inputFormat">输入格式</label><select id="inputFormat"><option value="hanzi">原文字</option><option value="romanized" data-i18n-opt="romanized">罗马字 / IPA</option></select></div>
+    <div id="customLanguageWrap" class="hidden"><input id="customLanguage" type="text"></div>
+    <div id="mandarinTranscriptionSettings" class="hidden"><input type="radio" name="pinyinMode" value="tone_marks" checked><select id="otherTranscriptionSystem"><option value=""></option></select></div>
+    <div class="field" id="transcriptionWrap"><label for="transcriptionSystem" data-primary-line-label>主要转写</label><select id="transcriptionSystem"><option>Modified Hepburn</option></select><div class="hint" data-i18n="transcriptionHint">选择主要转写体系。</div></div>
+    <div class="field" id="nonMandarinAnnotationWrap"><label for="nonMandarinAnnotation" data-i18n="otherTranscriptionSettings">其他注音设置</label><select id="nonMandarinAnnotation"><option value=""></option><option value="Chinese aligned gloss">汉语释义（逐词对齐）</option><option value="IPA">IPA</option><option value="Other">Other</option></select><div class="hint" data-i18n="chineseGlossHint">“汉语释义”保持原语序并与原文逐词对齐。</div></div>
+    <details><summary data-i18n="conventions">Gloss 约定（可修改）</summary><textarea id="conventions" rows="7">Follow the Leipzig Glossing Rules. Preserve user-supplied token and morpheme boundaries. Use concise English lexical glosses and uppercase grammatical abbreviations.</textarea></details>
+  </aside>
+
+  <main class="panel main">
+    <div class="main-head"><div><div class="section-kicker">Interlinear gloss</div><h1 data-i18n="input">输入例句</h1></div><div class="btnrow"><button id="btnImportTxt" type="button" data-i18n="importTxt">导入 TXT</button><input id="sentenceFile" type="file" accept=".txt,text/plain" hidden><button id="btnClear" type="button" data-i18n="clear">清空</button><button id="btnAnalyze" class="primary" type="button" data-i18n="analyze">生成 Gloss</button></div></div>
+    <textarea id="sentence" class="sentence" placeholder="ここ に 例文 を 入れます。" aria-describedby="segHint"></textarea><div class="hint" id="segHint" data-i18n="segHint">每行一个例句；请用空格标出最终词界。</div><div class="status" id="workStatus" role="status" aria-live="polite"></div>
+
+    <section class="preview-workspace hidden" id="previewWorkspace" aria-labelledby="previewTitle">
+      <div class="preview-controls"><fieldset><legend data-i18n="outputLines">输出行</legend>
+        <label class="checkline"><input type="checkbox" id="showForm" checked><span data-i18n="form">原文</span></label>
+        <label class="checkline"><input type="checkbox" id="showPinyin" checked><span data-primary-line-label>主要转写</span></label>
+        <label class="checkline"><input type="checkbox" id="showTranscription"><span data-i18n="otherTranscriptionOutput">其他注音</span></label>
+        <label class="checkline"><input type="checkbox" id="showChineseGloss"><span data-i18n="chineseGloss">汉语释义</span></label>
+        <label class="checkline"><input type="checkbox" id="showGloss" checked><span>Gloss</span></label>
+        <label class="checkline"><input type="checkbox" id="showTranslation" checked><span data-i18n="freeTranslation">英语自由翻译</span></label>
+        <label class="checkline"><input type="checkbox" id="showChineseTranslation"><span data-i18n="chineseFreeTranslation">汉语自由翻译</span></label>
+      </fieldset></div>
+      <div class="field"><label for="numberingMode" data-i18n="numberingMode">编号方式</label><select id="numberingMode"><option value="none" data-i18n-opt="noNumber">无编号</option><option value="continuous" selected data-i18n-opt="continuousNumber">连续数字</option><option value="alphabetic" data-i18n-opt="alphabeticNumber">字母：(a)</option><option value="alphabetic-dot" data-i18n-opt="alphabeticDotNumber">字母：a.</option></select></div>
+      <div id="startNumberWrap" class="field"><label for="startNumber" data-i18n="startNumber">起始数字</label><input id="startNumber" type="number" min="1" step="1" value="1"></div><div id="startLetterWrap" class="field hidden"><label for="startLetter" data-i18n="startLetter">起始字母</label><input id="startLetter" type="text" value="a"></div>
+      <div class="preview-canvas" id="preview"></div>
+      <div class="toolbar"><div class="btnrow"><button id="btnCopyTable" type="button" data-i18n="copyTable">复制表格</button><button id="btnCopyMD" type="button" data-i18n="copyMD">复制 HTML / MD</button><button id="btnSVG" type="button">SVG</button><button id="btnPNG" type="button" data-i18n="png">透明 PNG</button></div><div class="btnrow"><button id="btnOpen" type="button" data-i18n="openProject">打开</button><button id="btnSave" type="button" data-i18n="saveProject">保存</button><input id="fileOpen" type="file" accept="application/json,.json,.gloss" hidden></div></div>
+    </section>
+
+    <section class="workspace hidden" id="workspace"><div class="main-head"><h1 data-i18n="editResult">编辑结果</h1><span id="resultCount"></span></div><div class="editor-examples" id="editExamples"></div>
+      <details id="typographyPanel" open><summary data-i18n="typography">排版设置</summary><div class="field"><label class="checkline"><input id="rememberTypography" type="checkbox" checked><span data-i18n="rememberTypography">保持现有设置</span></label><button id="btnResetTypography" type="button" data-i18n="resetTypography">恢复默认</button></div>
+        <div style="overflow:auto"><table class="type-settings"><thead><tr><th data-i18n="outputLine">输出行</th><th data-i18n="font">字体</th><th data-i18n="fontSize">字号</th><th data-i18n="bold">加粗</th><th data-i18n="italic">斜体</th></tr></thead><tbody>
+          <tr data-style-row="form"><th data-i18n="form">原文</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
+          <tr data-style-row="pinyin"><th data-primary-line-label>主要转写</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
+          <tr data-style-row="transcription"><th data-i18n="otherTranscriptionOutput">其他注音</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
+          <tr data-style-row="chineseGloss"><th data-i18n="chineseGloss">汉语释义</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
+          <tr data-style-row="gloss"><th>Gloss</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
+          <tr data-style-row="free"><th data-i18n="freeTranslation">英语自由翻译</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
+          <tr data-style-row="chineseFree"><th data-i18n="chineseFreeTranslation">汉语自由翻译</th><td><select class="style-font"></select></td><td><input class="style-size" type="number" min="6" max="72" step=".5"></td><td><input class="style-bold" type="checkbox"></td><td><input class="style-italic" type="checkbox"></td></tr>
+        </tbody></table></div>
+      </details>
+    </section>
+  </main>
+</div></div>
+
+<dialog id="helpDialog"><div class="panel-body"><div class="btnrow" style="justify-content:flex-end"><button id="btnCloseHelp" type="button">关闭</button></div><div class="help-zh"><h2>多语言工作页</h2><p>选择语言与文字后，一行输入一个例句，并用空格标出最终词界。模型生成的转写、Gloss 和翻译都必须由研究者复核。</p></div><div class="help-zh-hant hidden"><h2>多語言工作頁</h2><p>選擇語言與文字後，每行輸入一個例句，並用空格標出最終詞界。</p></div><div class="help-en hidden"><h2>Multilingual workspace</h2><p>Select a language and script, enter one example per line, and mark final token boundaries with spaces.</p></div></div></dialog>
+<script src="app-ui.js?build=20260818-1"></script>
+</body>
+</html>

@@ -8,6 +8,45 @@ ROOT = Path(__file__).resolve().parent
 
 
 class SubdirectoryDeploymentTests(unittest.TestCase):
+    def test_v2_has_separate_multilingual_and_shared_ai_service_pages(self):
+        multilingual = (ROOT / "multilingual.html").read_text(encoding="utf-8")
+        services = (ROOT / "ai-services.html").read_text(encoding="utf-8")
+
+        self.assertIn('data-workspace="multilingual"', multilingual)
+        self.assertIn('id="languagePreset"', multilingual)
+        self.assertIn('id="credentialForm"', services)
+        self.assertIn('ai-service.js', multilingual)
+        self.assertIn('ai-service.js', services)
+
+    def test_v2_exposes_chinese_aligned_and_free_translation_controls(self):
+        html = (ROOT / "index.html").read_text(encoding="utf-8")
+        source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
+
+        self.assertIn('value="Chinese aligned gloss"', html)
+        self.assertIn('id="showChineseGloss"', html)
+        self.assertIn('id="showChineseTranslation"', html)
+        self.assertIn('chinese_free_translation', source)
+
+    def test_security_headers_and_credential_route_are_declared(self):
+        rules = (ROOT / ".htaccess").read_text(encoding="utf-8")
+        entrypoint = ROOT / "api" / "credentials" / "index.php"
+
+        self.assertIn("Content-Security-Policy", rules)
+        self.assertIn("Strict-Transport-Security", rules)
+        self.assertIn("Referrer-Policy", rules)
+        self.assertIn("credentials", rules)
+        self.assertTrue(entrypoint.is_file())
+        self.assertIn("'credentials'", entrypoint.read_text(encoding="utf-8"))
+
+    def test_sensitive_endpoints_enforce_same_origin_headers_and_rate_limits(self):
+        source = (ROOT / "api.php").read_text(encoding="utf-8")
+
+        self.assertIn("function require_v2_same_origin_request", source)
+        self.assertIn("HTTP_X_CLG_REQUEST", source)
+        self.assertIn("function enforce_rate_limit", source)
+        self.assertIn("enforce_rate_limit('credentials'", source)
+        self.assertIn("enforce_rate_limit($action, $action === 'gloss' ? 120 : 30", source)
+
     def test_numeric_start_field_enforces_a_positive_integer(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
@@ -24,7 +63,7 @@ class SubdirectoryDeploymentTests(unittest.TestCase):
             self.assertNotIn("Chinese Leipzig Gloss Tool", content, filename)
 
         html = (ROOT / "index.html").read_text(encoding="utf-8")
-        self.assertIn("<title>Merlin's Leipzig Gloss Tool 1.0</title>", html)
+        self.assertIn("<title>Merlin's Leipzig Gloss Tool 2.0</title>", html)
         self.assertIn('<div class="brand-copy">Merlin\'s Leipzig Gloss Tool</div>', html)
 
     def test_three_way_interface_language_switch_is_present(self):
@@ -66,8 +105,9 @@ class SubdirectoryDeploymentTests(unittest.TestCase):
         source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
 
         self.assertIn("'zh-Hant': 'zh-Hant'", source)
-        self.assertIn("$('.help-zh-hant').classList.toggle", source)
-        self.assertIn("$('.api-help-zh-hant').classList.toggle", source)
+        self.assertIn("['.help-zh-hant', 'zh-Hant']", source)
+        self.assertIn("['.api-help-zh-hant', 'zh-Hant']", source)
+        self.assertIn("element.classList.toggle('hidden'", source)
         self.assertIn("document.querySelectorAll('[data-lang]')", source)
 
     def test_language_change_applies_the_language_specific_ai_default(self):
@@ -160,16 +200,16 @@ class SubdirectoryDeploymentTests(unittest.TestCase):
     def test_api_key_application_dialog_is_wired_for_open_close_and_language_switching(self):
         source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
 
-        self.assertIn("$('#btnApiHelp').addEventListener('click'", source)
-        self.assertIn("$('#btnCloseApiHelp').addEventListener('click'", source)
-        self.assertIn("$('.api-help-zh').classList.toggle", source)
-        self.assertIn("$('.api-help-en').classList.toggle", source)
+        self.assertIn("if ($('#btnApiHelp')) $('#btnApiHelp').addEventListener('click'", source)
+        self.assertIn("if ($('#btnCloseApiHelp')) $('#btnCloseApiHelp').addEventListener('click'", source)
+        self.assertIn("['.api-help-zh', 'zh']", source)
+        self.assertIn("['.api-help-en', 'en']", source)
 
     def test_frontend_uses_subdirectory_relative_api_paths(self):
         source = (ROOT / "app-ui.js").read_text(encoding="utf-8")
 
-        self.assertIn("postJSON('api/validate/'", source)
         self.assertIn("postJSON('api/gloss/'", source)
+        self.assertIn("fetch('api/credentials/'", source)
         self.assertNotIn("postJSON('/api/", source)
 
     def test_php_api_has_physical_subdirectory_entrypoints(self):
@@ -181,10 +221,8 @@ class SubdirectoryDeploymentTests(unittest.TestCase):
     def test_litespeed_rewrite_maps_api_routes_to_php(self):
         rules = (ROOT / ".htaccess").read_text(encoding="utf-8")
 
-        self.assertIn(
-            "RewriteRule ^api/(validate|gloss)/?$ api.php?action=$1 [L,QSA]",
-            rules,
-        )
+        self.assertIn("RewriteRule ^api/(validate|gloss)/?$ api.php?action=$1 [L,QSA]", rules)
+        self.assertIn("RewriteRule ^api/(credentials)/?$ api.php?action=$1 [L,QSA]", rules)
 
     @unittest.skipUnless(shutil.which("php"), "PHP CLI is not installed")
     def test_php_backend_has_valid_syntax(self):

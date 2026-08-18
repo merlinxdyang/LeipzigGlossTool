@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?build=20260815-1">
+<title>AI 服务 · Merlin's Leipzig Gloss Tool 2.0</title>
+<link rel="stylesheet" href="v2.css?build=20260818-1">
+<script src="ai-service.js?build=20260818-1"></script>
+</head>
+<body data-page="ai-services">
+<header class="topbar"><div class="topbar-inner">
+  <div class="brand"><img src="assets/gloss-tool-icon-256.png?build=20260815-1" alt="" width="44" height="44"><div class="brand-text"><div class="brand-copy">Merlin's Leipzig Gloss Tool</div><div class="brand-author">Developed by Merlin X. D. Yang</div></div><span class="version">v2.0</span></div>
+  <div class="top-actions"><nav class="nav-links" aria-label="工具页面"><a href="./" data-i18n="siniticPage">汉语页面</a><a href="multilingual.html" data-i18n="multilingualPage">多语言页面</a><a href="ai-services.html" aria-current="page" data-i18n="aiServices">AI 服务</a></nav><div class="language-switch" aria-label="界面语言"><button type="button" data-lang="en">EN</button><button type="button" data-lang="zh" class="active">简</button><button type="button" data-lang="zh-Hant">正</button></div></div>
+</div></header>
+
+<main class="page">
+  <div class="page-heading"><div><h1 data-i18n="title">AI 服务中心</h1><p data-i18n="subtitle">两个工作页面共用服务商、模型和本浏览器中的加密凭据。</p></div></div>
+  <div class="settings-grid">
+    <section class="panel settings-card" aria-labelledby="credentialTitle">
+      <h2 id="credentialTitle" data-i18n="credentialTitle">配置或更新 API key</h2>
+      <form id="credentialForm">
+        <div class="field"><label for="provider" data-i18n="provider">服务商</label><select id="provider"><option value="deepseek">DeepSeek</option><option value="openai">OpenAI</option><option value="claude">Claude / Anthropic</option><option value="openrouter">OpenRouter</option></select></div>
+        <div class="field"><label for="model" data-i18n="model">模型名称</label><input id="model" type="text" autocomplete="off" required></div>
+        <div class="field"><label for="apiKey">API key</label><div class="key-row"><input id="apiKey" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" data-1p-ignore data-lpignore="true" required><button id="toggleKey" class="icon-button" type="button" aria-label="显示或隐藏 API key">◉</button></div><div class="hint" data-i18n="keyHint">验证成功后密封保存在此浏览器的 HttpOnly Cookie；网页脚本无法读取。</div></div>
+        <div class="field"><label class="checkline"><input id="rememberKey" type="checkbox"><span data-i18n="remember">在此浏览器记住 90 天；不勾选则关闭浏览器后失效</span></label></div>
+        <div class="btnrow"><button class="primary" type="submit" data-i18n="validateSave">验证并保存</button><button class="danger" id="deleteCredential" type="button" data-i18n="forget">忘记此服务商的 key</button></div>
+        <div class="status" id="credentialStatus" role="status" aria-live="polite"></div>
+      </form>
+    </section>
+    <aside class="panel settings-card" aria-labelledby="savedTitle">
+      <h2 id="savedTitle" data-i18n="savedTitle">本浏览器的凭据状态</h2>
+      <div class="provider-status" id="providerStatus"></div>
+      <div class="security-note"><h3 data-i18n="securityTitle">存储边界</h3><p data-i18n="securityText">服务器不建立用户 key 数据库。浏览器只保存认证加密后的密文；每次调用时 PHP 在内存中临时解密。</p></div>
+    </aside>
+  </div>
+</main>
+<script src="ai-services-ui.js?build=20260818-1"></script>
+</body>
+</html>
