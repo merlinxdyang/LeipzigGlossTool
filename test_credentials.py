@@ -77,6 +77,36 @@ class CredentialEnvelopeTests(unittest.TestCase):
         self.assertEqual(options["path"], "/clg/api/")
         self.assertGreater(options["expires"], 0)
 
+    def test_explicit_local_preview_mode_uses_one_loopback_cookie_across_both_pages(self):
+        output = call_php(
+            "$_SERVER['HTTP_HOST'] = '127.0.0.1:8766'; $_SERVER['REMOTE_ADDR'] = '127.0.0.1'; "
+            "$_SERVER['SCRIPT_NAME'] = '/api/credentials/index.php'; "
+            "echo json_encode(['name' => credential_cookie_name(), "
+            "'options' => credential_cookie_options(time() + 3600, true)]);",
+            env={"CLG_ALLOW_INSECURE_LOCAL_COOKIE": "1"},
+        )
+        result = json.loads(output)
+
+        self.assertEqual(result["name"], "clg-local-vault")
+        self.assertFalse(result["options"]["secure"])
+        self.assertEqual(result["options"]["path"], "/api/")
+        self.assertTrue(result["options"]["httponly"])
+        self.assertEqual(result["options"]["samesite"], "Strict")
+
+    def test_local_preview_flag_cannot_weaken_a_non_loopback_host(self):
+        output = call_php(
+            "$_SERVER['HTTP_HOST'] = 'ailinguistics.cloud'; $_SERVER['REMOTE_ADDR'] = '203.0.113.9'; "
+            "$_SERVER['SCRIPT_NAME'] = '/clg/api/credentials/index.php'; "
+            "echo json_encode(['name' => credential_cookie_name(), "
+            "'options' => credential_cookie_options(time() + 3600, true)]);",
+            env={"CLG_ALLOW_INSECURE_LOCAL_COOKIE": "1"},
+        )
+        result = json.loads(output)
+
+        self.assertEqual(result["name"], "__Secure-clg-vault")
+        self.assertTrue(result["options"]["secure"])
+        self.assertEqual(result["options"]["path"], "/clg/api/")
+
     def test_mandarin_keeps_legacy_prompt_while_multilingual_uses_extended_prompt(self):
         output = call_php(
             "$mandarin = build_request_prompt(['sentence' => '我 吃', 'language' => 'Mandarin Chinese']); "

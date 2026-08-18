@@ -41,6 +41,8 @@ Secure; HttpOnly; SameSite=Strict; Path=/clg/api/
 
 使用者可選擇只保留於目前瀏覽器工作階段，或主動勾選「保留 90 天」。伺服器不建立逐使用者 key 資料庫，但每次呼叫服務提供者時仍須在記憶體中暫時解密。
 
+僅供 HTTP 回環測試時，可在啟動 PHP 預覽服務時設定 `CLG_ALLOW_INSECURE_LOCAL_COOKIE=1`。只有 Host 與客戶端位址皆為 `localhost`、`127.0.0.1` 或 `::1` 時才會接受；所有非回環部署仍強制使用正式環境 Secure Cookie。
+
 部署前在伺服器 Web 根目錄之外設定 32 位元組隨機主密鑰：
 
 ```bash

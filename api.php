@@ -132,9 +132,41 @@ function decrypt_credential_vault(string $token): ?array
     }
 }
 
+function local_cookie_preview_enabled(): bool
+{
+    if ((string)(getenv('CLG_ALLOW_INSECURE_LOCAL_COOKIE') ?: '') !== '1') {
+        return false;
+    }
+    $hostHeader = strtolower(trim((string)($_SERVER['HTTP_HOST'] ?? '')));
+    if (substr($hostHeader, 0, 1) === '[') {
+        $end = strpos($hostHeader, ']');
+        $host = $end === false ? $hostHeader : substr($hostHeader, 1, $end - 1);
+    } else {
+        $host = explode(':', $hostHeader, 2)[0];
+    }
+    $remote = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+    return in_array($host, ['127.0.0.1', 'localhost', '::1'], true)
+        && in_array($remote, ['127.0.0.1', '::1'], true);
+}
+
+function credential_cookie_name(): string
+{
+    return local_cookie_preview_enabled() ? 'clg-local-vault' : CLG_CREDENTIAL_COOKIE;
+}
+
+function credential_cookie_path(): string
+{
+    if (local_cookie_preview_enabled()) {
+        return '/api/';
+    }
+    $script = (string)($_SERVER['SCRIPT_NAME'] ?? '/clg/api/credentials/index.php');
+    $marker = strpos($script, '/api/');
+    return $marker === false ? '/clg/api/' : substr($script, 0, $marker + 5);
+}
+
 function credential_vault_from_request(): ?array
 {
-    $token = (string)($_COOKIE[CLG_CREDENTIAL_COOKIE] ?? '');
+    $token = (string)($_COOKIE[credential_cookie_name()] ?? '');
     return $token === '' ? null : decrypt_credential_vault($token);
 }
 
@@ -142,8 +174,8 @@ function credential_cookie_options(int $expiresAt, bool $remember): array
 {
     return [
         'expires' => $remember ? $expiresAt : 0,
-        'path' => '/clg/api/',
-        'secure' => true,
+        'path' => credential_cookie_path(),
+        'secure' => !local_cookie_preview_enabled(),
         'httponly' => true,
         'samesite' => 'Strict',
     ];
@@ -151,12 +183,12 @@ function credential_cookie_options(int $expiresAt, bool $remember): array
 
 function set_credential_vault_cookie(array $payload, bool $remember): void
 {
-    setcookie(CLG_CREDENTIAL_COOKIE, encrypt_credential_vault($payload), credential_cookie_options((int)$payload['expires_at'], $remember));
+    setcookie(credential_cookie_name(), encrypt_credential_vault($payload), credential_cookie_options((int)$payload['expires_at'], $remember));
 }
 
 function clear_credential_vault_cookie(): void
 {
-    setcookie(CLG_CREDENTIAL_COOKIE, '', credential_cookie_options(time() - 3600, true));
+    setcookie(credential_cookie_name(), '', credential_cookie_options(time() - 3600, true));
 }
 
 function send_json(int $status, array $payload): void

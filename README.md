@@ -43,6 +43,8 @@ Secure; HttpOnly; SameSite=Strict; Path=/clg/api/
 
 Users may choose a browser-session cookie or opt into a 90-day cookie. The server keeps no per-user credential database, but it necessarily decrypts a key transiently in memory when making a provider request.
 
+For HTTP-only loopback testing, set `CLG_ALLOW_INSECURE_LOCAL_COOKIE=1` when starting the PHP preview server. This exception is accepted only when both Host and client address are `localhost`, `127.0.0.1`, or `::1`; non-loopback deployments always retain the secure production cookie.
+
 Before deployment, configure a random 32-byte master key outside the web root:
 
 ```bash
