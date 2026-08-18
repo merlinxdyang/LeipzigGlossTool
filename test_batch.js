@@ -2,11 +2,15 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
+  DEFAULT_OUTPUT_ORDER,
   exampleNumber,
   isTxtFilename,
+  moveOutputLayer,
   normalizeStartLetter,
   normalizeStartNumber,
+  normalizeOutputOrder,
   parseExampleLines,
+  placeOutputLayer,
   projectResults,
   tokenEditorItems,
 } = require('./batch.js');
@@ -72,4 +76,35 @@ test('responsive editor items keep every token and all aligned layers together',
     {index: 0, form: '张三', transcription: 'Zhang1san1', pinyin_diacritic: 'Zhāngsān', chinese_gloss: '张三', gloss: 'Zhangsan'},
     {index: 1, form: '把', transcription: 'ba3', pinyin_diacritic: 'bǎ', chinese_gloss: '把', gloss: 'BA'},
   ]);
+});
+
+test('output order accepts only known unique layers and appends missing layers safely', () => {
+  assert.deepEqual(DEFAULT_OUTPUT_ORDER, [
+    'form', 'pinyin', 'transcription', 'chinese-gloss', 'gloss', 'free', 'chinese-free',
+  ]);
+  assert.deepEqual(
+    normalizeOutputOrder(['gloss', 'form', 'gloss', '__proto__']),
+    ['gloss', 'form', 'pinyin', 'transcription', 'chinese-gloss', 'free', 'chinese-free'],
+  );
+  assert.deepEqual(normalizeOutputOrder('not-an-array'), DEFAULT_OUTPUT_ORDER);
+});
+
+test('output layers move left or right without changing the layer set', () => {
+  assert.deepEqual(
+    moveOutputLayer(DEFAULT_OUTPUT_ORDER, 'gloss', -1),
+    ['form', 'pinyin', 'transcription', 'gloss', 'chinese-gloss', 'free', 'chinese-free'],
+  );
+  assert.deepEqual(moveOutputLayer(DEFAULT_OUTPUT_ORDER, 'form', -1), DEFAULT_OUTPUT_ORDER);
+  assert.deepEqual(moveOutputLayer(DEFAULT_OUTPUT_ORDER, 'unknown', 1), DEFAULT_OUTPUT_ORDER);
+});
+
+test('drag placement can put an output layer before or after another layer', () => {
+  assert.deepEqual(
+    placeOutputLayer(DEFAULT_OUTPUT_ORDER, 'gloss', 'form', false),
+    ['gloss', 'form', 'pinyin', 'transcription', 'chinese-gloss', 'free', 'chinese-free'],
+  );
+  assert.deepEqual(
+    placeOutputLayer(DEFAULT_OUTPUT_ORDER, 'form', 'gloss', true),
+    ['pinyin', 'transcription', 'chinese-gloss', 'gloss', 'form', 'free', 'chinese-free'],
+  );
 });

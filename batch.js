@@ -1,6 +1,47 @@
 (function (root) {
   'use strict';
 
+  const DEFAULT_OUTPUT_ORDER = Object.freeze([
+    'form',
+    'pinyin',
+    'transcription',
+    'chinese-gloss',
+    'gloss',
+    'free',
+    'chinese-free',
+  ]);
+
+  function normalizeOutputOrder(order, fallback = DEFAULT_OUTPUT_ORDER) {
+    const allowed = new Set(DEFAULT_OUTPUT_ORDER);
+    const preferred = Array.isArray(fallback) ? fallback : DEFAULT_OUTPUT_ORDER;
+    const fallbackOrder = [...preferred, ...DEFAULT_OUTPUT_ORDER].filter((key, index, values) => (
+      allowed.has(key) && values.indexOf(key) === index
+    ));
+    if (!Array.isArray(order)) return [...fallbackOrder];
+    return [...order, ...fallbackOrder].filter((key, index, values) => (
+      allowed.has(key) && values.indexOf(key) === index
+    ));
+  }
+
+  function moveOutputLayer(order, key, offset) {
+    const normalized = normalizeOutputOrder(order);
+    const from = normalized.indexOf(key);
+    if (from < 0 || !Number.isInteger(offset)) return normalized;
+    const to = Math.max(0, Math.min(normalized.length - 1, from + offset));
+    if (to === from) return normalized;
+    normalized.splice(to, 0, normalized.splice(from, 1)[0]);
+    return normalized;
+  }
+
+  function placeOutputLayer(order, movedKey, targetKey, after = false) {
+    const normalized = normalizeOutputOrder(order);
+    if (movedKey === targetKey || !normalized.includes(movedKey) || !normalized.includes(targetKey)) return normalized;
+    const next = normalized.filter(key => key !== movedKey);
+    const targetIndex = next.indexOf(targetKey);
+    next.splice(targetIndex + (after ? 1 : 0), 0, movedKey);
+    return next;
+  }
+
   function parseExampleLines(text) {
     return String(text ?? '')
       .split(/\r?\n/)
@@ -64,11 +105,15 @@
   }
 
   const api = {
+    DEFAULT_OUTPUT_ORDER,
     exampleNumber,
     isTxtFilename,
+    moveOutputLayer,
     normalizeStartLetter,
     normalizeStartNumber,
+    normalizeOutputOrder,
     parseExampleLines,
+    placeOutputLayer,
     projectResults,
     tokenEditorItems,
   };
